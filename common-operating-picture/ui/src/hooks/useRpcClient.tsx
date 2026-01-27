@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import { TdfObject, QueryTdfObjectsRequest, UpdateTdfObjectRequest, UpdateTdfObjectResponse } from '@/proto/tdf_object/v1/tdf_object_pb';
 import { QueryTdfNotesRequest, TdfNote } from '@/proto/tdf_object/v1/tdf_note_pb';
 import { PartialMessage } from '@bufbuild/protobuf';
@@ -5,7 +6,7 @@ import { crpcClient, drpcClient } from '@/api/connectRpcClient';
 import { useTDF } from './useTdf';
 import { useAuth } from './useAuth';
 import DecryptWorker from '@/workers/decrypt.worker.ts?worker';
-import { config } from '@/config'
+import { config } from '@/config';
 
 export type TdfObjectResponse = {
   tdfObject: TdfObject;
@@ -16,7 +17,7 @@ export type TdfNotesResponse = {
   decryptedData: any;
 }
 
-// Web Worker Pool for Decryption
+// Web Worker Pool logic remains outside the hook to persist across renders
 const WORKER_POOL_SIZE = 4;
 const workerPool: Worker[] = [];
 let nextWorkerIndex = 0;
@@ -66,16 +67,21 @@ export function useRpcClient() {
   const { decrypt } = useTDF();
   const { user } = useAuth();
 
+  // Initialize workers once user is available
   if (!workersInitialized && user) {
     initializeWorkers(user);
   }
 
-  function clearTdfObjectCache() {
+  const authHeader = useMemo(() => ({
+    headers: { 'Authorization': user?.accessToken || '' }
+  }), [user?.accessToken]);
+
+  const clearTdfObjectCache = useCallback(() => {
     tdfObjectCache.clear();
     console.log("TDF Object Cache cleared.");
-  }
+  }, []);
 
-  async function transformTdfObject(tdfObject: TdfObject): Promise<TdfObjectResponse> {
+  const transformTdfObject = useCallback(async (tdfObject: TdfObject): Promise<TdfObjectResponse> => {
     const objectId = tdfObject.id;
 
     // Extract Dynamic Data (Plaintext Search Field)
@@ -141,13 +147,11 @@ export function useRpcClient() {
       const tdfBlobBuffer = tdfObject.tdfBlob!.buffer.slice(0);
       worker.postMessage({ tdfBlobBuffer }, [tdfBlobBuffer]);
     });
-  }
+  }, []);
 
-  async function transformNoteObject(tdfNote: TdfNote): Promise<TdfNotesResponse | null> {
+  const transformNoteObject = useCallback(async (tdfNote: TdfNote): Promise<TdfNotesResponse | null> => {
     try {
       const decryptedData = await decrypt(tdfNote.tdfBlob.buffer);
-
-      // Attempt to parse the decrypted data
       try {
         const parsedData = JSON.parse(decryptedData);
         return { tdfNote, decryptedData: parsedData };
@@ -157,49 +161,51 @@ export function useRpcClient() {
       }
     } catch (err) {
       console.error('Error decrypting data:', err);
-      return null; // Return null if decryption fails
+      return null;
     }
-  }
+  }, [decrypt]);
 
-
-  async function queryTdfObjects(request: PartialMessage<QueryTdfObjectsRequest>): Promise<TdfObjectResponse[]> {
-    const response = await crpcClient.queryTdfObjects(request, { headers: { 'Authorization': user?.accessToken || '' } });
+  const queryTdfObjects = useCallback(async (request: PartialMessage<QueryTdfObjectsRequest>): Promise<TdfObjectResponse[]> => {
+    const response = await crpcClient.queryTdfObjects(request, authHeader);
     const tdfObjectResponses = await Promise.all(response.tdfObjects.map(transformTdfObject));
-    // todo: replace this with filter(not null) once we can upgrade to latest TS version w/ type inference
-    return tdfObjectResponses.filter((tdfObjectResponse: TdfObjectResponse | null): tdfObjectResponse is TdfObjectResponse => tdfObjectResponse !== null);
-  }
+    return tdfObjectResponses.filter((res): res is TdfObjectResponse => res !== null);
+  }, [authHeader, transformTdfObject]);
 
-  async function queryTdfObjectsLight(request: PartialMessage<QueryTdfObjectsRequest>): Promise<TdfObject[]> {
-    const response = await crpcClient.queryTdfObjects(request, { headers: { 'Authorization': user?.accessToken || '' }});
+  const queryTdfObjectsLight = useCallback(async (request: PartialMessage<QueryTdfObjectsRequest>): Promise<TdfObject[]> => {
+    const response = await crpcClient.queryTdfObjects(request, authHeader);
     return response.tdfObjects;
-  }
+  }, [authHeader]);
 
-  async function updateTdfObject(request: PartialMessage<UpdateTdfObjectRequest>): Promise<UpdateTdfObjectResponse> {
-    const response = await crpcClient.updateTdfObject(request, { headers: { 'Authorization': user?.accessToken || '' } });
-    return response;
-  }
+  const updateTdfObject = useCallback(async (request: PartialMessage<UpdateTdfObjectRequest>): Promise<UpdateTdfObjectResponse> => {
+    return await crpcClient.updateTdfObject(request, authHeader);
+  }, [authHeader]);
 
-  async function queryNotes(request: PartialMessage<QueryTdfNotesRequest>): Promise<TdfNotesResponse[]> {
-    console.log("Request: ",request);
-    const response = await drpcClient.queryTdfNotes(request, { headers: { 'Authorization': user?.accessToken || '' } });
-    console.log('Response:', response);
+  const queryNotes = useCallback(async (request: PartialMessage<QueryTdfNotesRequest>): Promise<TdfNotesResponse[]> => {
+    const response = await drpcClient.queryTdfNotes(request, authHeader);
     const noteResponses = await Promise.all(response.tdfNotes.map(transformNoteObject));
+    return noteResponses.filter((res): res is TdfNotesResponse => res !== null);
+  }, [authHeader, transformNoteObject]);
 
-    // Filter to remove null values
-    return noteResponses.filter((tdfNoteResponse): tdfNoteResponse is TdfNotesResponse => tdfNoteResponse !== null);
-  }
-
-  return {
+  // Memoize the return object so the object reference itself is stable
+  return useMemo(() => ({
     queryNotes,
-    createNoteObject: drpcClient.createTdfNote,
+    createNoteObject: (req: any) => drpcClient.createTdfNote(req, authHeader),
     updateTdfObject,
     queryTdfObjects,
     queryTdfObjectsLight,
     transformTdfObject,
-    createTdfObject: crpcClient.createTdfObject,
+    createTdfObject: (req: any) => crpcClient.createTdfObject(req, authHeader),
     clearTdfObjectCache,
-    getSrcType: crpcClient.getSrcType,
-    listSrcTypes: crpcClient.listSrcTypes,
-    streamTdfObjects: crpcClient.streamTdfObjects,
-  };
+    getSrcType: (req: any) => crpcClient.getSrcType(req, authHeader),
+    listSrcTypes: (req: any) => crpcClient.listSrcTypes(req, authHeader),
+    streamTdfObjects: (req: any) => crpcClient.streamTdfObjects(req, authHeader),
+  }), [
+    queryNotes, 
+    updateTdfObject, 
+    queryTdfObjects, 
+    queryTdfObjectsLight, 
+    transformTdfObject, 
+    clearTdfObjectCache, 
+    authHeader
+  ]);
 }

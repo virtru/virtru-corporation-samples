@@ -11,7 +11,7 @@ import { CreateDialog } from './CreateDialog';
 import { SourceTypeSelector } from './SourceTypeSelector';
 import { SearchFilter } from './SearchFilter';
 import { SearchResults } from './SearchResults';
-import { SrcType, TdfObject} from '@/proto/tdf_object/v1/tdf_object_pb.ts';
+import { SrcType, TdfObject } from '@/proto/tdf_object/v1/tdf_object_pb.ts';
 import { config } from '@/config';
 import { TdfObjectsMapLayer } from '@/components/Map/TdfObjectsMapLayer';
 import { BannerContext } from '@/contexts/BannerContext';
@@ -28,7 +28,7 @@ export interface VehicleDataItem {
   pos: { lat: number; lng: number };
   rawObject: TdfObject;
   data?: {
-    vehicleName?: string | undefined;
+    vehicleName?: string;
     callsign?: string;
     origin?: string;
     destination?: string;
@@ -40,30 +40,24 @@ export interface VehicleDataItem {
     attrNeedToKnow?: string[];
     attrRelTo?: string[];
   };
-  }
+}
 
 export function SourceTypes() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [srcTypeId, setSrcTypeId] = useState<string | null>(null);
   const [selectable, setSelectable] = useState<boolean | null>();
-
   const [map, setMap] = useState<Map | null>(null);
-
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  const { getSrcType } = useRpcClient();
   const [srcType, setSrcType] = useState<SrcType>();
-
-  const { tdfObjects, setTdfObjects, activeEntitlements } = useContext(BannerContext);
-  const { queryTdfObjectsLight } = useRpcClient();
-
   const [vehicleData, setVehicleData] = useState<VehicleDataItem[]>([]);
   const [vehicleSrcType, setVehicleSrcType] = useState<SrcType>();
-  const vehicleSourceTypeId = "vehicles";
-
   const [poppedOutVehicle, setPoppedOutVehicle] = useState<TdfObjectResponse | null>(null);
 
+  const { getSrcType, queryTdfObjectsLight } = useRpcClient();
+  const { tdfObjects, setTdfObjects, activeEntitlements } = useContext(BannerContext);
   const { categorizedData } = useEntitlements();
+
+  const vehicleSourceTypeId = "vehicles";
 
   const filteredVehicleData = useMemo(() => {
     if (!activeEntitlements || activeEntitlements.size === 0 || activeEntitlements.has("NoAccess")) {
@@ -73,11 +67,8 @@ export function SourceTypes() {
     return vehicleData.filter(vehicle => {
       const classification = vehicle.data?.attrClassification;
       if (!classification) return true;
-
       const classStr = Array.isArray(classification) ? classification[0] : classification;
-      if (!classStr) return true;
-
-      return activeEntitlements.has(classStr);
+      return classStr ? activeEntitlements.has(classStr) : true;
     });
   }, [vehicleData, activeEntitlements]);
 
@@ -86,7 +77,7 @@ export function SourceTypes() {
       const { srcType } = await getSrcType({ srcType: id });
       setSrcType(srcType);
     } catch (err) {
-      console.warn(`'${id}' is not a valid soure type.`);
+      console.warn(`'${id}' is not a valid source type.`);
       setSrcType(undefined);
       setSearchParams(new URLSearchParams());
     }
@@ -116,21 +107,17 @@ export function SourceTypes() {
   };
 
   const handleFlyToClick = useCallback(({ lat, lng }: LatLng) => {
-    if (!map) {
-      return;
-    }
-    map.flyTo({ lat, lng }, map.getZoom());
+    if (map) map.flyTo({ lat, lng }, map.getZoom());
   }, [map]);
 
   const handleVehicleClick = useCallback((vehicle: VehicleDataItem) => {
-  console.log("Selected vehicle:", vehicle);
+    console.log("Selected vehicle:", vehicle);
   }, []);
 
   const fetchVehicles = useCallback(async (id: string) => {
     try {
       const tsRange = new TimestampSelector();
-
-      const dayjsStart = dayjs().subtract(24000, 'hour');
+      const dayjsStart = dayjs().subtract(24, 'hour');
       tsRange.greaterOrEqualTo = Timestamp.fromDate(dayjsStart.toDate());
 
       const response = await queryTdfObjectsLight({
@@ -138,46 +125,31 @@ export function SourceTypes() {
         tsRange: tsRange,
       });
 
-      // Transform the TdfObjectResponse into VehicleDataItem[]
-      const vehicleData: VehicleDataItem[] = response
-        .filter(o => o.geo) // Only include objects with geo data
+      const transformedData: VehicleDataItem[] = response
+        .filter(o => o.geo)
         .map(o => {
           const geoJson = JSON.parse(o.geo);
-
-          // GeoJSON Point coordinates are [longitude, latitude]
           const [lng, lat] = geoJson.coordinates;
 
           let telemetry = {};
           try {
-            if (o.metadata && o.metadata !== "null") {
-              telemetry = JSON.parse(o.metadata);
-            }
-          } catch (e) {
-            console.error("Metadata parse error", e);
-          }
+            if (o.metadata && o.metadata !== "null") telemetry = JSON.parse(o.metadata);
+          } catch (e) { console.error("Metadata parse error", e); }
 
           let attributes = {};
-          //console.log("Search field:", o.search);
           try {
-            if (o.search && o.search !== "null") {
-              attributes = JSON.parse(o.search);
-            }
-          } catch (e) {
-              console.error("Search field parse error", e);
-          }
+            if (o.search && o.search !== "null") attributes = JSON.parse(o.search);
+          } catch (e) { console.error("Search field parse error", e); }
 
           return {
-            id: o.id, // Use the TDF object ID as the marker ID
-            // Convert to { lat: number, lng: number }
+            id: o.id,
             pos: { lat, lng },
             rawObject: o,
             data: { ...telemetry, ...attributes },
           };
         });
 
-      //console.log('Vehicle data fetched:', vehicleData);
-
-      setVehicleData(vehicleData);
+      setVehicleData(transformedData);
     } catch (error) {
       console.error('Error fetching vehicles:', error);
       setVehicleData([]);
@@ -185,7 +157,7 @@ export function SourceTypes() {
   }, [queryTdfObjectsLight]);
 
   useEffect(() => {
-    // Fetch the vehicles schema
+    if (vehicleSrcType) return;
     const getVehicleSchema = async () => {
       try {
         const { srcType } = await getSrcType({ srcType: vehicleSourceTypeId });
@@ -194,43 +166,36 @@ export function SourceTypes() {
         console.error("Failed to fetch vehicle source type schema", err);
       }
     };
-
     getVehicleSchema();
-  }, [getSrcType, fetchVehicles]);
+  }, [getSrcType, vehicleSrcType]);
 
-  // New useEffect to fetch the data on component mount
   useEffect(() => {
+    fetchVehicles(vehicleSourceTypeId);
+  }, [fetchVehicles]);
+
+  useEffect(() => {
+    const REFRESH_INTERVAL_MS = 5000;
+    const intervalId = setInterval(() => {
       fetchVehicles(vehicleSourceTypeId);
-  }, []);
-
-  // Refresh vehicle data every so often
-  useEffect(() => {
-
-    const REFRESH_INTERVAL_MS = 1000;
-
-    const intervalId = setInterval(async () => {
-      console.log("Refreshing vehicle data...", vehicleSourceTypeId);
-      await fetchVehicles(vehicleSourceTypeId);
     }, REFRESH_INTERVAL_MS);
-
     return () => clearInterval(intervalId);
-  }, []);
-
+  }, [fetchVehicles]);
 
   useEffect(() => {
     const type = searchParams.get('type');
     const select = searchParams.get('select');
     const mode = searchParams.get('mode');
 
-    setSrcTypeId(type);
     setSelectable(select !== 'false');
 
     if (!type) {
       setSrcType(undefined);
+      setSrcTypeId(null);
       return;
     }
 
     if (type !== srcTypeId) {
+      setSrcTypeId(type);
       setTdfObjects([]);
       fetchSrcType(type);
     }
@@ -335,9 +300,7 @@ export function SourceTypes() {
                   tdfObjectResponse={poppedOutVehicle}
                   categorizedData={categorizedData || {}}
                   onFlyToClick={handleFlyToClick}
-                  onNotesUpdated={(objectId, notes) => {
-                    console.log(`Notes updated for ${objectId}`, notes);
-                  }}
+                  onNotesUpdated={(objectId, notes) => console.log(objectId, notes)}
                 />
               </SourceTypeProvider>
             </Box>
