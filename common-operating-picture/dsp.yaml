@@ -4,7 +4,7 @@ issuerEndpoint: &issuerEndpoint https://local-dsp.virtru.com:8443/auth/realms/op
 tokenEndpoint: &tokenEndpoint https://local-dsp.virtru.com:8443/auth/realms/opentdf/protocol/openid-connect/token
 entityResolutionServiceUrl: &entityResolutionServiceUrl https://local-dsp.virtru.com:8080/entityresolution/resolve
 platformEndoint: &platformEndpoint https://local-dsp.virtru.com:8080
-taggingEndpoint: &taggingEndpoint localhost:9001
+taggingEndpoint: &taggingEndpoint local-dsp.virtru.com:8080
 mode: all # default mode is all
 
 logger:

@@ -33,9 +33,10 @@ type Props = {
   categorizedData: Record<string, string[]>;
   onFlyToClick: (location: LatLng) => void;
   onNotesUpdated: (objectId: string, notes: NoteAttributeData[]) => void;
+  notesOnly?: boolean; // When true, only show notes section without vehicle details
 };
 
-export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyToClick, onNotesUpdated }: Props) {
+export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyToClick, onNotesUpdated, notesOnly = false }: Props) {
   const { displayFields, getFieldTitle } = useSourceType();
   const { encrypt } = useTDF();
   const { createNoteObject, queryNotes } = useRpcClient();
@@ -114,6 +115,7 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
   };
 
     // Submits the note along with selected attributes
+  // Submits the note along with selected attributes
   const handleNoteSubmit = async () => {
     // Validation Checks
     // Ensure note text is not empty and classification is selected if required
@@ -121,13 +123,13 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
     const classificationSelected = localSelectedValues['classification'];
 
     if (!trimmedNoteText) {
-      window.alert("Note Submission Error: Note needs to have text, cannot be empty.");
+      window.alert('Note Submission Error: Note needs to have text, cannot be empty.');
       return;
     }
 
     const hasClassificationEntitlements = Object.keys(categorizedData).includes('classification');
     if (hasClassificationEntitlements && !classificationSelected) {
-      window.alert("Note Submission Error: Must have a classification attribute selected.");
+      window.alert('Note Submission Error: Must have a classification attribute selected.');
       return;
     }
 
@@ -164,7 +166,7 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
 
     // Check entitlements for the selected relTo before submission
     if (checkRelToEntitlements(attrs.attrRelto, activeEntitlements)) {
-      window.alert("You do not have the required RelTo entitlements to submit this note.");
+      window.alert('You do not have the required RelTo entitlements to submit this note.');
       return;
     }
 
@@ -172,7 +174,7 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
     const tdfBlob = await encrypt(JSON.stringify(trimmedNoteText), Object.values(attrs).flat());
 
     // Ensure search is either a valid stringified object or null if empty
-    const search = Object.keys(attrs).some(key => attrs[key].length > 0) ? JSON.stringify(attrs) : "";
+    const search = Object.keys(attrs).some(key => attrs[key].length > 0) ? JSON.stringify(attrs) : '';
 
     const tdfNote: PartialMessage<CreateTdfNoteRequest> = {
       parentId: o.tdfObject.id,
@@ -185,6 +187,7 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
 
     // Re-fetch notes and update parent
     setNoteText(''); // Clear text box
+    setLocalSelectedValues({}); // Reset dropdown selections to empty
 
     // Must indicate that this fetch is due to a note submission
     await fetchNotes(o.tdfObject.id, true);
@@ -208,7 +211,7 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
   };
 
   const renderDetailsAndNotes = () => {
-    const details = (displayFields?.details || []).map((field) => {
+    const details = notesOnly ? null : (displayFields?.details || []).map((field) => {
       let value = propertyOf(o.decryptedData)(field);
       if (typeof value === 'object' && value !== null) {
         if ('country' in value) {
@@ -228,7 +231,7 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
         if (!attrArray || attrArray.length === 0) return '';
         const values = attrArray.map(attrUrl => attrUrl.split('/').pop()).filter(v => v && v.trim() !== '');
         return values.length > 0 ? `${prefix}${values.join(' // ')}` : '';
-    }
+    };
 
     const notes = objectNotes.length > 0 ? (
       objectNotes.map((note, index) => {
@@ -236,7 +239,7 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
         try {
           parsedNote = JSON.parse(note.tdfNote.search);
         } catch (e) {
-          console.error("Failed to parse note:", e);
+          console.error('Failed to parse note:', e);
         }
 
         const classificationControl = extractAndJoin(parsedNote.attrClassification);
@@ -248,20 +251,17 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
         const controlsDisplay = `${classificationControl}${needToKnowControls}${relToControls}`;
 
         return (
-          <Box key={`${o.tdfObject.id}-note-${index}`} sx={{ wordBreak: 'break-all', marginTop: 2 }}>
-            <strong>Note {index + 1}: {note.decryptedData}</strong>
-            {
-              <Box>
-                {/* Display the combined controls */}
-                <strong>Control Set:</strong> {controlsDisplay}
-              </Box>
-            }
+          <Box key={`${o.tdfObject.id}-note-${index}`} sx={{ wordBreak: 'break-all', marginTop: 2, p: 1.5, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 1 }}>
+            <Typography variant="body1" sx={{ fontWeight: 600, color: 'white', mb: 0.5 }}>Note {index + 1}: {note.decryptedData}</Typography>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+              <strong>Control Set:</strong> {controlsDisplay}
+            </Typography>
           </Box>
         );
       })
     ) : (
-      <Box sx={{ marginTop: 2, color: 'gray' }}>
-        <em>No notes available for this object</em>
+      <Box sx={{ marginTop: 2, p: 1.5, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+        <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.5)', fontStyle: 'italic' }}>No notes available for this object</Typography>
       </Box>
     );
 
@@ -274,6 +274,114 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
 
   if (isLoading) {
     return null;
+  }
+
+  // Simplified view for sidebar - only notes, no vehicle details
+  if (notesOnly) {
+    return (
+      <Box key={o.tdfObject.id}>
+        <ObjectBanner
+          objClassification={objClass}
+          objNTK={objNTK}
+          objRel={objRel}
+          notes={objectNotes}
+        />
+        {renderDetailsAndNotes()}
+        <Box sx={{ mt: 2 }}>
+          <TextField
+            label="Add Note"
+            value={noteText}
+            onChange={handleNoteChange}
+            fullWidth
+            multiline
+            rows={3}
+            variant="outlined"
+            sx={{ 
+              mb: 2,
+              '& .MuiOutlinedInput-root': {
+                color: 'white',
+                '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' },
+                '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.5)' },
+                '&.Mui-focused fieldset': { borderColor: 'primary.main' },
+              },
+              '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
+              '& .MuiInputLabel-root.Mui-focused': { color: 'primary.main' },
+            }}
+          />
+          <Button
+            onClick={handleNoteSubmit}
+            variant="contained"
+            color="primary"
+            sx={{ width: '100%' }}
+            disabled={!noteText.trim()}
+          >
+            Save Note
+          </Button>
+        </Box>
+
+        {/* Dynamic Dropdowns */}
+        <Box sx={{ mt: 2 }}>
+          {Object.keys(categorizedData).map((category) => {
+            const isRelTo = category.toLowerCase() === 'relto';
+            const isMultiSelect = category === 'needtoknow' || isRelTo;
+            const options = isRelTo ? Object.keys(reltoMap) : categorizedData[category];
+            const currentValue = localSelectedValues[category] || (isMultiSelect ? [] : '');
+
+            const darkInputStyles = {
+              '& .MuiOutlinedInput-root': {
+                color: 'white',
+                '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' },
+                '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.5)' },
+                '&.Mui-focused fieldset': { borderColor: 'primary.main' },
+              },
+              '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
+              '& .MuiInputLabel-root.Mui-focused': { color: 'primary.main' },
+              '& .MuiSvgIcon-root': { color: 'rgba(255,255,255,0.7)' },
+            };
+
+            if (isMultiSelect) {
+              return (
+                <Box key={category} sx={{ mb: 2 }}>
+                  <Autocomplete
+                    multiple
+                    options={options}
+                    getOptionLabel={(option) => isRelTo ? reltoMap[option]?.label || option : option}
+                    value={Array.isArray(currentValue) ? currentValue : []}
+                    onChange={(_, newValue) => handleDropdownChange(category, newValue)}
+                    sx={darkInputStyles}
+                    renderInput={(params) => (
+                      <TextField {...params} variant="outlined" label={category.charAt(0).toUpperCase() + category.slice(1)} placeholder="Select..." />
+                    )}
+                    renderTags={(tagValue, getTagProps) =>
+                      tagValue.map((option, index) => (
+                        <Chip label={isRelTo ? reltoMap[option]?.label || option : option} {...getTagProps({ index })} size="small" sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }} />
+                      ))
+                    }
+                  />
+                </Box>
+              );
+            }
+
+            return (
+              <Box key={category} sx={{ mb: 2 }}>
+                <FormControl fullWidth variant="outlined" sx={darkInputStyles}>
+                  <InputLabel>{category.charAt(0).toUpperCase() + category.slice(1)}</InputLabel>
+                  <Select
+                    label={category.charAt(0).toUpperCase() + category.slice(1)}
+                    value={currentValue}
+                    onChange={(e) => handleDropdownChange(category, e.target.value as string)}
+                  >
+                    {options.map((key) => (
+                      <MenuItem key={key} value={key}>{key}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+            );
+          })}
+        </Box>
+      </Box>
+    );
   }
 
   return (

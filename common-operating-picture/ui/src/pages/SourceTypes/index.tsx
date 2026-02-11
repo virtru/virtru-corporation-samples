@@ -2,9 +2,9 @@ import { useEffect, useState, useContext, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { LayersControl, MapContainer, TileLayer } from 'react-leaflet';
 import { LatLng, Map } from 'leaflet';
-import { Box, Button, Grid, IconButton, Typography } from '@mui/material';
+import { Box, Button, Grid, IconButton, Typography, Divider } from '@mui/material';
 import { AddCircle } from '@mui/icons-material';
-import { TdfObjectResponse, useRpcClient } from '@/hooks/useRpcClient';
+import {  useRpcClient } from '@/hooks/useRpcClient';
 import { PageTitle } from '@/components/PageTitle';
 import { SourceTypeProvider } from './SourceTypeProvider';
 import { CreateDialog } from './CreateDialog';
@@ -16,12 +16,23 @@ import { config } from '@/config';
 import { TdfObjectsMapLayer } from '@/components/Map/TdfObjectsMapLayer';
 import { BannerContext } from '@/contexts/BannerContext';
 import { VehicleLayer } from '@/components/Map/VehicleLayer';
+import { VehiclePopOutResponse } from '@/components/Map/Vehicle';
 import { TimestampSelector } from '@/proto/tdf_object/v1/tdf_object_pb.ts';
 import { Timestamp } from '@bufbuild/protobuf';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
+import FlightIcon from '@mui/icons-material/Flight';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import AltRouteIcon from '@mui/icons-material/AltRoute';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
+import SecurityIcon from '@mui/icons-material/Security';
 import { TdfObjectResult } from './TdfObjectResult';
 import { useEntitlements } from '@/hooks/useEntitlements';
+import { ObjectBanner } from '@/components/ObjectBanner';
+import { extractValues } from '@/contexts/BannerContext';
+import { ManifestDisplay, ManifestLoader } from '@/components/ManifestDisplay';
+import { MilitaryManifest } from '@/services/s4Service';
 
 export interface VehicleDataItem {
   id: string;
@@ -51,16 +62,17 @@ export function SourceTypes() {
   const [srcType, setSrcType] = useState<SrcType>();
   const [vehicleData, setVehicleData] = useState<VehicleDataItem[]>([]);
   const [vehicleSrcType, setVehicleSrcType] = useState<SrcType>();
-  const [poppedOutVehicle, setPoppedOutVehicle] = useState<TdfObjectResponse | null>(null);
+  const [poppedOutVehicle, setPoppedOutVehicle] = useState<VehiclePopOutResponse | null>(null);
+  const [sidebarManifest, setSidebarManifest] = useState<MilitaryManifest | null>(null);
 
   const { getSrcType, queryTdfObjectsLight } = useRpcClient();
   const { tdfObjects, setTdfObjects, activeEntitlements } = useContext(BannerContext);
   const { categorizedData } = useEntitlements();
 
-  const vehicleSourceTypeId = "vehicles";
+  const vehicleSourceTypeId = 'vehicles';
 
   const filteredVehicleData = useMemo(() => {
-    if (!activeEntitlements || activeEntitlements.size === 0 || activeEntitlements.has("NoAccess")) {
+    if (!activeEntitlements || activeEntitlements.size === 0 || activeEntitlements.has('NoAccess')) {
       return vehicleData;
     }
 
@@ -111,7 +123,13 @@ export function SourceTypes() {
   }, [map]);
 
   const handleVehicleClick = useCallback((vehicle: VehicleDataItem) => {
-    console.log("Selected vehicle:", vehicle);
+    console.log('Selected vehicle:', vehicle);
+  }, []);
+
+  const handlePopOut = useCallback((response: VehiclePopOutResponse) => {
+    setPoppedOutVehicle(response);
+    // Reset sidebar manifest - will use manifest from response if available, otherwise allow loading
+    setSidebarManifest(response.manifest || null);
   }, []);
 
   const fetchVehicles = useCallback(async (id: string) => {
@@ -133,13 +151,13 @@ export function SourceTypes() {
 
           let telemetry = {};
           try {
-            if (o.metadata && o.metadata !== "null") telemetry = JSON.parse(o.metadata);
-          } catch (e) { console.error("Metadata parse error", e); }
+            if (o.metadata && o.metadata !== 'null') telemetry = JSON.parse(o.metadata);
+          } catch (e) { console.error('Metadata parse error', e); }
 
           let attributes = {};
           try {
-            if (o.search && o.search !== "null") attributes = JSON.parse(o.search);
-          } catch (e) { console.error("Search field parse error", e); }
+            if (o.search && o.search !== 'null') attributes = JSON.parse(o.search);
+          } catch (e) { console.error('Search field parse error', e); }
 
           return {
             id: o.id,
@@ -163,7 +181,7 @@ export function SourceTypes() {
         const { srcType } = await getSrcType({ srcType: vehicleSourceTypeId });
         setVehicleSrcType(srcType);
       } catch (err) {
-        console.error("Failed to fetch vehicle source type schema", err);
+        console.error('Failed to fetch vehicle source type schema', err);
       }
     };
     getVehicleSchema();
@@ -173,8 +191,16 @@ export function SourceTypes() {
     fetchVehicles(vehicleSourceTypeId);
   }, [fetchVehicles]);
 
+  // Close sidebar when classification level changes to prevent showing data above current clearance
   useEffect(() => {
-    const REFRESH_INTERVAL_MS = 5000;
+    if (poppedOutVehicle) {
+      setPoppedOutVehicle(null);
+      setSidebarManifest(null);
+    }
+  }, [activeEntitlements]);
+
+  useEffect(() => {
+    const REFRESH_INTERVAL_MS = 1000;
     const intervalId = setInterval(() => {
       fetchVehicles(vehicleSourceTypeId);
     }, REFRESH_INTERVAL_MS);
@@ -222,7 +248,7 @@ export function SourceTypes() {
                 {/* Base Layers */}
                 <LayersControl.BaseLayer checked name="Street">
                   <TileLayer
-                    url={config.tileServerUrl || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+                    url={config.tileServerUrl || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'}
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   />
                 </LayersControl.BaseLayer>
@@ -247,7 +273,7 @@ export function SourceTypes() {
                       key={`vehicles-${activeEntitlements.size}`}
                       vehicleData={filteredVehicleData}
                       onMarkerClick={handleVehicleClick}
-                      onPopOut={setPoppedOutVehicle}
+                      onPopOut={handlePopOut}
                     />
                   </LayersControl.Overlay>
                 )}
@@ -275,25 +301,150 @@ export function SourceTypes() {
             bottom: 20,
             right: 20,
             zIndex: 1000,
-            width: 450,
+            width: 520,
+            maxHeight: '85vh',
             boxShadow: 3,
             borderRadius: 1,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }}>
+            {/* Header */}
             <Box className="window-header" sx={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              p: 1,
+              p: 2,
               bgcolor: 'primary.main',
-              color: 'white'
+              color: 'white',
+              flexShrink: 0,
             }}>
-              <Typography variant="subtitle2">Vehicle Details & Notes</Typography>
-              <IconButton size="small" onClick={() => setPoppedOutVehicle(null)} sx={{ color: 'white' }}>
-                <CloseIcon fontSize="small" />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <FlightIcon />
+                <Typography variant="h6" fontWeight={600}>Vehicle Details & Notes</Typography>
+              </Box>
+              <IconButton size="small" onClick={() => { setPoppedOutVehicle(null); setSidebarManifest(null); }} sx={{ color: 'white' }}>
+                <CloseIcon />
               </IconButton>
             </Box>
-            <Box sx={{ p: 2, maxHeight: '60vh', overflowY: 'auto', bgcolor: 'background.paper' }}>
+
+            {/* Scrollable Content */}
+            <Box sx={{ p: 2, overflowY: 'auto', flex: 1, bgcolor: 'background.paper' }}>
+              {/* Classification Banner */}
+              <ObjectBanner 
+                objClassification={extractValues(poppedOutVehicle.decryptedData?.attrClassification || []).split(', ').filter(Boolean).length > 0 
+                  ? extractValues(poppedOutVehicle.decryptedData?.attrClassification || []).split(', ').filter(Boolean) 
+                  : ['N/A']} 
+                objNTK={extractValues(poppedOutVehicle.decryptedData?.attrNeedToKnow || []).split(', ').filter(Boolean)}
+                objRel={extractValues(poppedOutVehicle.decryptedData?.attrRelTo || []).split(', ').filter(Boolean)}
+                notes={[]}
+              />
+
+              {/* Vehicle Header */}
+              <Box sx={{ mt: 2, mb: 2 }}>
+                <Typography variant="h5" fontWeight={600} sx={{ color: 'white' }}>
+                  {poppedOutVehicle.decryptedData?.vehicleName || `ID: ${poppedOutVehicle.tdfObject.id.substring(0, 8)}`}
+                </Typography>
+                <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                  Callsign: {poppedOutVehicle.decryptedData?.callsign || 'N/A'}
+                </Typography>
+              </Box>
+
+              <Divider sx={{ mb: 2, borderColor: 'rgba(255,255,255,0.2)' }} />
+
+              {/* Telemetry Section */}
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 1.5, borderBottom: '2px solid', borderColor: 'primary.main', pb: 0.5, color: 'white' }}>Telemetry</Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
+                  <TrendingUpIcon sx={{ color: 'white' }} />
+                  <Box>
+                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>Speed</Typography>
+                    <Typography variant="h6" fontWeight={600} sx={{ color: 'white' }}>{poppedOutVehicle.decryptedData?.speed || 'N/A'}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
+                  <TrendingUpIcon sx={{ color: 'white' }} />
+                  <Box>
+                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>Altitude</Typography>
+                    <Typography variant="h6" fontWeight={600} sx={{ color: 'white' }}>{poppedOutVehicle.decryptedData?.altitude || 'N/A'}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
+                  <GpsFixedIcon sx={{ color: 'white' }} />
+                  <Box>
+                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>Heading</Typography>
+                    <Typography variant="h6" fontWeight={600} sx={{ color: 'white' }}>{poppedOutVehicle.decryptedData?.heading || 'N/A'}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
+                  <FlightIcon sx={{ color: 'white' }} />
+                  <Box>
+                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>Aircraft Type</Typography>
+                    <Typography variant="h6" fontWeight={600} sx={{ color: 'white' }}>{poppedOutVehicle.decryptedData?.aircraft_type || 'N/A'}</Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Flight Details Section */}
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 1.5, borderBottom: '2px solid', borderColor: 'primary.main', pb: 0.5, color: 'white' }}>Flight Details</Typography>
+              <Box sx={{ mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 1 }}>
+                  <AltRouteIcon sx={{ color: 'white' }} />
+                  <Box>
+                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>Origin</Typography>
+                    <Typography variant="h6" fontWeight={600} sx={{ color: 'white' }}>{poppedOutVehicle.decryptedData?.origin || 'N/A'}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1, mb: 1 }}>
+                  <AltRouteIcon sx={{ color: 'white' }} />
+                  <Box>
+                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>Destination</Typography>
+                    <Typography variant="h6" fontWeight={600} sx={{ color: 'white' }}>{poppedOutVehicle.decryptedData?.destination || 'N/A'}</Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
+                  <MyLocationIcon sx={{ color: 'white' }} />
+                  <Box>
+                    <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>Coordinates</Typography>
+                    <Typography variant="h6" fontWeight={600} fontFamily="monospace" sx={{ color: 'white' }}>
+                      {poppedOutVehicle.tdfObject.geo 
+                        ? (() => {
+                            try {
+                              const geo = JSON.parse(poppedOutVehicle.tdfObject.geo);
+                              return `${geo.coordinates[1].toFixed(4)}, ${geo.coordinates[0].toFixed(4)}`;
+                            } catch { return 'N/A'; }
+                          })()
+                        : 'N/A'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.2)' }} />
+
+              {/* Intelligence Manifest Section */}
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 1.5, borderBottom: '2px solid', borderColor: 'primary.main', pb: 0.5, display: 'flex', alignItems: 'center', gap: 1, color: 'white' }}>
+                <SecurityIcon />
+                Classified Information
+              </Typography>
+
+              {/* Use manifest from popup if available, otherwise allow loading */}
+              {poppedOutVehicle.manifest ? (
+                <ManifestDisplay manifest={poppedOutVehicle.manifest} />
+              ) : sidebarManifest ? (
+                <ManifestDisplay manifest={sidebarManifest} />
+              ) : (
+                <ManifestLoader 
+                  manifestUri={poppedOutVehicle.manifestUri}
+                  manifest={sidebarManifest}
+                  onManifestLoaded={(m) => setSidebarManifest(m)}
+                />
+              )}
+
+              <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.2)' }} />
+
+              {/* Notes Section - using TdfObjectResult */}
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 1.5, borderBottom: '2px solid', borderColor: 'primary.main', pb: 0.5, color: 'white' }}>Notes & Annotations</Typography>
               <SourceTypeProvider srcType={vehicleSrcType}>
                 <TdfObjectResult
                   key={poppedOutVehicle.tdfObject.id}
@@ -301,6 +452,7 @@ export function SourceTypes() {
                   categorizedData={categorizedData || {}}
                   onFlyToClick={handleFlyToClick}
                   onNotesUpdated={(objectId, notes) => console.log(objectId, notes)}
+                  notesOnly={true}
                 />
               </SourceTypeProvider>
             </Box>

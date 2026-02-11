@@ -1,0 +1,28 @@
+services:
+  s4:
+    image: ${S4_IMAGE:-localhost:5000/virtru/s4proxy:v1.6.0}
+    restart: always
+    command: ["start","-f","/app/config.yaml"]
+    depends_on:
+      dsp:
+        condition: service_healthy
+        restart: true
+    ports:
+      - ${S4_PORT:-7070}:7070
+    volumes:
+      - ./s4-dev-localstack.yaml:/app/config.yaml
+      - ../dsp-keys/rootCA.pem:/app/certs/rootCA.pem
+    extra_hosts:
+      # - "${KEYCLOAK_HOSTNAME:-local-dsp.virtru.com}:host-gateway"
+      - "${PLATFORM_HOSTNAME:-local-dsp.virtru.com}:host-gateway"
+      - "${LOCALSTACK_HOSTNAME:-local-s4.virtru.com}:host-gateway" 
+      - "cop-demo.${LOCALSTACK_HOSTNAME:-local-s4.virtru.com}:host-gateway" 
+
+    # network_mode: host
+    environment:
+      - SSL_CERT_DIR=/app/certs
+      - S4PROXY_BACKEND_CLIENTSECRET=${S4_CLIENT_SECRET:-secret}
+      - S4PROXY_BACKEND_CLIENTID=${S4_CLIENT_ID:-secure-object-proxy}
+      - S4PROXY_AUTH_STS_CLIENTSECRET=${S4_CLIENT_SECRET:-secret}
+      - S4PROXY_AUTH_STS_CLIENTID=${S4_CLIENT_ID:-secure-object-proxy}
+      - S4PROXY_AUTH_ISSUER=https://${KEYCLOAK_HOSTNAME:-local-dsp.virtru.com}:8443/auth/realms/opentdf
