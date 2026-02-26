@@ -9,8 +9,8 @@ from shapely.geometry import Point
 DB_NAME = "postgres"
 DB_USER = "postgres"
 DB_PASSWORD = "changeme"
-DB_HOST = "localhost"
-DB_PORT = 15432
+DB_HOST = "virtru-dsp-cop-dev-cop-db-1"
+DB_PORT = 5432
 TABLE_NAME = "tdf_objects"
 
 # Script parameters

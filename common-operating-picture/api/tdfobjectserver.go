@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"connectrpc.com/connect"
@@ -224,12 +226,12 @@ func (s *TdfObjectServer) CreateTdfObject(
 	var respErr *connect.Error
 	s.DBQueries.CreateTdfObjects(ctx, []db.CreateTdfObjectsParams{
 		{
-			SrcType: strings.ToLower(req.Msg.SrcType),
-			Ts:      ts,
-			Geo:     geo,
-			Search:  search,
+			SrcType:  strings.ToLower(req.Msg.SrcType),
+			Ts:       ts,
+			Geo:      geo,
+			Search:   search,
 			Metadata: metadata,
-			TdfBlob: req.Msg.TdfBlob,
+			TdfBlob:  req.Msg.TdfBlob,
 		},
 	}).QueryRow(func(i int, id uuid.UUID, err error) {
 		if err != nil {
@@ -456,9 +458,9 @@ func (s *TdfObjectServer) QueryTdfObjects(
 		}
 
 		prunedAttributes := map[string]interface{}{
-		"attrRelTo":          searchAttributes.RelTo,
-		"attrNeedToKnow":     searchAttributes.NeedToKnow,
-		"attrClassification": searchAttributes.Classification,
+			"attrRelTo":          searchAttributes.RelTo,
+			"attrNeedToKnow":     searchAttributes.NeedToKnow,
+			"attrClassification": searchAttributes.Classification,
 		}
 
 		prunedJSON, err := json.Marshal(prunedAttributes)
@@ -608,4 +610,146 @@ func (s *TdfObjectServer) ListSrcTypes(
 	res.Header().Set("TdfObject-Version", "v1")
 
 	return res, nil
+}
+
+var simProcess *exec.Cmd
+var simMu sync.Mutex
+
+func (s *TdfObjectServer) RunPythonScript(
+	ctx context.Context,
+	req *connect.Request[tdf_objectv1.RunPythonScriptRequest],
+) (*connect.Response[tdf_objectv1.RunPythonScriptResponse], error) {
+
+	switch req.Msg.ScriptId {
+	case "simulation_start":
+		return s.handleSimulationStart(ctx)
+	case "simulation_stop":
+		return s.handleSimulationStop(ctx)
+	default:
+		return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
+			Output:   fmt.Sprintf("Unknown script_id: %q. Use 'simulation_start' or 'simulation_stop'.", req.Msg.ScriptId),
+			ExitCode: 1,
+		}), nil
+	}
+}
+
+func (s *TdfObjectServer) handleSimulationStart(ctx context.Context) (*connect.Response[tdf_objectv1.RunPythonScriptResponse], error) {
+	var combinedOutput strings.Builder
+
+	seedScript := "seed_data.py"
+	slog.InfoContext(ctx, "Running seed script", slog.String("script", seedScript))
+
+	start := time.Now()
+	seedCmd := exec.CommandContext(ctx, "python3", fmt.Sprintf("./%s", seedScript), "--delete")
+	seedCmd.Dir = "./"
+
+	output, err := seedCmd.CombinedOutput()
+	duration := time.Since(start)
+
+	combinedOutput.WriteString(fmt.Sprintf("--- Result of %s (Duration: %v) ---\n", seedScript, duration))
+	combinedOutput.Write(output)
+	combinedOutput.WriteString("\n")
+
+	if err != nil {
+		exitCode := 1
+		if exitError, ok := err.(*exec.ExitError); ok {
+			exitCode = exitError.ExitCode()
+		}
+		slog.ErrorContext(ctx, "Seed script failed",
+			slog.Int("exit_code", exitCode),
+			slog.String("python_traceback", string(output)),
+		)
+		return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
+			Output:   combinedOutput.String() + fmt.Sprintf("\nERROR in %s: %s", seedScript, string(output)),
+			ExitCode: int32(exitCode),
+		}), nil
+	}
+
+	slog.InfoContext(ctx, "Seed script completed", slog.Duration("duration", duration))
+
+	simScript := "sim_data_fake_opensky.py"
+
+	simMu.Lock()
+	defer simMu.Unlock()
+
+	// If a simulation is already running, stop it first
+	if simProcess != nil && simProcess.Process != nil {
+		slog.InfoContext(ctx, "Stopping previous simulation before starting a new one")
+		_ = simProcess.Process.Kill()
+		_ = simProcess.Wait()
+		simProcess = nil
+	}
+
+	// Use exec.Command (NOT CommandContext) so the process is NOT killed
+	// when this HTTP request finishes. -u disables Python output buffering.
+	simCmd := exec.Command("python3", "-u", fmt.Sprintf("./%s", simScript))
+	simCmd.Dir = "./"
+
+	if err := simCmd.Start(); err != nil {
+		slog.ErrorContext(ctx, "Failed to start simulation", slog.String("error", err.Error()))
+		return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
+			Output:   combinedOutput.String() + fmt.Sprintf("\nERROR starting %s: %s", simScript, err.Error()),
+			ExitCode: 1,
+		}), nil
+	}
+
+	simProcess = simCmd
+	pid := simCmd.Process.Pid
+
+	go func() {
+		err := simCmd.Wait()
+		simMu.Lock()
+		defer simMu.Unlock()
+		if simProcess == simCmd {
+			simProcess = nil
+		}
+		if err != nil {
+			slog.Warn("Simulation process exited", slog.String("error", err.Error()))
+		} else {
+			slog.Info("Simulation process exited cleanly")
+		}
+	}()
+
+	combinedOutput.WriteString(fmt.Sprintf("--- %s launched in background (PID %d) ---\n", simScript, pid))
+	slog.InfoContext(ctx, "Simulation launched", slog.String("script", simScript), slog.Int("pid", pid))
+
+	return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
+		Output:   combinedOutput.String(),
+		ExitCode: 0,
+	}), nil
+}
+
+func (s *TdfObjectServer) handleSimulationStop(ctx context.Context) (*connect.Response[tdf_objectv1.RunPythonScriptResponse], error) {
+	simMu.Lock()
+	defer simMu.Unlock()
+
+	if simProcess == nil || simProcess.Process == nil {
+		slog.InfoContext(ctx, "Stop requested but no simulation is running")
+		return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
+			Output:   "No simulation is currently running.",
+			ExitCode: 0,
+		}), nil
+	}
+
+	pid := simProcess.Process.Pid
+	slog.InfoContext(ctx, "Stopping simulation", slog.Int("pid", pid))
+
+	if err := simProcess.Process.Kill(); err != nil {
+		slog.ErrorContext(ctx, "Failed to kill simulation process", slog.String("error", err.Error()))
+		return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
+			Output:   fmt.Sprintf("Failed to stop simulation (PID %d): %s", pid, err.Error()),
+			ExitCode: 1,
+		}), nil
+	}
+
+	_ = simProcess.Wait()
+	simProcess = nil
+
+	msg := fmt.Sprintf("Simulation (PID %d) stopped successfully.", pid)
+	slog.InfoContext(ctx, msg)
+
+	return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
+		Output:   msg,
+		ExitCode: 0,
+	}), nil
 }

@@ -29,4 +29,4 @@ node_modules/
 #python vevn
 COP_venv/
 
- 
+compose/minio-data/

@@ -5,14 +5,12 @@
 package tdf_notev1connect
 
 import (
+	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
+	v1 "github.com/virtru-corp/dsp-cop/api/proto/tdf_note/v1"
 	http "net/http"
 	strings "strings"
-
-	v1 "github.com/virtru-corp/dsp-cop/api/proto/tdf_note/v1"
-
-	connect "connectrpc.com/connect"
 )
 
 // This is a compile-time assertion to ensure that this generated file and the connect package are

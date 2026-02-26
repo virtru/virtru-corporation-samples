@@ -59,8 +59,9 @@ service:
   # TLS
   tls:
     enabled: true
-    key_file: dsp-keys/local-dsp.virtru.com.key.pem
-    cert_file: dsp-keys/local-dsp.virtru.com.pem
+    # ADD THE LEADING SLASHES BELOW
+    key_file: /dsp-keys/local-dsp.virtru.com.key.pem
+    cert_file: /dsp-keys/local-dsp.virtru.com.pem
 
 ui:
   # Tile server URL for the map

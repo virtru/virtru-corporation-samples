@@ -43,7 +43,9 @@ services:
       keycloak:
         condition: service_healthy
         restart: true
-    network_mode: host
+    extra_hosts:
+      - "${KEYCLOAK_HOSTNAME:-keycloak.virtru.com}:host-gateway"
+      - "${PLATFORM_HOSTNAME:-local-dsp.virtru.com}:host-gateway"
 
 #================================================================
 # Start the DSP service
@@ -84,7 +86,9 @@ services:
       DSP_DB_USER: postgres
       DSP_DB_PASSWORD: changeme
     # Required for DSP to communicate with Keycloak with OIDC
-    network_mode: host
+    extra_hosts:
+      - "${KEYCLOAK_HOSTNAME:-keycloak.virtru.com}:host-gateway"
+      - "${PLATFORM_HOSTNAME:-local-dsp.virtru.com}:host-gateway"
 
 #================================================================
 # Provision the DSP with DSP COP federal policy
@@ -105,7 +109,10 @@ services:
         '--host',
         'https://local-dsp.virtru.com:8080',
       ]
-    network_mode: host
+    # network_mode: host\
+    extra_hosts:
+      - "${KEYCLOAK_HOSTNAME:-keycloak.virtru.com}:host-gateway"
+      - "${PLATFORM_HOSTNAME:-local-dsp.virtru.com}:host-gateway"
     depends_on:
       dsp:
         condition: service_healthy
@@ -120,7 +127,10 @@ services:
     #
     # This can be accessed with 'make launch-dsp-shell', as documented in the README.md
     entrypoint: ["/bin/sh", "-c", "while true; do sleep 1000; done"]
-    network_mode: host
+    # network_mode: host
+    extra_hosts:
+      - "${KEYCLOAK_HOSTNAME:-keycloak.virtru.com}:host-gateway"
+      - "${PLATFORM_HOSTNAME:-local-dsp.virtru.com}:host-gateway"
     restart: "always"
     depends_on:
       dsp:
