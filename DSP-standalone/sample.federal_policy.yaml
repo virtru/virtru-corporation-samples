@@ -1,0 +1,1097 @@
+## Currently, every PEP client must be separately entitled to resolve the entity chain.
+## This may change pending the outcome of a scoping ADR [https://github.com/opentdf/platform/issues/871]
+approved_clients: &approved_clients
+  - dsp-cop-client
+  - opentdf
+# Policy Attribute Objects/Relations
+# (namespaces, definitions, and values)
+attributes:
+  - namespace: demo.com
+    attributes:
+      - name: classification
+        rule: HIERARCHY
+        values:
+          - value: topsecret
+          - value: secret
+          - value: confidential
+          - value: unclassified
+      - name: needtoknow
+        rule: ALL_OF
+        values:
+          - value: aaa
+          - value: bbb
+          - value: int
+          - value: ops
+      - name: relto
+        rule: ANY_OF
+        values:
+          # grouped coalitions
+          - value: fvey
+          - value: nato
+          - value: pink
+          # ungrouped nationalities
+          - value: AFG
+          - value: ALB
+          - value: DZA
+          - value: ASM
+          - value: AND
+          - value: AGO
+          - value: AIA
+          - value: ATA
+          - value: ATG
+          - value: ARG
+          - value: ARM
+          - value: ABW
+          - value: AUS
+          - value: AUT
+          - value: AZE
+          - value: BHS
+          - value: BHR
+          - value: BGD
+          - value: BRB
+          - value: BLR
+          - value: BEL
+          - value: BLZ
+          - value: BEN
+          - value: BMU
+          - value: BTN
+          - value: BOL
+          - value: BES
+          - value: BIH
+          - value: BWA
+          - value: BVT
+          - value: BRA
+          - value: IOT
+          - value: BRN
+          - value: BGR
+          - value: BFA
+          - value: BDI
+          - value: CPV
+          - value: KHM
+          - value: CMR
+          - value: CAN
+          - value: CYM
+          - value: CAF
+          - value: TCD
+          - value: CHL
+          - value: CHN
+          - value: CXR
+          - value: CCK
+          - value: COL
+          - value: COM
+          - value: COD
+          - value: COG
+          - value: COK
+          - value: CRI
+          - value: HRV
+          - value: CUB
+          - value: CUW
+          - value: CYP
+          - value: CZE
+          - value: CIV
+          - value: DNK
+          - value: DJI
+          - value: DMA
+          - value: DOM
+          - value: ECU
+          - value: EGY
+          - value: SLV
+          - value: GNQ
+          - value: ERI
+          - value: EST
+          - value: SWZ
+          - value: ETH
+          - value: FLK
+          - value: FRO
+          - value: FJI
+          - value: FIN
+          - value: FRA
+          - value: GUF
+          - value: PYF
+          - value: ATF
+          - value: GAB
+          - value: GMB
+          - value: GEO
+          - value: DEU
+          - value: GHA
+          - value: GIB
+          - value: GRC
+          - value: GRL
+          - value: GRD
+          - value: GLP
+          - value: GUM
+          - value: GTM
+          - value: GGY
+          - value: GIN
+          - value: GNB
+          - value: GUY
+          - value: HTI
+          - value: HMD
+          - value: VAT
+          - value: HND
+          - value: HKG
+          - value: HUN
+          - value: ISL
+          - value: IND
+          - value: IDN
+          - value: IRN
+          - value: IRQ
+          - value: IRL
+          - value: IMN
+          - value: ISR
+          - value: ITA
+          - value: JAM
+          - value: JPN
+          - value: JEY
+          - value: JOR
+          - value: KAZ
+          - value: KEN
+          - value: KIR
+          - value: PRK
+          - value: KOR
+          - value: KWT
+          - value: KGZ
+          - value: LAO
+          - value: LVA
+          - value: LBN
+          - value: LSO
+          - value: LBR
+          - value: LBY
+          - value: LIE
+          - value: LTU
+          - value: LUX
+          - value: MAC
+          - value: MDG
+          - value: MWI
+          - value: MYS
+          - value: MDV
+          - value: MLI
+          - value: MLT
+          - value: MHL
+          - value: MTQ
+          - value: MRT
+          - value: MUS
+          - value: MYT
+          - value: MEX
+          - value: FSM
+          - value: MDA
+          - value: MCO
+          - value: MNG
+          - value: MNE
+          - value: MSR
+          - value: MAR
+          - value: MOZ
+          - value: MMR
+          - value: NAM
+          - value: NRU
+          - value: NPL
+          - value: NLD
+          - value: NCL
+          - value: NZL
+          - value: NIC
+          - value: NER
+          - value: NGA
+          - value: NIU
+          - value: NFK
+          - value: MKD
+          - value: MNP
+          - value: NOR
+          - value: OMN
+          - value: PAK
+          - value: PLW
+          - value: PSE
+          - value: PAN
+          - value: PNG
+          - value: PRY
+          - value: PER
+          - value: PHL
+          - value: PCN
+          - value: POL
+          - value: PRT
+          - value: PRI
+          - value: QAT
+          - value: ROU
+          - value: RUS
+          - value: RWA
+          - value: REU
+          - value: BLM
+          - value: SHN
+          - value: KNA
+          - value: LCA
+          - value: MAF
+          - value: SPM
+          - value: VCT
+          - value: WSM
+          - value: SMR
+          - value: STP
+          - value: SAU
+          - value: SEN
+          - value: SRB
+          - value: SYC
+          - value: SLE
+          - value: SGP
+          - value: SXM
+          - value: SVK
+          - value: SVN
+          - value: SLB
+          - value: SOM
+          - value: ZAF
+          - value: SGS
+          - value: SSD
+          - value: ESP
+          - value: LKA
+          - value: SDN
+          - value: SUR
+          - value: SJM
+          - value: SWE
+          - value: CHE
+          - value: SYR
+          - value: TWN
+          - value: TJK
+          - value: TZA
+          - value: THA
+          - value: TLS
+          - value: TGO
+          - value: TKL
+          - value: TON
+          - value: TTO
+          - value: TUN
+          - value: TKM
+          - value: TCA
+          - value: TUV
+          - value: TUR
+          - value: UGA
+          - value: UKR
+          - value: ARE
+          - value: GBR
+          - value: UMI
+          - value: USA
+          - value: URY
+          - value: UZB
+          - value: VUT
+          - value: VEN
+          - value: VNM
+          - value: VGB
+          - value: VIR
+          - value: WLF
+          - value: ESH
+          - value: YEM
+          - value: ZMB
+          - value: ZWE
+          - value: ALA
+
+##
+# Subject Mappings -> 1 Group of Subject Condition Sets
+##
+subject_mappings:
+  sm_classification_topsecret:
+    attribute_value: demo.com/attr/classification/value/topsecret
+    subject_condition_set_name: scs_clearance_topsecret
+    actions:
+      - DECRYPT
+      - READ
+  sm_classification_secret:
+    attribute_value: demo.com/attr/classification/value/secret
+    subject_condition_set_name: scs_clearance_secret
+    actions:
+      - DECRYPT
+      - READ
+  sm_classification_confidential:
+    attribute_value: demo.com/attr/classification/value/confidential
+    subject_condition_set_name: scs_clearance_confidential
+    actions:
+      - DECRYPT
+      - READ
+  sm_classification_unclassified:
+    attribute_value: demo.com/attr/classification/value/unclassified
+    subject_condition_set_name: scs_clearance_unclassified
+    actions:
+      - DECRYPT
+      - READ
+  sm_needtoknow_aaa:
+    attribute_value: demo.com/attr/needtoknow/value/aaa
+    subject_condition_set_name: scs_needtoknow_aaa
+    actions:
+      - DECRYPT
+      - READ
+  sm_needtoknow_bbb:
+    attribute_value: demo.com/attr/needtoknow/value/bbb
+    subject_condition_set_name: scs_needtoknow_bbb
+    actions:
+      - DECRYPT
+      - READ
+  sm_needtoknow_int:
+    attribute_value: demo.com/attr/needtoknow/value/int
+    subject_condition_set_name: scs_needtoknow_int
+    actions:
+      - DECRYPT
+      - READ
+  sm_needtoknow_ops:
+    attribute_value: demo.com/attr/needtoknow/value/ops
+    subject_condition_set_name: scs_needtoknow_ops
+    actions:
+      - DECRYPT
+      - READ
+  sm_nationality_group_PINK:
+    attribute_value: demo.com/attr/relto/value/pink
+    subject_condition_set_name: scs_nationality_group_PINK
+    actions:
+      - DECRYPT
+      - READ
+  sm_nationality_group_NATO:
+    attribute_value: demo.com/attr/relto/value/nato
+    subject_condition_set_name: scs_nationality_group_NATO
+    actions:
+      - DECRYPT
+      - READ
+  sm_nationality_group_FVEY:
+    attribute_value: demo.com/attr/relto/value/fvey
+    subject_condition_set_name: scs_nationality_group_FVEY
+    actions:
+      - DECRYPT
+      - READ
+
+  sm_nationality_AFG:
+    template: template_relto_one_nationality
+  sm_nationality_ALB:
+    template: template_relto_one_nationality
+  sm_nationality_DZA:
+    template: template_relto_one_nationality
+  sm_nationality_ASM:
+    template: template_relto_one_nationality
+  sm_nationality_AND:
+    template: template_relto_one_nationality
+  sm_nationality_AGO:
+    template: template_relto_one_nationality
+  sm_nationality_AIA:
+    template: template_relto_one_nationality
+  sm_nationality_ATA:
+    template: template_relto_one_nationality
+  sm_nationality_ATG:
+    template: template_relto_one_nationality
+  sm_nationality_ARG:
+    template: template_relto_one_nationality
+  sm_nationality_ARM:
+    template: template_relto_one_nationality
+  sm_nationality_ABW:
+    template: template_relto_one_nationality
+  sm_nationality_AUS:
+    template: template_relto_one_nationality
+  sm_nationality_AUT:
+    template: template_relto_one_nationality
+  sm_nationality_AZE:
+    template: template_relto_one_nationality
+  sm_nationality_BHS:
+    template: template_relto_one_nationality
+  sm_nationality_BHR:
+    template: template_relto_one_nationality
+  sm_nationality_BGD:
+    template: template_relto_one_nationality
+  sm_nationality_BRB:
+    template: template_relto_one_nationality
+  sm_nationality_BLR:
+    template: template_relto_one_nationality
+  sm_nationality_BEL:
+    template: template_relto_one_nationality
+  sm_nationality_BLZ:
+    template: template_relto_one_nationality
+  sm_nationality_BEN:
+    template: template_relto_one_nationality
+  sm_nationality_BMU:
+    template: template_relto_one_nationality
+  sm_nationality_BTN:
+    template: template_relto_one_nationality
+  sm_nationality_BOL:
+    template: template_relto_one_nationality
+  sm_nationality_BES:
+    template: template_relto_one_nationality
+  sm_nationality_BIH:
+    template: template_relto_one_nationality
+  sm_nationality_BWA:
+    template: template_relto_one_nationality
+  sm_nationality_BVT:
+    template: template_relto_one_nationality
+  sm_nationality_BRA:
+    template: template_relto_one_nationality
+  sm_nationality_IOT:
+    template: template_relto_one_nationality
+  sm_nationality_BRN:
+    template: template_relto_one_nationality
+  sm_nationality_BGR:
+    template: template_relto_one_nationality
+  sm_nationality_BFA:
+    template: template_relto_one_nationality
+  sm_nationality_BDI:
+    template: template_relto_one_nationality
+  sm_nationality_CPV:
+    template: template_relto_one_nationality
+  sm_nationality_KHM:
+    template: template_relto_one_nationality
+  sm_nationality_CMR:
+    template: template_relto_one_nationality
+  sm_nationality_CAN:
+    template: template_relto_one_nationality
+  sm_nationality_CYM:
+    template: template_relto_one_nationality
+  sm_nationality_CAF:
+    template: template_relto_one_nationality
+  sm_nationality_TCD:
+    template: template_relto_one_nationality
+  sm_nationality_CHL:
+    template: template_relto_one_nationality
+  sm_nationality_CHN:
+    template: template_relto_one_nationality
+  sm_nationality_CXR:
+    template: template_relto_one_nationality
+  sm_nationality_CCK:
+    template: template_relto_one_nationality
+  sm_nationality_COL:
+    template: template_relto_one_nationality
+  sm_nationality_COM:
+    template: template_relto_one_nationality
+  sm_nationality_COD:
+    template: template_relto_one_nationality
+  sm_nationality_COG:
+    template: template_relto_one_nationality
+  sm_nationality_COK:
+    template: template_relto_one_nationality
+  sm_nationality_CRI:
+    template: template_relto_one_nationality
+  sm_nationality_HRV:
+    template: template_relto_one_nationality
+  sm_nationality_CUB:
+    template: template_relto_one_nationality
+  sm_nationality_CUW:
+    template: template_relto_one_nationality
+  sm_nationality_CYP:
+    template: template_relto_one_nationality
+  sm_nationality_CZE:
+    template: template_relto_one_nationality
+  sm_nationality_CIV:
+    template: template_relto_one_nationality
+  sm_nationality_DNK:
+    template: template_relto_one_nationality
+  sm_nationality_DJI:
+    template: template_relto_one_nationality
+  sm_nationality_DMA:
+    template: template_relto_one_nationality
+  sm_nationality_DOM:
+    template: template_relto_one_nationality
+  sm_nationality_ECU:
+    template: template_relto_one_nationality
+  sm_nationality_EGY:
+    template: template_relto_one_nationality
+  sm_nationality_SLV:
+    template: template_relto_one_nationality
+  sm_nationality_GNQ:
+    template: template_relto_one_nationality
+  sm_nationality_ERI:
+    template: template_relto_one_nationality
+  sm_nationality_EST:
+    template: template_relto_one_nationality
+  sm_nationality_SWZ:
+    template: template_relto_one_nationality
+  sm_nationality_ETH:
+    template: template_relto_one_nationality
+  sm_nationality_FLK:
+    template: template_relto_one_nationality
+  sm_nationality_FRO:
+    template: template_relto_one_nationality
+  sm_nationality_FJI:
+    template: template_relto_one_nationality
+  sm_nationality_FIN:
+    template: template_relto_one_nationality
+  sm_nationality_FRA:
+    template: template_relto_one_nationality
+  sm_nationality_GUF:
+    template: template_relto_one_nationality
+  sm_nationality_PYF:
+    template: template_relto_one_nationality
+  sm_nationality_ATF:
+    template: template_relto_one_nationality
+  sm_nationality_GAB:
+    template: template_relto_one_nationality
+  sm_nationality_GMB:
+    template: template_relto_one_nationality
+  sm_nationality_GEO:
+    template: template_relto_one_nationality
+  sm_nationality_DEU:
+    template: template_relto_one_nationality
+  sm_nationality_GHA:
+    template: template_relto_one_nationality
+  sm_nationality_GIB:
+    template: template_relto_one_nationality
+  sm_nationality_GRC:
+    template: template_relto_one_nationality
+  sm_nationality_GRL:
+    template: template_relto_one_nationality
+  sm_nationality_GRD:
+    template: template_relto_one_nationality
+  sm_nationality_GLP:
+    template: template_relto_one_nationality
+  sm_nationality_GUM:
+    template: template_relto_one_nationality
+  sm_nationality_GTM:
+    template: template_relto_one_nationality
+  sm_nationality_GGY:
+    template: template_relto_one_nationality
+  sm_nationality_GIN:
+    template: template_relto_one_nationality
+  sm_nationality_GNB:
+    template: template_relto_one_nationality
+  sm_nationality_GUY:
+    template: template_relto_one_nationality
+  sm_nationality_HTI:
+    template: template_relto_one_nationality
+  sm_nationality_HMD:
+    template: template_relto_one_nationality
+  sm_nationality_VAT:
+    template: template_relto_one_nationality
+  sm_nationality_HND:
+    template: template_relto_one_nationality
+  sm_nationality_HKG:
+    template: template_relto_one_nationality
+  sm_nationality_HUN:
+    template: template_relto_one_nationality
+  sm_nationality_ISL:
+    template: template_relto_one_nationality
+  sm_nationality_IND:
+    template: template_relto_one_nationality
+  sm_nationality_IDN:
+    template: template_relto_one_nationality
+  sm_nationality_IRN:
+    template: template_relto_one_nationality
+  sm_nationality_IRQ:
+    template: template_relto_one_nationality
+  sm_nationality_IRL:
+    template: template_relto_one_nationality
+  sm_nationality_IMN:
+    template: template_relto_one_nationality
+  sm_nationality_ISR:
+    template: template_relto_one_nationality
+  sm_nationality_ITA:
+    template: template_relto_one_nationality
+  sm_nationality_JAM:
+    template: template_relto_one_nationality
+  sm_nationality_JPN:
+    template: template_relto_one_nationality
+  sm_nationality_JEY:
+    template: template_relto_one_nationality
+  sm_nationality_JOR:
+    template: template_relto_one_nationality
+  sm_nationality_KAZ:
+    template: template_relto_one_nationality
+  sm_nationality_KEN:
+    template: template_relto_one_nationality
+  sm_nationality_KIR:
+    template: template_relto_one_nationality
+  sm_nationality_PRK:
+    template: template_relto_one_nationality
+  sm_nationality_KOR:
+    template: template_relto_one_nationality
+  sm_nationality_KWT:
+    template: template_relto_one_nationality
+  sm_nationality_KGZ:
+    template: template_relto_one_nationality
+  sm_nationality_LAO:
+    template: template_relto_one_nationality
+  sm_nationality_LVA:
+    template: template_relto_one_nationality
+  sm_nationality_LBN:
+    template: template_relto_one_nationality
+  sm_nationality_LSO:
+    template: template_relto_one_nationality
+  sm_nationality_LBR:
+    template: template_relto_one_nationality
+  sm_nationality_LBY:
+    template: template_relto_one_nationality
+  sm_nationality_LIE:
+    template: template_relto_one_nationality
+  sm_nationality_LTU:
+    template: template_relto_one_nationality
+  sm_nationality_LUX:
+    template: template_relto_one_nationality
+  sm_nationality_MAC:
+    template: template_relto_one_nationality
+  sm_nationality_MDG:
+    template: template_relto_one_nationality
+  sm_nationality_MWI:
+    template: template_relto_one_nationality
+  sm_nationality_MYS:
+    template: template_relto_one_nationality
+  sm_nationality_MDV:
+    template: template_relto_one_nationality
+  sm_nationality_MLI:
+    template: template_relto_one_nationality
+  sm_nationality_MLT:
+    template: template_relto_one_nationality
+  sm_nationality_MHL:
+    template: template_relto_one_nationality
+  sm_nationality_MTQ:
+    template: template_relto_one_nationality
+  sm_nationality_MRT:
+    template: template_relto_one_nationality
+  sm_nationality_MUS:
+    template: template_relto_one_nationality
+  sm_nationality_MYT:
+    template: template_relto_one_nationality
+  sm_nationality_MEX:
+    template: template_relto_one_nationality
+  sm_nationality_FSM:
+    template: template_relto_one_nationality
+  sm_nationality_MDA:
+    template: template_relto_one_nationality
+  sm_nationality_MCO:
+    template: template_relto_one_nationality
+  sm_nationality_MNG:
+    template: template_relto_one_nationality
+  sm_nationality_MNE:
+    template: template_relto_one_nationality
+  sm_nationality_MSR:
+    template: template_relto_one_nationality
+  sm_nationality_MAR:
+    template: template_relto_one_nationality
+  sm_nationality_MOZ:
+    template: template_relto_one_nationality
+  sm_nationality_MMR:
+    template: template_relto_one_nationality
+  sm_nationality_NAM:
+    template: template_relto_one_nationality
+  sm_nationality_NRU:
+    template: template_relto_one_nationality
+  sm_nationality_NPL:
+    template: template_relto_one_nationality
+  sm_nationality_NLD:
+    template: template_relto_one_nationality
+  sm_nationality_NCL:
+    template: template_relto_one_nationality
+  sm_nationality_NZL:
+    template: template_relto_one_nationality
+  sm_nationality_NIC:
+    template: template_relto_one_nationality
+  sm_nationality_NER:
+    template: template_relto_one_nationality
+  sm_nationality_NGA:
+    template: template_relto_one_nationality
+  sm_nationality_NIU:
+    template: template_relto_one_nationality
+  sm_nationality_NFK:
+    template: template_relto_one_nationality
+  sm_nationality_MKD:
+    template: template_relto_one_nationality
+  sm_nationality_MNP:
+    template: template_relto_one_nationality
+  sm_nationality_NOR:
+    template: template_relto_one_nationality
+  sm_nationality_OMN:
+    template: template_relto_one_nationality
+  sm_nationality_PAK:
+    template: template_relto_one_nationality
+  sm_nationality_PLW:
+    template: template_relto_one_nationality
+  sm_nationality_PSE:
+    template: template_relto_one_nationality
+  sm_nationality_PAN:
+    template: template_relto_one_nationality
+  sm_nationality_PNG:
+    template: template_relto_one_nationality
+  sm_nationality_PRY:
+    template: template_relto_one_nationality
+  sm_nationality_PER:
+    template: template_relto_one_nationality
+  sm_nationality_PHL:
+    template: template_relto_one_nationality
+  sm_nationality_PCN:
+    template: template_relto_one_nationality
+  sm_nationality_POL:
+    template: template_relto_one_nationality
+  sm_nationality_PRT:
+    template: template_relto_one_nationality
+  sm_nationality_PRI:
+    template: template_relto_one_nationality
+  sm_nationality_QAT:
+    template: template_relto_one_nationality
+  sm_nationality_ROU:
+    template: template_relto_one_nationality
+  sm_nationality_RUS:
+    template: template_relto_one_nationality
+  sm_nationality_RWA:
+    template: template_relto_one_nationality
+  sm_nationality_REU:
+    template: template_relto_one_nationality
+  sm_nationality_BLM:
+    template: template_relto_one_nationality
+  sm_nationality_SHN:
+    template: template_relto_one_nationality
+  sm_nationality_KNA:
+    template: template_relto_one_nationality
+  sm_nationality_LCA:
+    template: template_relto_one_nationality
+  sm_nationality_MAF:
+    template: template_relto_one_nationality
+  sm_nationality_SPM:
+    template: template_relto_one_nationality
+  sm_nationality_VCT:
+    template: template_relto_one_nationality
+  sm_nationality_WSM:
+    template: template_relto_one_nationality
+  sm_nationality_SMR:
+    template: template_relto_one_nationality
+  sm_nationality_STP:
+    template: template_relto_one_nationality
+  sm_nationality_SAU:
+    template: template_relto_one_nationality
+  sm_nationality_SEN:
+    template: template_relto_one_nationality
+  sm_nationality_SRB:
+    template: template_relto_one_nationality
+  sm_nationality_SYC:
+    template: template_relto_one_nationality
+  sm_nationality_SLE:
+    template: template_relto_one_nationality
+  sm_nationality_SGP:
+    template: template_relto_one_nationality
+  sm_nationality_SXM:
+    template: template_relto_one_nationality
+  sm_nationality_SVK:
+    template: template_relto_one_nationality
+  sm_nationality_SVN:
+    template: template_relto_one_nationality
+  sm_nationality_SLB:
+    template: template_relto_one_nationality
+  sm_nationality_SOM:
+    template: template_relto_one_nationality
+  sm_nationality_ZAF:
+    template: template_relto_one_nationality
+  sm_nationality_SGS:
+    template: template_relto_one_nationality
+  sm_nationality_SSD:
+    template: template_relto_one_nationality
+  sm_nationality_ESP:
+    template: template_relto_one_nationality
+  sm_nationality_LKA:
+    template: template_relto_one_nationality
+  sm_nationality_SDN:
+    template: template_relto_one_nationality
+  sm_nationality_SUR:
+    template: template_relto_one_nationality
+  sm_nationality_SJM:
+    template: template_relto_one_nationality
+  sm_nationality_SWE:
+    template: template_relto_one_nationality
+  sm_nationality_CHE:
+    template: template_relto_one_nationality
+  sm_nationality_SYR:
+    template: template_relto_one_nationality
+  sm_nationality_TWN:
+    template: template_relto_one_nationality
+  sm_nationality_TJK:
+    template: template_relto_one_nationality
+  sm_nationality_TZA:
+    template: template_relto_one_nationality
+  sm_nationality_THA:
+    template: template_relto_one_nationality
+  sm_nationality_TLS:
+    template: template_relto_one_nationality
+  sm_nationality_TGO:
+    template: template_relto_one_nationality
+  sm_nationality_TKL:
+    template: template_relto_one_nationality
+  sm_nationality_TON:
+    template: template_relto_one_nationality
+  sm_nationality_TTO:
+    template: template_relto_one_nationality
+  sm_nationality_TUN:
+    template: template_relto_one_nationality
+  sm_nationality_TKM:
+    template: template_relto_one_nationality
+  sm_nationality_TCA:
+    template: template_relto_one_nationality
+  sm_nationality_TUV:
+    template: template_relto_one_nationality
+  sm_nationality_TUR:
+    template: template_relto_one_nationality
+  sm_nationality_UGA:
+    template: template_relto_one_nationality
+  sm_nationality_UKR:
+    template: template_relto_one_nationality
+  sm_nationality_ARE:
+    template: template_relto_one_nationality
+  sm_nationality_GBR:
+    template: template_relto_one_nationality
+  sm_nationality_UMI:
+    template: template_relto_one_nationality
+  sm_nationality_USA:
+    template: template_relto_one_nationality
+  sm_nationality_URY:
+    template: template_relto_one_nationality
+  sm_nationality_UZB:
+    template: template_relto_one_nationality
+  sm_nationality_VUT:
+    template: template_relto_one_nationality
+  sm_nationality_VEN:
+    template: template_relto_one_nationality
+  sm_nationality_VNM:
+    template: template_relto_one_nationality
+  sm_nationality_VGB:
+    template: template_relto_one_nationality
+  sm_nationality_VIR:
+    template: template_relto_one_nationality
+  sm_nationality_WLF:
+    template: template_relto_one_nationality
+  sm_nationality_ESH:
+    template: template_relto_one_nationality
+  sm_nationality_YEM:
+    template: template_relto_one_nationality
+  sm_nationality_ZMB:
+    template: template_relto_one_nationality
+  sm_nationality_ZWE:
+    template: template_relto_one_nationality
+
+subject_condition_sets:
+  # classifications/clearances
+  scs_clearance_topsecret:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.attributes.clearance[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - Top Secret
+                  - TS
+                  - topsecret
+                  - DV
+                  - PV
+                  - NV2
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values: *approved_clients
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - opentdf
+  scs_clearance_secret:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.attributes.clearance[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - Secret
+                  - SC
+                  - S
+                  - NV1
+  scs_clearance_confidential:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.attributes.clearance[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - Confidential
+                  - C
+  scs_clearance_unclassified:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.attributes.clearance[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - Unclassified
+                  - U
+  # needToKnow
+  scs_needtoknow_aaa:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.attributes.needToKnow[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - AAA
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values: *approved_clients
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - opentdf
+  scs_needtoknow_bbb:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.attributes.needToKnow[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - BBB
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values: *approved_clients
+  scs_needtoknow_int:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.attributes.needToKnow[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - INT
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values: *approved_clients
+  scs_needtoknow_ops:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.attributes.needToKnow[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - OPS
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values: *approved_clients
+  # nationalities
+  # group-based organizations
+  scs_nationality_group_PINK:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values: *approved_clients
+              - subject_external_selector_value: '.attributes.nationality[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - GBR
+                  - USA
+                  - AUS
+                  - CAN
+                  - NZL
+                  - BEL
+                  - DNK
+                  - FRA
+                  - ITA
+                  - NOR
+                  - PRT
+                  - HRV
+                  - CZE
+                  - POL
+                  - ROU
+                  - DEU
+                  - ESP
+                  - TUR
+                  - SWE
+                  - FIN
+                  - AUT
+  scs_nationality_group_NATO:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values: *approved_clients
+              - subject_external_selector_value: '.attributes.nationality[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - ALB
+                  - BEL
+                  - BGR
+                  - CAN
+                  - HRV
+                  - CZE
+                  - DNK
+                  - EST
+                  - FRA
+                  - DEU
+                  - GRC
+                  - HUN
+                  - ISL
+                  - ITA
+                  - LVA
+                  - LTU
+                  - LUX
+                  - MNE
+                  - NLD
+                  - MKD
+                  - NOR
+                  - POL
+                  - PRT
+                  - ROU
+                  - SVK
+                  - SVN
+                  - ESP
+                  - TUR
+                  - GBR
+                  - USA
+  scs_nationality_group_FVEY:
+    subject_sets:
+      - condition_groups:
+          - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+            conditions:
+              - subject_external_selector_value: '.clientId'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values: *approved_clients
+              - subject_external_selector_value: '.attributes.nationality[]'
+                operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                subject_external_values:
+                  - GBR
+                  - USA
+                  - AUS
+                  - CAN
+                  - NZL
+  # Individual nationalities handled via template
+
+subject_mapping_templates:
+  template_relto_one_nationality:
+    value_key_prefix: sm_nationality_
+    attribute_value: demo.com/attr/relto/value/{{ value }}
+    actions:
+      - DECRYPT
+      - READ
+    subject_condition_set_new:
+      subject_sets:
+        - condition_groups:
+            - boolean_operator: CONDITION_BOOLEAN_TYPE_ENUM_OR
+              conditions:
+                - subject_external_selector_value: '.attributes.nationality[]'
+                  operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                  subject_external_values:
+                    - '{{ value }}'
+                - subject_external_selector_value: '.clientId'
+                  operator: SUBJECT_MAPPING_OPERATOR_ENUM_IN
+                  subject_external_values: *approved_clients
+
+##
+# Resource Mappings
+# (note: case normalization is handled separately)
+##
+resource_mappings:
+  - name: resource_mapping_topsecret
+    attribute_value: demo.com/attr/classification/value/topsecret
+    terms:
+      - ts
+      - top-secret
+      - top_secret
+  - name: resource_mapping_secret
+    attribute_value: demo.com/attr/classification/value/secret
+    terms:
+      - s
+      - sec
+  - name: resource_mapping_confidential
+    attribute_value: demo.com/attr/classification/value/confidential
+    terms:
+      - con
+      - c
+  - name: resource_mapping_unclassified
+    attribute_value: demo.com/attr/classification/value/unclassified
+    terms:
+      - u
+      - uc

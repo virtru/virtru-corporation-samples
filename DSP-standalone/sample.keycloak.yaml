@@ -1,0 +1,205 @@
+baseUrl: &baseUrl https://local-dsp.virtru.com:8443
+serverBaseUrl: &serverBaseUrl https://local-dsp.virtru.com:8080
+customAudMapper: &customAudMapper
+  name: audience-mapper
+  protocol: openid-connect
+  protocolMapper: oidc-audience-mapper
+  config:
+    included.client.audience: *serverBaseUrl
+    access.token.claim: 'true'
+    id.token.claim: 'true'
+realms:
+  - realm_repepresentation:
+      realm: opentdf
+      enabled: true
+    custom_realm_roles:
+      - name: opentdf-org-admin
+      - name: opentdf-admin
+      - name: opentdf-standard
+    custom_client_roles:
+      tdf-entity-resolution:
+        - name: entity-resolution-test-role
+    custom_groups:
+      - name: mygroup
+        attributes:
+          mygroupattribute:
+            - mygroupvalue
+    clients:
+      - client:
+          clientID: opentdf
+          enabled: true
+          name: opentdf
+          serviceAccountsEnabled: true
+          clientAuthenticatorType: client-secret
+          secret: secret
+          protocolMappers:
+            - *customAudMapper
+        sa_realm_roles:
+          - opentdf-org-admin
+      - client:
+          clientID: opentdf-sdk
+          enabled: true
+          name: opentdf-sdk
+          serviceAccountsEnabled: true
+          clientAuthenticatorType: client-secret
+          secret: secret
+          protocolMappers:
+            - *customAudMapper
+        sa_realm_roles:
+          - opentdf-standard
+      - client:
+          clientID: opentdf-public
+          enabled: true
+          name: opentdf-public
+          serviceAccountsEnabled: false
+          publicClient: true
+          redirectUris:
+            - 'http://localhost:9000/*' # tructl CLI tool
+          protocolMappers:
+            - *customAudMapper
+      - client:
+          clientID: tdf-entity-resolution
+          enabled: true
+          name: tdf-entity-resolution
+          serviceAccountsEnabled: true
+          clientAuthenticatorType: client-secret
+          secret: secret
+          protocolMappers:
+            - *customAudMapper
+        sa_client_roles:
+          realm-management:
+            - view-clients
+            - query-clients
+            - view-users
+            - query-users
+      - client:
+          clientID: tdf-authorization-svc
+          enabled: true
+          name: tdf-authorization-svc
+          serviceAccountsEnabled: true
+          clientAuthenticatorType: client-secret
+          secret: secret
+          protocolMappers:
+            - *customAudMapper
+      # Public client used for password flow authentication of COP frontend
+      - client:
+          clientID: dsp-cop-client
+          enabled: true
+          name: dsp-cop-client
+          directAccessGrantsEnabled: true
+          publicClient: true
+          redirectUris:
+           # WARNING: This is a local development configuration. Do not use in production.
+            - '*'
+          webOrigins:
+           # WARNING: This is a local development configuration. Do not use in production.
+            - '*'
+          protocolMappers:
+            - *customAudMapper
+    users:
+      #  With Keycloak idP attributes below, the user below is entitled through Subject Mappings/Subject Condition Sets to DSP policy Attribute Values:
+      # | Attribute Definition FQN              | Entitled To Forms/Data of Values    | Attribute Rule Type            |
+      # |---------------------------------------|-------------------------------------|--------------------------------|
+      # | https://demo.com/attr/needtoknow      | aaa, bbb, int, ops                  | all_of                         |
+      # | https://demo.com/attr/classification  | secret, confidential, unclassified  | hierarchy                      |
+      # | https://demo.com/attr/relto           | usa, nato, fvey, pink               | any_of                         |
+      - username: secret-usa-aaa
+        enabled: true
+        firstName: Alice
+        lastName: SecretUSA
+        email: aaa@secret.usa
+        credentials:
+          - value: testuser123
+            type: password
+        attributes:
+          nationality:
+            - USA
+          needToKnow:
+            - AAA
+            - BBB
+            - INT
+            - OPS
+          clearance:
+            - S
+        groups:
+          - mygroup
+        realmRoles:
+          - opentdf-org-admin
+        clientRoles:
+          realm-management:
+            - view-clients
+            - query-clients
+            - view-users
+            - query-users
+          tdf-entity-resolution:
+            - entity-resolution-test-role
+      #  With Keycloak idP attributes below, the user below is entitled through Subject Mappings/Subject Condition Sets to DSP policy Attribute Values:
+      # | Attribute Definition FQN              | Entitled To Forms/Data of Values                  | Attribute Rule Type            |
+      # |---------------------------------------|---------------------------------------------------|--------------------------------|
+      # | https://demo.com/attr/needtoknow      | bbb                                               | all_of                         |
+      # | https://demo.com/attr/classification  | topsecret, secret, confidential, unclassified     | hierarchy                      |
+      # | https://demo.com/attr/relto           | gbr, nato, fvey, pink                             | any_of                         |
+      - username: top-secret-gbr-bbb
+        enabled: true
+        firstName: Bob
+        lastName: TopSecretGBR
+        email: bbb@topsecret.gbr
+        realmRoles:
+          - opentdf-standard
+        credentials:
+          - value: testuser123
+            type: password
+        attributes:
+          nationality:
+            - GBR
+          needToKnow:
+            - BBB
+          clearance:
+            - TS
+      #  With Keycloak idP attributes below, the user below is entitled through Subject Mappings/Subject Condition Sets to DSP policy Attribute Values:
+      # | Attribute Definition FQN              | Entitled To Forms/Data of Values                  | Attribute Rule Type            |
+      # |---------------------------------------|---------------------------------------------------|--------------------------------|
+      # | https://demo.com/attr/needtoknow      | int                                               | all_of                         |
+      # | https://demo.com/attr/classification  | confidential, unclassified                        | hierarchy                      |
+      # | https://demo.com/attr/relto           | fra, pink, nato                                   | any_of                         |
+      - username: classified-fra-int
+        enabled: true
+        firstName: Jane
+        lastName: ClassifiedFRA
+        email: int@classified.fra
+        realmRoles:
+          - opentdf-standard
+        credentials:
+          - value: testuser123
+            type: password
+        attributes:
+          nationality:
+            - FRA
+          needToKnow:
+            - INT
+          clearance:
+            - C
+      #  With Keycloak idP attributes below, the user below is entitled through Subject Mappings/Subject Condition Sets to DSP policy Attribute Values:
+      # | Attribute Definition FQN              | Entitled To Forms/Data of Values                  | Attribute Rule Type            |
+      # |---------------------------------------|---------------------------------------------------|--------------------------------|
+      # | https://demo.com/attr/needtoknow      | < none >                                          | all_of                         |
+      # | https://demo.com/attr/classification  | unclassified                                      | hierarchy                      |
+      # | https://demo.com/attr/relto           | mex                                               | any_of                         |
+      - username: unclassified-mex-user
+        enabled: true
+        firstName: James
+        lastName: UnclassifiedMEX
+        email: user@unclassified.mex
+        realmRoles:
+          - opentdf-standard
+        credentials:
+          - value: testuser123
+            type: password
+        attributes:
+          nationality:
+            - MEX
+          clearance:
+            - U
+    token_exchanges:
+      - start_client: opentdf
+        target_client: opentdf-sdk

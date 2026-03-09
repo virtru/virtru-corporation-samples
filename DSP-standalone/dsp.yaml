@@ -1,0 +1,240 @@
+---
+authEndpoint: &authEndpoint https://local-dsp.virtru.com:8443/auth
+issuerEndpoint: &issuerEndpoint https://local-dsp.virtru.com:8443/auth/realms/opentdf
+tokenEndpoint: &tokenEndpoint https://local-dsp.virtru.com:8443/auth/realms/opentdf/protocol/openid-connect/token
+entityResolutionServiceUrl: &entityResolutionServiceUrl https://local-dsp.virtru.com:8080/entityresolution/resolve
+platformEndoint: &platformEndpoint https://local-dsp.virtru.com:8080
+taggingEndpoint: &taggingEndpoint localhost:9001
+mode: all # default mode is all
+
+logger:
+  level: info
+  type: text
+  output: stdout
+# DB and Server configurations are defaulted for local development
+db:
+  host: dsp-db
+  port: 35433
+  user: postgres
+  password: changeme
+  schema: dsp
+services:
+  # policy is enabled by default in mode 'all'
+  # policy:
+    # list_request_limit_default: 1000
+    # list_request_limit_max: 2500
+  policyimportexport:
+    privatesignkey: dsp-keys/policyimportexport/cosign.key
+    privatesignkeypassphrasepath: dsp-keys/policyimportexport/cosign.pass
+    truststore: dsp-keys/policyimportexport
+
+  kas:
+    keyring:
+      - kid: e1
+        alg: ec:secp256r1
+      - kid: r1
+        alg: rsa:2048
+  entityresolution:
+    enabled: true
+    url: *authEndpoint
+    clientid: 'tdf-entity-resolution'
+    clientsecret: 'secret'
+    realm: 'opentdf'
+    legacykeycloak: true
+    inferid:
+      from:
+        email: true
+        username: true
+  authorization:
+    enabled: true
+    ersurl: *entityResolutionServiceUrl
+    clientid: 'tdf-authorization-svc'
+    clientsecret: 'secret'
+    realm: 'opentdf'
+    tokenendpoint: *tokenEndpoint
+  shared:
+    clientId: dsp-shared
+    clientSecret: secret
+    authClientId: dsp-shared-auth
+    serviceHostName: shared
+    platformEndpoint: *platformEndpoint
+    platformAuthEndpoint: *authEndpoint
+    platformAuthRealm: opentdf
+    tokenEndpoint: *tokenEndpoint
+  outlook:
+    platformEndpoint: *platformEndpoint
+    platformAuthEndpoint: *authEndpoint
+    platformAuthRealm: opentdf
+    tokenEndpoint: *tokenEndpoint
+    serviceHostName: outlook
+    clientId: dsp-outlook
+    clientSecret: secret
+    authClientId: dsp-outlook-auth
+    autoBlock: false
+    shouldEncrypt: true
+    shouldEncryptBody: true
+    #assertionType: urn:us:gov:ic:edh # Options "urn:us:gov:ic:edh", "urn:nato:stanag:5636:A:1:elements:json", or empty
+    logLevel: info
+    localAddinLog: false
+    addinDevMode: false # Change to true if pointing at local repo of OutlookJS
+    # addinBuildDir: /Users/{user}/dev/OutlookJS (full path to add-in repo - must run `npm run build` first there as well)
+    addinBuildDir: peps/outlook/addin # This is relative to the project (dsp) root if you copy the addin assets here
+    strictAssertions: true
+    classifyNamespace: 'demo.com'
+    classifyFlotFormat: '[{classification}][//RELTO {relto}][//NTK {needtoknow}]'
+    services:
+      tagging:
+        enabled: false #true
+        name: Tagging API
+        url: *taggingEndpoint
+  sharepoint:
+    serviceHostName: sharepoint
+    platformEndpoint: *platformEndpoint
+    platformAuthEndpoint: *authEndpoint
+    platformAuthRealm: opentdf
+    tokenEndpoint: *tokenEndpoint
+    devAddedRERUrl:
+    devUpdatingRERUrl:
+    devUpdatedRERUrl:
+    clientId: dsp-sharepoint
+    clientSecret: secret
+    strictAssertions: false
+    fileCloneMaxSequence: 1000
+    reclassifyEnabled: true
+    sharepointFarms:
+      virtrutest_sharepoint_com:
+        authType: azurecert
+        tenantId: 69a79c0d-2c55-429f-b22f-667dde13349c
+        clientId: 5d8cf3b9-fc9d-4be1-a14d-0c44a0909e10
+        certPath: ./peps/sharepoint/SpCert.pfx
+        certPass: testpass123
+        ccpEncoding: ""
+        # systemEventUsers:
+        #   - app@sharepoint
+        #   - SHAREPOINT\\system
+        # usernameRegex: ^(.*)\\(.*)$
+    services:
+      tagging:
+        enabled: false #true
+        name: Tagging API
+        url: *taggingEndpoint
+  web-admin:
+    enabled: true
+    clientId: dsp-web-admin
+    issuerEndpoint: *issuerEndpoint
+  taggingpdp:
+    configFilePath: "dsp.yaml"
+    tikaServerUrl: "http://localhost:9998"
+  tdfviewer:
+    platform_endpoint: *platformEndpoint
+    # Server-side decrypt uses client_id and client_secret
+    client_id: opentdf
+    client_secret: secret
+    # Client-side decrypt uses client_id_web
+    client_id_web: dsp-tdf-reader-web
+    issuer_endpoint: *issuerEndpoint
+    experimental_features:
+      # Display full technical errors with stack traces instead of generic ones.
+      # debug_errors: true
+      # Display detailed user-friendly errors instead of generic ones.
+      detailed_errors: true
+      download_available: true
+      # Allow loading TDFs from URLs.
+      url_loading: true
+      # Watermark all supported files.
+      watermark: true
+      # Use this text as the watermark.
+      watermark_text: '${username} / ${email} / ${name}'
+    paths:
+      # Should ideally be a RAM disk. No trailing slash.
+      temporary_directory: './temp'
+    pipelines:
+      - mimetype: 'application/msword'
+        steps: ['libreoffice-convert']
+      - mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        steps: ['libreoffice-convert']
+      - mimetype: 'application/vnd.ms-excel'
+        steps: ['libreoffice-convert']
+      - mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        steps: ['libreoffice-convert']
+      - mimetype: 'application/vnd.ms-powerpoint'
+        steps: ['libreoffice-convert']
+      - mimetype: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        steps: ['libreoffice-convert']
+    transformers:
+      libreoffice-convert:
+        command:
+          path: '/Applications/LibreOffice.app/Contents/MacOS/soffice'
+          arguments: ['--headless', '--convert-to', 'pdf', '--outdir', '${directory}', '${path}']
+        result_file_path: '${directory}/file.pdf'
+        result_mime_type: 'application/pdf'
+        # PEP doesnt actually validate this yet.
+        supported_mime_types:
+          - 'application/msword'
+          - 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          - 'application/vnd.ms-excel'
+          - 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          - 'application/vnd.ms-powerpoint'
+          - 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+server:
+  grpc:
+    maxCallRecvMsgSizeBytes: 8388608
+    maxCallSendMsgSizeBytes: 8388608
+    reflectionEnabled: true # Default is false
+  cryptoProvider:
+    standard:
+      keys:
+        - kid: r1
+          alg: rsa:2048
+          private: dsp-keys/kas-private.pem
+          cert: dsp-keys/kas-cert.pem
+        - kid: e1
+          alg: ec:secp256r1
+          private: dsp-keys/kas-ec-private.pem
+          cert: dsp-keys/kas-ec-cert.pem
+  tls:
+    enabled: true
+    cert: dsp-keys/local-dsp.virtru.com.pem
+    key: dsp-keys/local-dsp.virtru.com.key.pem
+  auth:
+    enabled: true
+    enforceDPoP: false
+    public_client_id: 'opentdf-public'
+    audience: *platformEndpoint
+    issuer: *issuerEndpoint
+    clients:
+      - 'opentdf'
+      - 'opentdf-sdk'
+    policy:
+      extension: |
+        g, opentdf-org-admin, role:org-admin
+        g, opentdf-admin, role:admin
+        g, opentdf-standard, role:standard
+  cors:
+    enabled: true
+    # '*' to allow any origin or a specific domain like 'https://yourdomain.com'
+    allowedorigins:
+      - '*'
+    # List of methods. Examples: 'GET,POST,PUT'
+    allowedmethods:
+      - GET
+      - POST
+      - PATCH
+      - PUT
+      - DELETE
+      - OPTIONS
+    # List of headers that are allowed in a request
+    allowedheaders:
+      - ACCEPT
+      - Authorization
+      - Content-Type
+      - X-CSRF-Token
+      - virtru-ntdf-version
+      - connect-protocol-version
+    # List of response headers that browsers are allowed to access
+    exposedheaders:
+      - Link
+    # Sets whether credentials are included in the CORS request
+    allowcredentials: true
+    # Sets the maximum age (in seconds) of a specific CORS preflight request
+    maxage: 3600
