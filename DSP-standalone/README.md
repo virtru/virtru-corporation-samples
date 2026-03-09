@@ -7,7 +7,7 @@ Runs the Virtru Data Security Platform (DSP) as a self-contained Docker Compose 
 | Service | Image | Port(s) | Role |
 |---|---|---|---|
 | `keycloak-db` | postgres:16 | 25434 | Keycloak's Postgres database |
-| `keycloak` | keycloak/keycloak:25.0 | 8443 (HTTPS), 8888 (HTTP health) | Identity Provider (OIDC) |
+| `keycloak` | keycloak/keycloak:25.0 | 18443 (HTTPS), 8888 (HTTP health) | Identity Provider (OIDC) |
 | `dsp-keycloak-provisioning` | built from `dev.dsp.Dockerfile` | — | One-shot: provisions realm, clients, and users |
 | `dsp-db` | postgres:16 | 35433 | DSP's Postgres database |
 | `dsp` | built from `dev.dsp.Dockerfile` | 8080 | DSP services (KAS, policy, authz, entity resolution) |
@@ -176,43 +176,48 @@ Expected: HTTP 200 with a JSON body similar to:
 curl -fks https://local-dsp.virtru.com:8080/.well-known/openid-configuration | jq .
 ```
 
-### 4. Keycloak health
+### 4. Keycloak realm reachable
 
 ```bash
-curl -fk https://local-dsp.virtru.com:8443/auth/health
+curl -fks https://local-dsp.virtru.com:18443/auth/realms/opentdf | jq .realm
 ```
 
-Expected: HTTP 200 with `{"status":"UP"}`.
+Expected: `"opentdf"`
 
-### 5. Keycloak realm exists
+### 5. DSP attributes were provisioned (federal policy)
 
-```bash
-curl -fks https://local-dsp.virtru.com:8443/auth/realms/opentdf | jq .realm
-```
-
-Expected output: `"opentdf"`
-
-### 6. DSP attributes were provisioned (federal policy)
-
-Obtain a token for the `opentdf` service account and list attributes:
+The DSP exposes a ConnectRPC API. Obtain a token and query the attributes service:
 
 ```bash
 TOKEN=$(curl -fks \
   -d "grant_type=client_credentials&client_id=opentdf&client_secret=secret" \
-  https://local-dsp.virtru.com:8443/auth/realms/opentdf/protocol/openid-connect/token \
+  https://local-dsp.virtru.com:18443/auth/realms/opentdf/protocol/openid-connect/token \
   | jq -r .access_token)
 
-curl -fks -H "Authorization: Bearer $TOKEN" \
-  https://local-dsp.virtru.com:8080/attributes | jq .
+curl -ks -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "connect-protocol-version: 1" \
+  -d '{"pagination":{}}' \
+  "https://local-dsp.virtru.com:8080/policy.attributes.AttributesService/ListAttributes" \
+  | jq '[.attributes[] | {name, rule, namespace: .namespace.name}]'
 ```
 
-Expected: A JSON list containing attributes like `classification`, `needtoknow`, and `relto` under the `demo.com` namespace.
+Expected output:
 
-### 7. Database connectivity
+```json
+[
+  { "name": "needtoknow",     "rule": "ATTRIBUTE_RULE_TYPE_ENUM_ALL_OF",   "namespace": "demo.com" },
+  { "name": "relto",          "rule": "ATTRIBUTE_RULE_TYPE_ENUM_ANY_OF",   "namespace": "demo.com" },
+  { "name": "classification", "rule": "ATTRIBUTE_RULE_TYPE_ENUM_HIERARCHY","namespace": "demo.com" }
+]
+```
+
+### 6. Database connectivity
 
 ```bash
-# DSP database
-docker exec virtru-dsp-only-dsp-db-1 psql -U postgres -c "\dt dsp.*"
+# DSP database — policy tables live in the dsp_policy schema
+docker exec virtru-dsp-only-dsp-db-1 psql -U postgres -d opentdf -c "\dt dsp_policy.*"
 
 # Keycloak database
 docker exec virtru-dsp-only-keycloak-db-1 psql -U postgres -d keycloak -c "\dt"
@@ -234,7 +239,7 @@ docker exec virtru-dsp-only-keycloak-db-1 psql -U postgres -d keycloak -c "\dt"
 | Test user: Jane (Confidential/FRA) | `int@classified.fra` | `testuser123` |
 | Test user: James (Unclassified/MEX) | `user@unclassified.mex` | `testuser123` |
 
-Keycloak Admin Console: `https://local-dsp.virtru.com:8443/auth`
+Keycloak Admin Console: `https://local-dsp.virtru.com:18443/auth`
 
 ---
 
@@ -421,12 +426,12 @@ Obtain an admin token and query Keycloak's user API:
 ```bash
 ADMIN_TOKEN=$(curl -fks \
   -d "grant_type=client_credentials&client_id=opentdf&client_secret=secret" \
-  https://local-dsp.virtru.com:8443/auth/realms/opentdf/protocol/openid-connect/token \
+  https://local-dsp.virtru.com:18443/auth/realms/opentdf/protocol/openid-connect/token \
   | jq -r .access_token)
 
 curl -fks \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
-  "https://local-dsp.virtru.com:8443/auth/admin/realms/opentdf/users?username=secret-aus-ops" \
+  "https://local-dsp.virtru.com:18443/auth/admin/realms/opentdf/users?username=secret-aus-ops" \
   | jq '.[0] | {username, email, attributes}'
 ```
 
@@ -437,7 +442,7 @@ Get a token as the new user and check which DSP attribute values they are entitl
 ```bash
 USER_TOKEN=$(curl -fks \
   -d "grant_type=password&client_id=opentdf-public&username=ops@secret.aus&password=testuser123" \
-  https://local-dsp.virtru.com:8443/auth/realms/opentdf/protocol/openid-connect/token \
+  https://local-dsp.virtru.com:18443/auth/realms/opentdf/protocol/openid-connect/token \
   | jq -r .access_token)
 
 curl -fks -H "Authorization: Bearer $USER_TOKEN" \
@@ -514,11 +519,16 @@ docker compose run --rm dsp-provision-federal-policy
 ```bash
 TOKEN=$(curl -fks \
   -d "grant_type=client_credentials&client_id=opentdf&client_secret=secret" \
-  https://local-dsp.virtru.com:8443/auth/realms/opentdf/protocol/openid-connect/token \
+  https://local-dsp.virtru.com:18443/auth/realms/opentdf/protocol/openid-connect/token \
   | jq -r .access_token)
 
-curl -fks -H "Authorization: Bearer $TOKEN" \
-  "https://local-dsp.virtru.com:8080/attributes/demo.com/attr/needtoknow" | jq .
+curl -ks -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "connect-protocol-version: 1" \
+  -d '{"pagination":{}}' \
+  "https://local-dsp.virtru.com:8080/policy.attributes.AttributesService/ListAttributes" \
+  | jq '[.attributes[] | select(.name == "sci")]'
 ```
 
 ---
@@ -641,12 +651,17 @@ docker compose run --rm dsp-provision-federal-policy
 ```bash
 TOKEN=$(curl -fks \
   -d "grant_type=client_credentials&client_id=opentdf&client_secret=secret" \
-  https://local-dsp.virtru.com:8443/auth/realms/opentdf/protocol/openid-connect/token \
+  https://local-dsp.virtru.com:18443/auth/realms/opentdf/protocol/openid-connect/token \
   | jq -r .access_token)
 
 # List all attributes — new one should appear
-curl -fks -H "Authorization: Bearer $TOKEN" \
-  https://local-dsp.virtru.com:8080/attributes | jq '.[] | select(.name == "program")'
+curl -ks -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "connect-protocol-version: 1" \
+  -d '{"pagination":{}}' \
+  "https://local-dsp.virtru.com:8080/policy.attributes.AttributesService/ListAttributes" \
+  | jq '[.attributes[] | select(.name == "program")]'
 ```
 
 ---

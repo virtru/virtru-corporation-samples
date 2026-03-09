@@ -1,0 +1,3 @@
+# TLS certificates and private keys — generated locally, never committed
+dsp-keys/*
+!dsp-keys/.gitkeep

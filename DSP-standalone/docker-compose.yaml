@@ -26,7 +26,7 @@
 #   25434 - Keycloak Postgres
 #   35433 - DSP Postgres
 #   8888  - Keycloak HTTP (health only; HTTPS is the primary endpoint)
-#   8443  - Keycloak HTTPS
+#   18443 - Keycloak HTTPS
 #   8080  - DSP services (gRPC + HTTP)
 #
 ################################################################################
@@ -73,11 +73,11 @@ services:
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: changeme
       KC_HOSTNAME: local-dsp.virtru.com
-      KC_HOSTNAME_PORT: "8443"
+      KC_HOSTNAME_PORT: "18443"
       KC_HOSTNAME_STRICT_HTTPS: "true"
       KC_HTTP_ENABLED: "false"
       KC_HTTP_PORT: 8888
-      KC_HTTPS_PORT: 8443
+      KC_HTTPS_PORT: 18443
       KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/conf/local-dsp.virtru.com.pem
       KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/conf/local-dsp.virtru.com.key.pem
       KC_HTTPS_CLIENT_AUTH: request
@@ -112,7 +112,7 @@ services:
       - provision
       - keycloak-from-config
       - -e
-      - https://local-dsp.virtru.com:8443/auth
+      - https://local-dsp.virtru.com:18443/auth
     network_mode: host
     depends_on:
       keycloak:

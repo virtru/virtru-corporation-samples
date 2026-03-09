@@ -1,4 +1,4 @@
-baseUrl: &baseUrl https://local-dsp.virtru.com:8443
+baseUrl: &baseUrl https://local-dsp.virtru.com:18443
 serverBaseUrl: &serverBaseUrl https://local-dsp.virtru.com:8080
 customAudMapper: &customAudMapper
   name: audience-mapper
