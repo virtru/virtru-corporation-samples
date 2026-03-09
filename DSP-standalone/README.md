@@ -1,6 +1,6 @@
 # DSP-Only Local Deployment
 
-Runs the Virtru Data Security Platform (DSP) as a self-contained Docker Compose stack — no Kubernetes, no COP web server, no NiFi or bulk data ingestion.
+Runs the Virtru Data Security Platform (DSP) as a self-contained Docker Compose stack — no Kubernetes or bulk data ingestion.
 
 ## What's Included
 
@@ -29,7 +29,37 @@ Add this line to `/etc/hosts` (requires `sudo`):
 127.0.0.1  local-dsp.virtru.com
 ```
 
-### 3. TLS certificates in `dsp-keys/`
+### 3. Unpack the Bundle
+
+Unzip the main bundle and unpack the specific DSP tools. Replace `X.X.X`, `<os>`, and `<arch>` with your specific version and system details.
+
+   ```bash
+   # 1. Untar the main bundle
+   mkdir virtru-dsp-bundle && tar -xvf virtru-dsp-bundle-* -C virtru-dsp-bundle/ && cd virtru-dsp-bundle/
+
+   # 2. Unpack DSP Tools
+   tar -xvf tools/dsp/data-security-platform_X.X.X_<os>_<arch>.tar.gz
+      #Example - AMD linux:
+      tar -xvf tools/dsp/data-security-platform_2.7.1_linux_amd64.tar.gz
+
+   # 3. Unpack and setup Helm
+   tar -xvf tools/helm/helm-vX.X.X-<os>-<arch>.tar.gz
+      #Example - AMD linux:
+      tar -xvf tools/helm/helm-v3.15.4-linux-amd64.tar.gz
+   # Then move command into working directory
+   mv <os>-<arch>/helm ./helm
+
+   # 4. Unpack and setup grpcurl
+   tar -xvf tools/grpcurl/grpcurl_X.X.X_<os>_<arch>.tar.gz
+      #Example - AMD linux:
+      tar -xvf tools/grpcurl/grpcurl_1.9.1_linux_x86_64.tar.gz
+
+   # Make Executable
+   chmod +x ./grpcurl
+   ```
+
+
+### 4. TLS certificates in `dsp-keys/`
 
 The `dsp-keys/` directory must exist under `DSP-standalone/` and contain:
 
@@ -77,12 +107,12 @@ COSIGN_PASSWORD=changeme cosign generate-key-pair \
   --output-key-prefix dsp-keys/policyimportexport/cosign
 printf '%s' 'changeme' > dsp-keys/policyimportexport/cosign.pass
 
-# 6. Encrypted search key (32-byte hex value used by the SharePoint PEP)
+# 6. Encrypted search key (32-byte hex value used by the SharePoint PEP - this is a dummy placeholder file)
 printf '%s' '49e9a28af998c2678e6651ad4e60a2dbba2f3d284f58b224b3382919c1de7d55' \
   > dsp-keys/encrypted-search.key
 ```
 
-### 4. DSP image in the local registry
+### 5. DSP image in the local registry
 
 The `dev.dsp.Dockerfile` builds on top of the proprietary DSP image.
 It must be loaded into a local Docker registry on port 5000.
@@ -396,6 +426,18 @@ A user needs **at least one** matching relto value. Includes coalition groups an
 New users are added to `sample.keycloak.yaml`. They take effect the next time the stack is started fresh (the `dsp-keycloak-provisioning` one-shot container re-runs).
 
 **Step 1 — Add the user to `sample.keycloak.yaml`**
+
+**Option A — Interactive script (recommended)**
+
+Run `add_user.py` from the `DSP-standalone/` directory. It prompts for each field, validates input, applies defaults, and appends the correctly formatted YAML block automatically:
+
+```bash
+python3 add_user.py
+```
+
+The script prompts for: username, first/last name, email, password, clearance level, need-to-know compartments, nationality (ISO 3166-1 alpha-3), realm role, and optional group membership. It validates each input and shows defaults where applicable. On confirmation it writes the entry directly to `sample.keycloak.yaml`.
+
+**Option B — Edit manually**
 
 Find the `users:` list under `realms[0]` and append a new entry. The minimum required fields are `username`, `email`, `credentials`, `realmRoles`, and `attributes`.
 
