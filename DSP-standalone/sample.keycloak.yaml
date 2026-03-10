@@ -200,6 +200,32 @@ realms:
             - MEX
           clearance:
             - U
+      #  With Keycloak idP attributes below, the user below is entitled through Subject Mappings/Subject Condition Sets to DSP policy Attribute Values:
+      # | Attribute Definition FQN              | Entitled To Forms/Data of Values     | Attribute Rule Type            |
+      # |---------------------------------------|---------------------------------------------------|--------------------------------|
+      # | https://demo.com/attr/needtoknow      | aaa, bbb                                          | all_of                         |
+      # | https://demo.com/attr/classification  | topsecret, secret, confidential, unclassified     | hierarchy                      |
+      # | https://demo.com/attr/relto           | usa, fvey, nato, pink                             | any_of                         |
+      - username: alex
+        enabled: true
+        firstName: Alex
+        lastName: TopsecretUSA
+        email: aaa@topsecret.usa
+        credentials:
+          - value: testuser123
+            type: password
+        attributes:
+          nationality:
+            - USA
+          needToKnow:
+            - AAA
+            - BBB
+          clearance:
+            - TS
+        groups:
+          - mygroup
+        realmRoles:
+          - opentdf-standard
     token_exchanges:
       - start_client: opentdf
         target_client: opentdf-sdk
