@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/base64"
+	"fmt"
 	"strings"
 
 	// This SDK imports and builds upon the OpenTDF SDK
@@ -10,6 +13,13 @@ import (
 	// Our DSP SDK offers built-in defaults and access to extended DSP services
 	"github.com/virtru-corp/data-security-platform/sdk/v2"
 )
+
+// randomString returns a cryptographically random URL-safe string of exactly n characters.
+func randomString(n int) string {
+	b := make([]byte, n)
+	rand.Read(b)
+	return base64.RawURLEncoding.EncodeToString(b)[:n]
+}
 
 func main() {
 	// Create SDK as Alex (TS/USA) using password flow via the opentdf-public client
@@ -28,7 +38,7 @@ func main() {
 	}
 
 	// CreateTDF automatically includes v4.2.2 target mode
-	plaintext := strings.NewReader("SECRET DATA")
+	plaintext := strings.NewReader(fmt.Sprintf("TOP SECRET\n%s\nTOP SECRET", randomString(140)))
 	encrypted := &bytes.Buffer{}
 
 	// Encrypt with classification=topsecret and relto=usa,fvey
