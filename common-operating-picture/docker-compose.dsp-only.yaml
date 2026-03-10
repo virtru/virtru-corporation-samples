@@ -1,0 +1,197 @@
+################################################################################
+#
+# Minimal DSP-only Docker Compose
+#
+# Starts only the base components required to run a Virtru Data Security
+# Platform (DSP):
+#   - Keycloak (identity provider) + its Postgres database
+#   - DSP service + its Postgres database
+#   - Keycloak provisioning (realm, clients, users)
+#   - DSP policy provisioning (federal_policy)
+#
+# Excluded: COP web server, COP database, NiFi, tagging services.
+#
+# Prerequisites (same as the full dev stack):
+#   1. /etc/hosts contains:  127.0.0.1  local-dsp.virtru.com
+#   2. TLS certificates exist in ./dsp-keys/
+#      (generate with `make dev-certs` or `./ubuntu_cop_keys.sh`)
+#   3. DSP image is available in the local registry:
+#        docker run -d -p 5000:5000 --name registry registry:2
+#        ./dsp copy-images --insecure localhost:5000/virtru
+#
+# Usage:
+#   docker compose -f docker-compose.dsp-only.yaml up --build
+#
+# Exposed ports:
+#   25434 - Keycloak Postgres
+#   35433 - DSP Postgres
+#   8888  - Keycloak HTTP (health only; HTTPS is the primary endpoint)
+#   8443  - Keycloak HTTPS
+#   8080  - DSP services (gRPC + HTTP)
+#
+################################################################################
+
+name: virtru-dsp-only
+
+services:
+
+  #================================================================
+  # Keycloak database
+  # Bridge-networked so its port is published to the host.
+  # Keycloak (host-networked) connects via localhost:25434.
+  #----------------------------------------------------------------
+  keycloak-db:
+    image: postgres:16
+    restart: always
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: keycloak
+    ports:
+      - "25434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  #================================================================
+  # Keycloak identity provider
+  #----------------------------------------------------------------
+  keycloak:
+    image: keycloak/keycloak:25.0
+    restart: always
+    command: ["start-dev"]
+    network_mode: host
+    environment:
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_DB_VENDOR: postgres
+      KC_DB_URL_HOST: localhost
+      KC_DB_URL_PORT: 25434
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: changeme
+      KC_HOSTNAME: local-dsp.virtru.com
+      KC_HOSTNAME_PORT: "8443"
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_HTTP_ENABLED: "false"
+      KC_HTTP_PORT: 8888
+      KC_HTTPS_PORT: 8443
+      KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/conf/local-dsp.virtru.com.pem
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/conf/local-dsp.virtru.com.key.pem
+      KC_HTTPS_CLIENT_AUTH: request
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: changeme
+      KC_FEATURES: "preview,token-exchange"
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./dsp-keys/local-dsp.virtru.com.pem:/opt/keycloak/conf/local-dsp.virtru.com.pem
+      - ./dsp-keys/local-dsp.virtru.com.key.pem:/opt/keycloak/conf/local-dsp.virtru.com.key.pem
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "[ -f /tmp/HealthCheck.java ] || echo \"public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }\" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8888/auth"
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 2m
+
+  #================================================================
+  # Provision Keycloak: realm, clients, and users from sample.keycloak.yaml
+  #----------------------------------------------------------------
+  dsp-keycloak-provisioning:
+    build:
+      context: .
+      dockerfile: ./dev.dsp.Dockerfile
+    command:
+      - tructl
+      - provision
+      - keycloak-from-config
+      - -e
+      - https://local-dsp.virtru.com:8443/auth
+    network_mode: host
+    depends_on:
+      keycloak:
+        condition: service_healthy
+        restart: true
+
+  #================================================================
+  # DSP Postgres database
+  #----------------------------------------------------------------
+  dsp-db:
+    image: postgres:16
+    restart: always
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: opentdf
+    ports:
+      - "35433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  #================================================================
+  # DSP service (KAS, policy, entity resolution, authorization)
+  #----------------------------------------------------------------
+  dsp:
+    build:
+      context: .
+      dockerfile: ./dev.dsp.Dockerfile
+    command: ["start"]
+    network_mode: host
+    restart: always
+    volumes:
+      - ./dsp-keys:/dsp-keys
+    environment:
+      DSP_DB_HOST: localhost
+      DSP_DB_PORT: 35433
+      DSP_DB_USER: postgres
+      DSP_DB_PASSWORD: changeme
+    depends_on:
+      keycloak:
+        condition: service_healthy
+        restart: true
+      dsp-keycloak-provisioning:
+        condition: service_completed_successfully
+        restart: true
+      dsp-db:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -fkSs --max-time 5 https://local-dsp.virtru.com:8080/healthz >/dev/null || exit 1
+      interval: 60s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+  #================================================================
+  # Provision DSP with the federal attribute policy
+  #----------------------------------------------------------------
+  dsp-provision-federal-policy:
+    build:
+      context: .
+      dockerfile: ./dev.dsp.Dockerfile
+    command:
+      - tructl
+      - provision
+      - policy
+      - -f
+      - ./samples/defaults/federal_policy.yaml
+      - --with-client-creds
+      - '{"clientId":"opentdf","clientSecret":"secret"}'
+      - --host
+      - https://local-dsp.virtru.com:8080
+    network_mode: host
+    depends_on:
+      dsp:
+        condition: service_healthy

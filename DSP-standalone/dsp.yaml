@@ -1,0 +1,123 @@
+---
+authEndpoint: &authEndpoint https://local-dsp.virtru.com:18443/auth
+issuerEndpoint: &issuerEndpoint https://local-dsp.virtru.com:18443/auth/realms/opentdf
+tokenEndpoint: &tokenEndpoint https://local-dsp.virtru.com:18443/auth/realms/opentdf/protocol/openid-connect/token
+entityResolutionServiceUrl: &entityResolutionServiceUrl https://local-dsp.virtru.com:8080/entityresolution/resolve
+platformEndoint: &platformEndpoint https://local-dsp.virtru.com:8080
+taggingEndpoint: &taggingEndpoint localhost:9001
+mode: all
+
+logger:
+  level: info
+  type: text
+  output: stdout
+# DB and Server configurations are defaulted for local development
+db:
+  host: dsp-db
+  port: 35433
+  user: postgres
+  password: changeme
+  schema: dsp
+services:
+  # policy is enabled by default in mode 'all'
+  # policy:
+    # list_request_limit_default: 1000
+    # list_request_limit_max: 2500
+  policyimportexport:
+    privatesignkey: dsp-keys/policyimportexport/cosign.key
+    privatesignkeypassphrasepath: dsp-keys/policyimportexport/cosign.pass
+    truststore: dsp-keys/policyimportexport
+
+  kas:
+    keyring:
+      - kid: e1
+        alg: ec:secp256r1
+      - kid: r1
+        alg: rsa:2048
+  entityresolution:
+    enabled: true
+    url: *authEndpoint
+    clientid: 'tdf-entity-resolution'
+    clientsecret: 'secret'
+    realm: 'opentdf'
+    legacykeycloak: true
+    inferid:
+      from:
+        email: true
+        username: true
+  authorization:
+    enabled: true
+    ersurl: *entityResolutionServiceUrl
+    clientid: 'tdf-authorization-svc'
+    clientsecret: 'secret'
+    realm: 'opentdf'
+    tokenendpoint: *tokenEndpoint
+  taggingpdp:
+    configFilePath: "dsp.yaml"
+    tikaServerUrl: "http://localhost:9998"
+  sharepoint:
+    encryptedSearchKeyPath: dsp-keys/encrypted-search.key
+  # Other PEP services (outlook, shared, tdfviewer, web-admin)
+  # are intentionally omitted — this is a standalone core DSP deployment.
+server:
+  grpc:
+    maxCallRecvMsgSizeBytes: 8388608
+    maxCallSendMsgSizeBytes: 8388608
+    reflectionEnabled: true # Default is false
+  cryptoProvider:
+    standard:
+      keys:
+        - kid: r1
+          alg: rsa:2048
+          private: dsp-keys/kas-private.pem
+          cert: dsp-keys/kas-cert.pem
+        - kid: e1
+          alg: ec:secp256r1
+          private: dsp-keys/kas-ec-private.pem
+          cert: dsp-keys/kas-ec-cert.pem
+  tls:
+    enabled: true
+    cert: dsp-keys/local-dsp.virtru.com.pem
+    key: dsp-keys/local-dsp.virtru.com.key.pem
+  auth:
+    enabled: true
+    enforceDPoP: false
+    public_client_id: 'opentdf-public'
+    audience: *platformEndpoint
+    issuer: *issuerEndpoint
+    clients:
+      - 'opentdf'
+      - 'opentdf-sdk'
+    policy:
+      extension: |
+        g, opentdf-org-admin, role:org-admin
+        g, opentdf-admin, role:admin
+        g, opentdf-standard, role:standard
+  cors:
+    enabled: true
+    # '*' to allow any origin or a specific domain like 'https://yourdomain.com'
+    allowedorigins:
+      - '*'
+    # List of methods. Examples: 'GET,POST,PUT'
+    allowedmethods:
+      - GET
+      - POST
+      - PATCH
+      - PUT
+      - DELETE
+      - OPTIONS
+    # List of headers that are allowed in a request
+    allowedheaders:
+      - ACCEPT
+      - Authorization
+      - Content-Type
+      - X-CSRF-Token
+      - virtru-ntdf-version
+      - connect-protocol-version
+    # List of response headers that browsers are allowed to access
+    exposedheaders:
+      - Link
+    # Sets whether credentials are included in the CORS request
+    allowcredentials: true
+    # Sets the maximum age (in seconds) of a specific CORS preflight request
+    maxage: 3600
