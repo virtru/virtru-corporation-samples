@@ -9,3 +9,15 @@ db-data/
 
 # Sensitive
 config.yaml
+
+# Git
+.git
+.github
+
+# Documentation
+*.md
+
+# Infrastructure / tooling not needed in image builds
+nifi/
+compose/
+truststore/

@@ -78,6 +78,9 @@ jobs:
             tags: |
               ghcr.io/virtru-corp/dsp-cop/cop-web-server:${{ env.RELEASE_TAG }}
               ghcr.io/virtru-corp/dsp-cop/cop-web-server:latest
+            # Warm cache from the previously published image; persists across runners unlike GHA cache
+            cache-from: type=registry,ref=ghcr.io/virtru-corp/dsp-cop/cop-web-server:latest
+            cache-to:   type=inline
             # NOTE: MIC-2028 disabled the push to Google Cloud ('pkg.dev')
             # due to authentication issues. This push did work previously.
             #   us-east4-docker.pkg.dev/prj-sb-engineering-nerq/fed-sandbox/cop-web-server:${{ env.RELEASE_TAG }}
