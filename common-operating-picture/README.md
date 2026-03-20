@@ -216,13 +216,16 @@ docker compose --env-file env/default.env -f docker-compose.dev.yaml up --build 
       3. Start the DSP server
       4. Load the sample policy
    4. [COP Web Server](./compose/docker-compose.cop-web-server.yaml)
-   5. [NiFi](./compose/docker-compose.nifi.yaml) (_disabled by default_)
+   5. [NiFi](./compose/docker-compose.nifi.yaml) (_disabled by default, enable with `--profile nifi`_)
       > [!NOTE]
       > Nifi is resource-intensive, so you should run `colima` with extra resources allocated: `colima start --memory 16 --cpu 6`
-      1. For local docker compose, run the [build_truststore_local.sh](./scripts/build/build_truststore_local.sh)  to build a truststore for use with NiFi and Tagging Services
+      1. For local docker compose, run the [build_truststore_local.sh](./scripts/build/build_truststore_local.sh) to build a truststore for use with NiFi and Tagging Services
       2. Copy the trusted cert for tagging pdp use to it's mounted drive: `cp ./dsp-keys/local-dsp.virtru.com.pem ./nifi/truststore`
-      3. Run with envfile and nifi profile enabled: `docker compose --profile nifi -f docker-compose.all.yaml --env-file=./env/default.env up`
+      3. Run with envfile and nifi profile enabled: `docker compose --profile nifi --env-file=./env/default.env -f docker-compose.dev.yaml up`
          * Note that NiFi uses significant resources; ensure your docker env has sufficient resources allocated
+   6. [Secure Object Proxy (S4)](./compose/docker-compose.secure-object-proxy.yaml) + [MinIO](./compose/docker-compose.minio.yaml) (_disabled by default, enable with `--profile s4`_)
+      * S4 provides an S3-compatible object proxy; MinIO is its local storage backend
+      * Run with the s4 profile: `docker compose --profile s4 --env-file=./env/default.env -f docker-compose.dev.yaml up`
 
 Local COP Application URL: https://local-dsp.virtru.com:5001/
 

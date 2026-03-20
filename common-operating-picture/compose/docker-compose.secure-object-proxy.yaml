@@ -1,5 +1,6 @@
 services:
   s4:
+    profiles: [s4]
     image: ${S4_IMAGE:-localhost:5000/virtru/s4proxy:v1.6.0}
     restart: always
     command: ["start","-f","/app/config.yaml"]

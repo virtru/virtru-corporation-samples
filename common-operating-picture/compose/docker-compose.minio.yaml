@@ -1,5 +1,6 @@
 services:
   minio:
+    profiles: [s4]
     image: ${MINIO_IMAGE:-quay.io/minio/minio:latest}
     command: server /data --console-address ":9001"
     ports:
@@ -17,6 +18,7 @@ services:
       retries: 3
 
   minio-createbuckets:
+    profiles: [s4]
     image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
     depends_on:
       - minio

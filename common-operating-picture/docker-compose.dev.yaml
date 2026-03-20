@@ -125,11 +125,13 @@ services:
 # Start Minio for local AWS S3 emulation
 #----------------------------------------------------------------
   minio:
+    profiles: [s4]
     extends:
       file: ./compose/docker-compose.minio.yaml
-      service: minio      
+      service: minio
 
   minio-createbuckets:
+    profiles: [s4]
     extends:
       file: ./compose/docker-compose.minio.yaml
       service: minio-createbuckets
@@ -138,6 +140,7 @@ services:
 # Start Secure Object Proxy Service (S4) proxy
 #----------------------------------------------------------------
   s4:
+    profiles: [s4]
     extends:
       file: ./compose/docker-compose.secure-object-proxy.yaml
       service: s4
