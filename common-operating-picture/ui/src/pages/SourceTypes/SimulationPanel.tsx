@@ -1,12 +1,11 @@
 import { Box, Button, Typography } from '@mui/material';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import StopCircleIcon from '@mui/icons-material/StopCircle';
+import { PlayArrow, Stop } from '@mui/icons-material';
 
 interface SimulationPanelProps {
   isStarting: boolean;
   isStopping: boolean;
   isRunning: boolean;
+  isChecking: boolean;
   logs: string | null;
   onStart: () => void;
   onStop: () => void;
@@ -17,96 +16,67 @@ export function SimulationPanel({
   isStarting,
   isStopping,
   isRunning,
+  isChecking,
   logs,
   onStart,
   onStop,
   onClearLogs,
 }: SimulationPanelProps) {
+  
+  const isDisabled = isStarting || isStopping || isChecking;
+
   return (
-    <Box sx={{
-      mb: 3,
-      p: 2,
-      border: '1px solid',
-      borderColor: 'divider',
-      borderRadius: 1,
-      bgcolor: 'background.paper',
-    }}>
-      <Typography
-        variant="subtitle2"
-        fontWeight={700}
-        gutterBottom
-        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-      >
-        <TrendingUpIcon fontSize="small" color="primary" />
-        Data Orchestration
+    <Box sx={{ mb: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        Simulation Control
       </Typography>
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
-        <Button
-          fullWidth
-          variant="contained"
-          color="success"
-          onClick={onStart}
-          disabled={isStarting || isRunning}
-          startIcon={isStarting ? undefined : <PlayArrowIcon />}
-          sx={{
-            mb: logs ? 1 : 0,
-            fontWeight: 700,
-            textTransform: 'none',
-          }}
-        >
-          {isStarting ? 'Starting...' : isRunning ? 'Running' : 'Start Simulation'}
-        </Button>
-
-        <Button
-          fullWidth
-          variant="contained"
-          color="error"
-          onClick={onStop}
-          disabled={isStopping || !isRunning}
-          startIcon={isStopping ? undefined : <StopCircleIcon />}
-          sx={{
-            mb: logs ? 1 : 0,
-            fontWeight: 700,
-            textTransform: 'none',
-          }}
-        >
-          {isStopping ? 'Stopping...' : 'Stop Simulation'}
-        </Button>
+      <Box display="flex" gap={1} mb={2}>
+        {!isRunning ? (
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PlayArrow />}
+            onClick={onStart}
+            disabled={isDisabled}
+            fullWidth
+          >
+            {isStarting ? 'Starting...' : 'Start Simulation'}
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Stop />}
+            onClick={onStop}
+            disabled={isDisabled}
+            fullWidth
+          >
+            {isStopping ? 'Stopping...' : 'Stop Simulation'}
+          </Button>
+        )}
       </Box>
 
-      {logs && (
-        <Box sx={{ mt: 1 }}>
-          <Typography variant="caption" color="text.secondary">
-            Execution Logs:
-          </Typography>
-          <Box sx={{
-            p: 1,
-            bgcolor: '#121212',
-            borderRadius: 1,
-            maxHeight: '150px',
-            overflowY: 'auto',
-            border: '1px solid #333',
-          }}>
-            <pre style={{
-              margin: 0,
-              fontSize: '10px',
-              color: '#4caf50',
-              whiteSpace: 'pre-wrap',
-              fontFamily: 'monospace',
-            }}>
-              {logs}
-            </pre>
-          </Box>
-          <Button
-            size="small"
-            sx={{ mt: 0.5, textTransform: 'none' }}
-            onClick={onClearLogs}
-          >
-            Clear Logs
-          </Button>
+      <Box 
+        sx={{ 
+          p: 1, 
+          height: '150px', 
+          overflowY: 'auto', 
+          backgroundColor: '#fafafa',
+          border: '1px solid #ddd',
+          borderRadius: 1,
+          fontFamily: 'monospace',
+          fontSize: '0.75rem'
+        }}
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+          <Typography variant="caption" color="textSecondary">Logs</Typography>
+          <Button size="small" onClick={onClearLogs} sx={{ fontSize: '0.6rem' }}>Clear</Button>
         </Box>
-      )}
+        <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+          {logs || 'No logs to display.'}
+        </pre>
+      </Box>
     </Box>
   );
 }

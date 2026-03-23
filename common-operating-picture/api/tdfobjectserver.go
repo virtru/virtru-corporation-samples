@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"connectrpc.com/connect"
@@ -625,6 +626,8 @@ func (s *TdfObjectServer) RunPythonScript(
 		return s.handleSimulationStart(ctx)
 	case "simulation_stop":
 		return s.handleSimulationStop(ctx)
+	case "simulation_status":
+		return s.handleSimulationStatus(ctx)
 	default:
 		return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
 			Output:   fmt.Sprintf("Unknown script_id: %q. Use 'simulation_start' or 'simulation_stop'.", req.Msg.ScriptId),
@@ -750,6 +753,29 @@ func (s *TdfObjectServer) handleSimulationStop(ctx context.Context) (*connect.Re
 
 	return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
 		Output:   msg,
+		ExitCode: 0,
+	}), nil
+}
+
+func (s *TdfObjectServer) handleSimulationStatus(ctx context.Context) (*connect.Response[tdf_objectv1.RunPythonScriptResponse], error) {
+	simMu.Lock()
+	defer simMu.Unlock()
+
+	isRunning := false
+	if simProcess != nil && simProcess.Process != nil {
+		// Signal(0) checks if the process is alive without killing it
+		err := simProcess.Process.Signal(syscall.Signal(0))
+		if err == nil {
+			isRunning = true
+		} else {
+			simProcess = nil
+		}
+	}
+
+	slog.InfoContext(ctx, "Status Check Executed", slog.Bool("isRunning", isRunning))
+
+	return connect.NewResponse(&tdf_objectv1.RunPythonScriptResponse{
+		Output:   fmt.Sprintf("STATUS:%v", isRunning), // Use a prefix for easy parsing
 		ExitCode: 0,
 	}), nil
 }

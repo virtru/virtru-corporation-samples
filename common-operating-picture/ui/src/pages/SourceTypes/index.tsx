@@ -81,9 +81,21 @@ export function SourceTypes() {
     setPoppedOutVehicle(response);
   }, []);
 
+  // Inside SourceTypes.tsx
+  const stableFetch = useCallback(() => {
+    fetchVehicles();
+  }, [fetchVehicles]);
+
   const simulation = useSimulation({
-    onStartSuccess: fetchVehicles,
+    onStartSuccess: stableFetch,
   });
+
+  // Trigger initial status check on mount/reload
+  useEffect(() => {
+    if (simulation.checkStatus) {
+      simulation.checkStatus();
+    }
+  }, []);
 
   // Close sidebar when classification level changes to prevent showing data above current clearance
   useEffect(() => {
@@ -142,6 +154,7 @@ export function SourceTypes() {
               isStarting={simulation.isStarting}
               isStopping={simulation.isStopping}
               isRunning={simulation.isRunning}
+              isChecking={simulation.isChecking}
               logs={simulation.logs}
               onStart={simulation.start}
               onStop={simulation.stop}
