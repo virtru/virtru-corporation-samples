@@ -24,7 +24,7 @@
     "@rjsf/mui": "^5.18.3",
     "@rjsf/utils": "^5.18.3",
     "@rjsf/validator-ajv8": "^5.18.3",
-    "@virtru/dsp-sdk": "^0.6.0",
+    "@virtru/dsp-sdk": "^0.2.2",
     "chroma-js": "^2.4.2",
     "dayjs": "^1.11.11",
     "jwt-decode": "^4.0.0",
@@ -38,7 +38,7 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
     "react-leaflet-cluster": "^2.1.0",
-    "react-router-dom": "^6.30.3",
+    "react-router-dom": "^6.23.0",
     "@aws-sdk/client-s3": "^3.705.0",
     "@aws-sdk/client-sts": "^3.705.0"
   },
