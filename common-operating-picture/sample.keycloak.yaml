@@ -26,6 +26,36 @@ realms:
             - mygroupvalue
     clients:
       - client:
+          clientID: secure-object-proxy
+          enabled: true
+          name: secure-object-proxy
+          serviceAccountsEnabled: true
+          clientAuthenticatorType: client-secret
+          secret: secret
+          protocolMappers:
+            - *customAudMapper
+        sa_realm_roles:
+          - opentdf-org-admin
+      - client:
+          clientID: secure-object-proxy-test
+          enabled: true
+          name: secure-object-proxy-test
+          serviceAccountsEnabled: true
+          clientAuthenticatorType: client-secret
+          directAccessGrantsEnabled: true
+          secret: secret
+          protocolMappers:
+            - *customAudMapper
+            - name: secure-object-proxy-audience-mapper
+              protocol: openid-connect
+              protocolMapper: oidc-audience-mapper
+              config:
+                included.client.audience: secure-object-proxy
+                access.token.claim: 'true'
+                id.token.claim: 'true'
+        sa_realm_roles:
+          - opentdf-standard
+      - client:
           clientID: opentdf
           enabled: true
           name: opentdf
