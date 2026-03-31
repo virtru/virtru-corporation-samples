@@ -1,7 +1,7 @@
 // For demo purposes in COP, we will read in the sample federal policy from the
 // same YAML provisioned into the DSP policy database.
 // @ts-expect-error TS2307 - policy yaml schema is enforced by DSP and should not be defined in frontend
-import { attributes as policy } from '@root/sample.federal_policy.yaml';
+import { attributes as policy } from '@root/config/samples/sample.federal_policy.yaml';
 import { IChangeEvent } from '@rjsf/core';
 import { RJSFSchema } from '@rjsf/utils';
 import { ClassificationPriority, extractValues } from '@/contexts/BannerContext';

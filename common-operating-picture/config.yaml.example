@@ -1,9 +1,9 @@
-#  __      ___      _                _____   _____ _____     _____ ____  _____  
-#  \ \    / (_)    | |              |  __ \ / ____|  __ \   / ____/ __ \|  __ \ 
+#  __      ___      _                _____   _____ _____     _____ ____  _____
+#  \ \    / (_)    | |              |  __ \ / ____|  __ \   / ____/ __ \|  __ \
 #   \ \  / / _ _ __| |_ _ __ _   _  | |  | | (___ | |__) | | |   | |  | | |__) |
-#    \ \/ / | | '__| __| '__| | | | | |  | |\___ \|  ___/  | |   | |  | |  ___/ 
-#     \  /  | | |  | |_| |  | |_| | | |__| |____) | |      | |___| |__| | |     
-#      \/   |_|_|   \__|_|   \__,_| |_____/|_____/|_|       \_____\____/|_|   
+#    \ \/ / | | '__| __| '__| | | | | |  | |\___ \|  ___/  | |   | |  | |  ___/
+#     \  /  | | |  | |_| |  | |_| | | |__| |____) | |      | |___| |__| | |
+#      \/   |_|_|   \__|_|   \__,_| |_____/|_____/|_|       \_____\____/|_|
 
 ############################################
 # Required
@@ -12,26 +12,31 @@
 # The URL of the database to connect to (e.g. postgres://user:password@host:port/database)
 # https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
 # Pool settings https://pkg.go.dev/github.com/jackc/pgx/v5@v5.5.5/pgxpool#ParseConfig
-db_url: postgres://postgres:changeme@local-dsp.virtru.com:15432/postgres
+db_url: postgres://postgres:changeme@cop-db:5432/postgres
 ## DSP platform endpoint
-platform_endpoint: https://local-dsp.virtru.com:8080
+platform_endpoint: https://example.com:8080
 
 ## Used to identify the OIDC client for the server which uses the client credentials flow
-oidc_client_id_for_server: dsp-cop
-oidc_client_secret_for_server: 12345678-1234-1234-1234-123456789012
+oidc_client_id_for_server: opentdf
+oidc_client_secret_for_server: your-secret-here
 
 ## Used to identify the OIDC client for the Web UI which uses the password flow
 oidc_client_id_for_web_password_flow: dsp-cop-client
 
 ## Used to identify KAS URL in the Web UI will be replaced by DSP well-known endpoint
-deprecated_kas_url: https://local-dsp.virtru.com:8080/kas
+deprecated_kas_url: https://example.com:8080/kas
 
 ## Used to connect to the IdP within the Web UI will be replaced by DSP well-known endpoint
-deprecated_idp_url: https://local-dsp.virtru.com:8443/auth/realms/opentdf
+deprecated_idp_url: https://example.com:8443/auth/realms/opentdf
 
 ############################################
 # Optional
 ############################################
+
+# Basic auth credentials to gate the entire application (browser prompt)
+# Remove or leave blank to disable
+basic_auth_username: admin
+basic_auth_password: changeme123
 
 # The log level to use (e.g. DEBUG, INFO, WARNING, ERROR, CRITICAL)
 log_level: INFO
@@ -39,8 +44,8 @@ log_level: INFO
 # Service configuration
 service:
   # The public hosts for use in the web UI when the server is behind a reverse proxy
-  public_server_host: https://local-dsp.virtru.com:5002
-  public_static_host: https://local-dsp.virtru.com:5001
+  public_server_host: https://example.com:5002
+  public_static_host: https://example.com:5001
 
   # gRPC config
   grpc_port: 5002
@@ -59,8 +64,8 @@ service:
   # TLS
   tls:
     enabled: true
-    key_file: dsp-keys/local-dsp.virtru.com.key.pem
-    cert_file: dsp-keys/local-dsp.virtru.com.pem
+    key_file: /dsp-keys/example.com.key.pem
+    cert_file: /dsp-keys/example.com.pem
 
 ui:
   # Tile server URL for the map

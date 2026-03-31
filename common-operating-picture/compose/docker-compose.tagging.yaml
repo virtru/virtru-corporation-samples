@@ -23,7 +23,7 @@ services:
       - TAGGINGPDP_ADDITIONAL_TRUSTED_CERT_DIR=/tagging-pdp/truststore
       - TAGGINGPDP_AUTH_ENABLED=false
     volumes:
-      - ../fed-config.go.yaml/:/tagging-pdp/config/tagging_config.yaml
+      - ../config/fed-config.go.yaml:/tagging-pdp/config/tagging_config.yaml
       - ../truststore:/tagging-pdp/truststore # mounts truststore
     extra_hosts:
-      - "local-dsp.virtru.com:172.17.0.1" #host and ip
+      - "${PLATFORM_HOSTNAME}:host-gateway"

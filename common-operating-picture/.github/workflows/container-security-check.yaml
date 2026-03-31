@@ -13,4 +13,4 @@ jobs:
   container-security-check:
     uses: virtru-corp/.github/.github/workflows/container-security-check.yaml@v1
     with: 
-      dockerfile: 'cop.Dockerfile'
+      dockerfile: 'docker/cop.Dockerfile'

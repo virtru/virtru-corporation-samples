@@ -29,6 +29,7 @@ export interface AuthContext {
   error: string | null;
   signIn: (creds: LoginCredentials) => Promise<AuthUser>;
   signOut: () => Promise<void>;
+  refreshTokens: (currentUser: AuthUser) => Promise<{ accessToken: string; refreshToken: string }>;
 }
 
 export const Context = createContext<AuthContext | null>(null);

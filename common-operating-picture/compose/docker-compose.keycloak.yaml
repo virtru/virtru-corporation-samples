@@ -15,16 +15,16 @@ services:
       KC_DB_URL_DATABASE: keycloak
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: changeme
-      KC_HOSTNAME_PORT: '8443'
-      KC_HOSTNAME: 'local-dsp.virtru.com'
+      KC_HOSTNAME_PORT: '${PLATFORM_HTTPS_PORT:-8443}'
+      KC_HOSTNAME: '${PLATFORM_HOSTNAME}'
       KC_HOSTNAME_STRICT_HTTPS: 'true'
       KC_HTTP_ENABLED: 'false'
-      KC_HTTPS_PORT: 8443
+      KC_HTTPS_PORT: ${PLATFORM_HTTPS_PORT:-8443}
       KC_HTTP_PORT: 8888
-      KC_HTTPS_CERTIFICATE_FILE: '/opt/keycloak/conf/local-dsp.virtru.com.pem'
-      KC_HTTPS_CERTIFICATE_KEY_FILE: '/opt/keycloak/conf/local-dsp.virtru.com.key.pem'
+      KC_HTTPS_CERTIFICATE_FILE: '/opt/keycloak/conf/${PLATFORM_HOSTNAME}.pem'
+      KC_HTTPS_CERTIFICATE_KEY_FILE: '/opt/keycloak/conf/${PLATFORM_HOSTNAME}.key.pem'
       ### Enable these lines when using x509/PKI Authentication
-      # KC_HTTPS_TRUST_STORE_FILE: /etc/x509/https/local-dsp.virtru.com.truststore.jks
+      # KC_HTTPS_TRUST_STORE_FILE: /etc/x509/https/${PLATFORM_HOSTNAME}.truststore.jks
       # KC_HTTPS_TRUST_STORE_PASSWORD: password
       ### END x509/PKI Authentication
       KC_HTTPS_CLIENT_AUTH: request
@@ -34,19 +34,20 @@ services:
       KC_HEALTH_ENABLED: 'true'
     ports:
       - '8888:8888'
-      - '8443:8443'
+      - '${PLATFORM_HTTPS_PORT:-8443}:${PLATFORM_HTTPS_PORT:-8443}'
     healthcheck:
-      test: ['CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8888/auth']
-      interval: 5s
+      test: ['CMD-SHELL', 'echo > /dev/tcp/localhost/${PLATFORM_HTTPS_PORT:-8443}']
+      interval: 10s
       timeout: 10s
-      retries: 3
+      retries: 5
       start_period: 2m
     volumes:
-      - ../dsp-keys/local-dsp.virtru.com.pem:/opt/keycloak/conf/local-dsp.virtru.com.pem
-      - ../dsp-keys/local-dsp.virtru.com.key.pem:/opt/keycloak/conf/local-dsp.virtru.com.key.pem
+      - ../dsp-keys/${PLATFORM_HOSTNAME}.pem:/opt/keycloak/conf/${PLATFORM_HOSTNAME}.pem
+      - ../dsp-keys/${PLATFORM_HOSTNAME}.key.pem:/opt/keycloak/conf/${PLATFORM_HOSTNAME}.key.pem
       ### Enable these lines when using x509/PKI Authentication
-      # - ../dsp-keys:/etc/x509/https/ # FIXME: copy only necessary client cert files
-      # - ../dsp-keys/local-dsp.virtru.com.truststore.jks:/etc/x509/https/local-dsp.virtru.com.truststore.jks
+      # - ../dsp-keys:/etc/x509/https/
+      # - ../dsp-keys/${PLATFORM_HOSTNAME}.truststore.jks:/etc/x509/https/${PLATFORM_HOSTNAME}.truststore.jks
       ### END x509/PKI Authentication
     network_mode: host
+
 

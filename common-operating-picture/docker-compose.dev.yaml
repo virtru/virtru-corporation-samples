@@ -101,8 +101,49 @@ services:
       file: ./compose/docker-compose.nifi.yaml
       service: nifi
 
-  tagging:
+  nifi-bootstrap:
     profiles: [nifi]
     extends:
-      file: ./compose/docker-compose.tagging.yaml
-      service: tagging
+      file: ./compose/docker-compose.nifi.yaml
+      service: nifi-bootstrap
+
+  # tagging:
+  #   profiles: [nifi]
+  #   extends:
+  #     file: ./compose/docker-compose.tagging.yaml
+  #     service: tagging
+
+#================================================================
+# Start LocalStack for local AWS S3 emulation
+#----------------------------------------------------------------
+  # localstack:
+  #   extends:
+  #     file: ./compose/docker-compose.localstack.yaml
+  #     service: localstack
+
+#================================================================
+# Start Minio for local AWS S3 emulation
+#----------------------------------------------------------------
+  minio:
+    profiles: [s4]
+    extends:
+      file: ./compose/docker-compose.minio.yaml
+      service: minio
+
+  minio-createbuckets:
+    profiles: [s4]
+    extends:
+      file: ./compose/docker-compose.minio.yaml
+      service: minio-createbuckets
+
+#================================================================
+# Start Secure Object Proxy Service (S4) proxy
+#----------------------------------------------------------------
+  s4:
+    profiles: [s4]
+    extends:
+      file: ./compose/docker-compose.secure-object-proxy.yaml
+      service: s4
+
+volumes:
+  nifi-conf:

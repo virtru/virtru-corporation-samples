@@ -1,0 +1,108 @@
+{
+    "CompositeObject": [
+        {
+            "Type": "Facilities",
+            "Details": {
+                "facilityName": "Nellis Air Force Base",
+                "facilityType": "AIRBASE",
+                "status": "OPERATIONAL",
+                "country": "United States",
+                "Coord": "361400000N11502000000W",
+                "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/unclassified"],
+                "attrRelTo": [],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "facilityName": "Nellis Air Force Base",
+                "attrClassification": ["https://demo.com/attr/classification/value/unclassified"],
+                "attrRelTo": [],
+                "attrNeedToKnow": []
+            },
+            "Metadata": {
+                "facilityName": "Nellis Air Force Base",
+                "facilityType": "AIRBASE",
+                "status": "OPERATIONAL"
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-facility-001</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T12:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"U\" ism:ownerProducer=\"USA\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Base Ops\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "Facilities",
+            "Details": {
+                "facilityName": "RAF Lakenheath",
+                "facilityType": "AIRBASE",
+                "status": "OPERATIONAL",
+                "country": "United Kingdom",
+                "Coord": "522400000N00027000000E",
+                "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/confidential"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr"],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "facilityName": "RAF Lakenheath",
+                "attrClassification": ["https://demo.com/attr/classification/value/confidential"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr"],
+                "attrNeedToKnow": []
+            },
+            "Metadata": {
+                "facilityName": "RAF Lakenheath",
+                "facilityType": "AIRBASE",
+                "status": "OPERATIONAL"
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-facility-002</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T12:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"C\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA GBR\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Base Ops\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "Facilities",
+            "Details": {
+                "facilityName": "Al Udeid Air Base",
+                "facilityType": "AIRBASE",
+                "status": "OPERATIONAL",
+                "country": "Qatar",
+                "Coord": "243700000N05133000000E",
+                "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/secret"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/nato"],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "facilityName": "Al Udeid Air Base",
+                "attrClassification": ["https://demo.com/attr/classification/value/secret"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/nato"],
+                "attrNeedToKnow": []
+            },
+            "Metadata": {
+                "facilityName": "Al Udeid Air Base",
+                "facilityType": "AIRBASE",
+                "status": "OPERATIONAL"
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-facility-003</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T12:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>CENTCOM</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"S\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA NATO\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Base Ops\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "Facilities",
+            "Details": {
+                "facilityName": "FOB Eagle",
+                "facilityType": "FORWARD OPERATING BASE",
+                "status": "ACTIVE",
+                "country": "Saudi Arabia",
+                "Coord": "243700000N04642000000E",
+                "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/topsecret"],
+                "attrRelTo": [],
+                "attrNeedToKnow": ["https://demo.com/attr/needtoknow/value/bbb"]
+            },
+            "Search": {
+                "facilityName": "FOB Eagle",
+                "attrClassification": ["https://demo.com/attr/classification/value/topsecret"],
+                "attrRelTo": [],
+                "attrNeedToKnow": ["https://demo.com/attr/needtoknow/value/bbb"]
+            },
+            "Metadata": {
+                "facilityName": "FOB Eagle",
+                "facilityType": "FORWARD OPERATING BASE",
+                "status": "ACTIVE"
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-facility-004</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T12:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>CENTCOM</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"TS\" ism:ownerProducer=\"USA\" ism:disseminationControls=\"NF\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"J3 Operations\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        }
+    ]
+}

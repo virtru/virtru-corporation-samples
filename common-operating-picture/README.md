@@ -87,10 +87,10 @@ For convenience, the `make toolcheck` script checks if you have the necessary de
 
 To demonstrate the capabilities of DSP, there are two root-level files to provision the platform.
 
-1. [`sample.federal_policy.yaml` DSP Policy](./sample.federal_policy.yaml)
+1. [`sample.federal_policy.yaml` DSP Policy](./config/samples/sample.federal_policy.yaml)
     * Attributes (a Namespace, Definitions, Values)
     * Subject Mappings to entitle users and clients
-2. [`sample.keycloak.yaml` Users and Clients](./sample.keycloak.yaml) to be loaded into Keycloak as the demo identityProvider (idP)
+2. [`sample.keycloak.yaml` Users and Clients](./config/samples/sample.keycloak.yaml) to be loaded into Keycloak as the demo identityProvider (idP)
 
 > [!NOTE]
 > PostGIS uses a [community-maintained image](https://github.com/ImreSamu/docker-postgis#debian---bookworm--recommended)
@@ -103,7 +103,7 @@ To demonstrate the capabilities of DSP, there are two root-level files to provis
 To install necessary dependencies automatically, run the provided script:
 
    ```bash
-   ./ubuntu_cop_prereqs_cop.sh
+   ./scripts/ops/ubuntu_cop_prereqs_cop.sh
 
    # Reboot after running script for some changes to take effect
    reboot
@@ -138,7 +138,7 @@ You need SSL certificates for local development.
 Run the key generation script:
 
 ```bash
-./ubuntu_cop_keys.sh
+./scripts/ops/ubuntu_cop_keys.sh
 ```
 
 **Option B: Make Command**
@@ -216,13 +216,16 @@ docker compose --env-file env/default.env -f docker-compose.dev.yaml up --build 
       3. Start the DSP server
       4. Load the sample policy
    4. [COP Web Server](./compose/docker-compose.cop-web-server.yaml)
-   5. [NiFi](./compose/docker-compose.nifi.yaml) (_disabled by default_)
+   5. [NiFi](./compose/docker-compose.nifi.yaml) (_disabled by default, enable with `--profile nifi`_)
       > [!NOTE]
       > Nifi is resource-intensive, so you should run `colima` with extra resources allocated: `colima start --memory 16 --cpu 6`
-      1. For local docker compose, run the [build_truststore_local.sh](./build_truststore_local.sh)  to build a truststore for use with NiFi and Tagging Services
+      1. For local docker compose, run the [build_truststore_local.sh](./scripts/build/build_truststore_local.sh) to build a truststore for use with NiFi and Tagging Services
       2. Copy the trusted cert for tagging pdp use to it's mounted drive: `cp ./dsp-keys/local-dsp.virtru.com.pem ./nifi/truststore`
-      3. Run with envfile and nifi profile enabled: `docker compose --profile nifi -f docker-compose.all.yaml --env-file=./env/default.env up`
+      3. Run with envfile and nifi profile enabled: `docker compose --profile nifi --env-file=./env/default.env -f docker-compose.dev.yaml up`
          * Note that NiFi uses significant resources; ensure your docker env has sufficient resources allocated
+   6. [Secure Object Proxy (S4)](./compose/docker-compose.secure-object-proxy.yaml) + [MinIO](./compose/docker-compose.minio.yaml) (_disabled by default, enable with `--profile s4`_)
+      * S4 provides an S3-compatible object proxy; MinIO is its local storage backend
+      * Run with the s4 profile: `docker compose --profile s4 --env-file=./env/default.env -f docker-compose.dev.yaml up`
 
 Local COP Application URL: https://local-dsp.virtru.com:5001/
 
@@ -263,7 +266,7 @@ Following the successful building of COP:
    ```bash
    # Run seeding script to populate database
    # 50 is the standard number of objects that the script will inset but is configurable via NUM_RECORDS variable
-   python3 seed_data.py
+   python3 scripts/seed/seed_data.py
    ```
 
    ```bash
@@ -274,11 +277,11 @@ Following the successful building of COP:
 
    # For live data from OpenSky Network login to https://opensky-network.org/, download credentials file (credentials.json),
    # place the file in the base director (where the sim_data.py script is located) and then run:
-   python3 sim_data.py
+   python3 scripts/seed/sim_data.py
 
    # For a fake simulation that does not require the credentials file or use account credits with OpenSky run this script
    # for simulated movement:
-   python3 sim_data_fake_opensky.py
+   python3 scripts/seed/sim_data_fake_opensky.py
    ```
 
 ### Troubleshooting & Verification Checklist
@@ -338,7 +341,7 @@ DSP-COP supports two authentication flows:
 To enable the Keycloak authentication flow, set the following value in the `ui/.env`
    - `VITE_DSP_KC_DIRECT_AUTH=true`
 
-To enable and configure x509 based login, see `x509.md`
+To enable and configure x509 based login, see `docs/x509.md`
 
 ---
 

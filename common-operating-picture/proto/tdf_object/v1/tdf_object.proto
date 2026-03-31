@@ -162,9 +162,7 @@ message QueryTdfObjectsResponse {
   repeated TdfObject tdf_objects = 1;
 }
 
-message StreamTdfObjectsRequest {
-  // todo: intentionally left empty until we decide if any filtering needs to be done
-}
+message StreamTdfObjectsRequest {}
 
 message StreamTdfObjectsResponse {
   StreamEventType event_type = 1;
@@ -174,8 +172,7 @@ message StreamTdfObjectsResponse {
   repeated TdfObject tdf_objects = 6;
 }
 
-message ListSrcTypesRequest {
-}
+message ListSrcTypesRequest {}
 
 message ListSrcTypesResponse {
   repeated string src_types = 1;
@@ -190,11 +187,30 @@ message GetSrcTypeResponse {
 }
 
 message GetEntitlementsRequest {
+  
 }
 
 message GetEntitlementsResponse {
   map<string, bool> entitlements = 1;
 }
+
+// --- Python Script Support Messages ---
+
+message RunPythonScriptRequest {
+  // The identifier or filename of the script (e.g., "analyze_data.py")
+  string script_id = 1 [(buf.validate.field).required = true];
+  // Arguments to pass to the script execution
+  repeated string args = 2;
+}
+
+message RunPythonScriptResponse {
+  // Captured stdout/stderr from the script execution
+  string output = 1;
+  // System exit code (0 usually indicates success)
+  int32 exit_code = 2;
+}
+
+// --- Service Definition ---
 
 service TdfObjectService {
   rpc CreateTdfObject(CreateTdfObjectRequest) returns (CreateTdfObjectResponse) {}
@@ -205,4 +221,7 @@ service TdfObjectService {
   rpc GetSrcType(GetSrcTypeRequest) returns (GetSrcTypeResponse) {}
   rpc ListSrcTypes(ListSrcTypesRequest) returns (ListSrcTypesResponse) {}
   rpc GetEntitlements(GetEntitlementsRequest) returns (GetEntitlementsResponse) {}
+  
+  // New RPC to trigger server-side Python logic
+  rpc RunPythonScript(RunPythonScriptRequest) returns (RunPythonScriptResponse) {}
 }

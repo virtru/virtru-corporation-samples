@@ -14,6 +14,7 @@ services:
 # Start NiFi
 #----------------------------------------------------------------
   nifi:
+    hostname: nifi
     image: ${NIFI_IMAGE:-ghcr.io/ttschampel/nifi/nifi-1.25.0-jre17:latest}
     depends_on:
       cop-db:
@@ -24,6 +25,12 @@ services:
       nofile:
         soft: 2048
         hard: 4096
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/nifi-api/system-diagnostics"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
     environment:
       - NIFI_WEB_HTTP_PORT=8080
       - NIFI_WEB_HTTP_HOST=0.0.0.0
@@ -44,6 +51,7 @@ services:
       - TDF_FLOW_CLIENT_SECRET=${NIFI_CLIENT_SECRET}
       - TDF_TRUSTSTORE_FILENAME=/opt/nifi/nifi-current/truststore/ca.jks
     volumes:
+      - nifi-conf:/opt/nifi/nifi-current/conf              # persists flow across restarts
       - ../nifi/extensions:/opt/nifi/nifi-current/extensions #mount custom NARs
       - ../truststore:/opt/nifi/nifi-current/truststore # mounts truststore
       - ../nifi/custom-libs:/opt/nifi/nifi-current/custom-libs #mount additional libs
@@ -51,4 +59,29 @@ services:
     ports:
       - 18080:8080/tcp
     extra_hosts:
-      - "local-dsp.virtru.com:172.17.0.1" #host and ip
+      - "${PLATFORM_HOSTNAME}:host-gateway"
+
+#================================================================
+# NiFi Bootstrap — runs once to load template and start the flow
+#----------------------------------------------------------------
+  nifi-bootstrap:
+    image: python:3.12-alpine
+    depends_on:
+      nifi:
+        condition: service_healthy
+    restart: on-failure
+    environment:
+      - NIFI_URL=http://nifi:8080
+      - TEMPLATE_FILE=/flows/working_flow.xml
+      - PLATFORM_HOSTNAME=${PLATFORM_HOSTNAME}
+      - FLOW_HOSTNAME_PLACEHOLDER=${PLATFORM_HOSTNAME}
+      - TDF_FLOW_CLIENT_SECRET=${NIFI_CLIENT_SECRET}
+      - TDFDB_DATABASE_PASSWORD=${DB_PASSWORD}
+      - NIFI_TRUSTSTORE_PASSWORD=${NIFI_TRUSTSTORE_PASSWORD:-password}
+    volumes:
+      - ../nifi/flows:/flows:ro
+      - ../nifi/scripts:/scripts:ro
+    command: python3 /scripts/bootstrap-nifi.py
+
+volumes:
+  nifi-conf:

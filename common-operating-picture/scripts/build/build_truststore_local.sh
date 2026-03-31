@@ -12,7 +12,7 @@ filelocal=$(basename ${dspCert})
 mkdir -p $trustStoreDir
 cp $dspCert $trustStoreDir
 docker run -v $(pwd)/truststore:/keys  \
-    openjdk:latest keytool \
+     eclipse-temurin:17-jdk keytool \
     -import -trustcacerts \
     -alias $filelocal \
     -file keys/$filelocal \

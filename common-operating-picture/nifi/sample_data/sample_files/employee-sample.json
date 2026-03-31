@@ -1,0 +1,112 @@
+{
+    "CompositeObject": [
+        {
+            "Type": "employee",
+            "Details": {
+                "name": "James Harrington",
+                "favoriteColor": "blue",
+                "placeOfBirth": {
+                    "country": "United States",
+                    "alpha2": "US",
+                    "alpha3": "USA",
+                    "numeric": 840,
+                    "latitude": 38,
+                    "longitude": -97
+                },
+                "Coord": "380000000N09700000000W",
+                "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
+                "attrClassification": "https://demo.com/attr/classification/value/unclassified",
+                "attrRelTo": [],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "name": "James Harrington",
+                "favoriteColor": "blue",
+                "attrClassification": "https://demo.com/attr/classification/value/unclassified"
+            },
+            "Metadata": {},
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-employee-001</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T12:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>CENTCOM</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"U\" ism:ownerProducer=\"USA\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Personnel Records\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "employee",
+            "Details": {
+                "name": "Sarah Mitchell",
+                "favoriteColor": "green",
+                "placeOfBirth": {
+                    "country": "Australia",
+                    "alpha2": "AU",
+                    "alpha3": "AUS",
+                    "numeric": 36,
+                    "latitude": -25.27,
+                    "longitude": 133.78
+                },
+                "Coord": "252700000S13378000000E",
+                "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
+                "attrClassification": "https://demo.com/attr/classification/value/confidential",
+                "attrRelTo": [],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "name": "Sarah Mitchell",
+                "favoriteColor": "green",
+                "attrClassification": "https://demo.com/attr/classification/value/confidential"
+            },
+            "Metadata": {},
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-employee-002</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T12:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"C\" ism:ownerProducer=\"USA\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Personnel Records\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "employee",
+            "Details": {
+                "name": "Robert Calloway",
+                "favoriteColor": "red",
+                "placeOfBirth": {
+                    "country": "United Kingdom",
+                    "alpha2": "GB",
+                    "alpha3": "GBR",
+                    "numeric": 826,
+                    "latitude": 51.5,
+                    "longitude": -0.12
+                },
+                "Coord": "515000000N00012000000W",
+                "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
+                "attrClassification": "https://demo.com/attr/classification/value/secret",
+                "attrRelTo": [],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "name": "Robert Calloway",
+                "favoriteColor": "red",
+                "attrClassification": "https://demo.com/attr/classification/value/secret"
+            },
+            "Metadata": {},
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-employee-003</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T12:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>CENTCOM</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"S\" ism:ownerProducer=\"USA\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Personnel Records\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "employee",
+            "Details": {
+                "name": "Diana Reeves",
+                "favoriteColor": "violet",
+                "placeOfBirth": {
+                    "country": "Canada",
+                    "alpha2": "CA",
+                    "alpha3": "CAN",
+                    "numeric": 124,
+                    "latitude": 56.13,
+                    "longitude": -106.35
+                },
+                "Coord": "561300000N10635000000W",
+                "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
+                "attrClassification": "https://demo.com/attr/classification/value/topsecret",
+                "attrRelTo": [],
+                "attrNeedToKnow": ["https://demo.com/attr/needtoknow/value/bbb"]
+            },
+            "Search": {
+                "name": "Diana Reeves",
+                "favoriteColor": "violet",
+                "attrClassification": "https://demo.com/attr/classification/value/topsecret"
+            },
+            "Metadata": {},
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-employee-004</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T12:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>DIA</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"TS\" ism:ownerProducer=\"USA\" ism:disseminationControls=\"NF\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Personnel Records\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        }
+    ]
+}

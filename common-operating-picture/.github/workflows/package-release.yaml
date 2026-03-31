@@ -73,11 +73,14 @@ jobs:
           uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
           with:
             platforms: linux/amd64,linux/arm64
-            file: "./cop.Dockerfile"
+            file: "./docker/cop.Dockerfile"
             push: true
             tags: |
               ghcr.io/virtru-corp/dsp-cop/cop-web-server:${{ env.RELEASE_TAG }}
               ghcr.io/virtru-corp/dsp-cop/cop-web-server:latest
+            # Warm cache from the previously published image; persists across runners unlike GHA cache
+            cache-from: type=registry,ref=ghcr.io/virtru-corp/dsp-cop/cop-web-server:latest
+            cache-to:   type=inline
             # NOTE: MIC-2028 disabled the push to Google Cloud ('pkg.dev')
             # due to authentication issues. This push did work previously.
             #   us-east4-docker.pkg.dev/prj-sb-engineering-nerq/fed-sandbox/cop-web-server:${{ env.RELEASE_TAG }}
