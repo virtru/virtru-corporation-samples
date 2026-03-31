@@ -57,9 +57,7 @@ function calculateBearing(start: Coordinate, end: Coordinate): number {
 
   const dLng = endLng - startLng;
   const y = Math.sin(dLng) * Math.cos(endLat);
-  const x =
-    Math.cos(startLat) * Math.sin(endLat) -
-    Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+  const x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
 
   const bearing = toDeg(Math.atan2(y, x));
   return (bearing + 360) % 360;
@@ -68,7 +66,6 @@ function calculateBearing(start: Coordinate, end: Coordinate): number {
 const RotatableIcon = ({ color, iconSize, iconAnchor }: RotatableIconProps) => {
   const [width, height] = Array.isArray(iconSize) ? iconSize : ([20, 20] as [number, number]);
 
-  // SVG plane icon that can be colored
   const planeSvg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${width}" height="${height}">
       <path fill="${color}" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
@@ -94,17 +91,12 @@ const ICON_PROPS = {
   anchor: [12, 12] as L.PointExpression,
 };
 
-// Helper function to extract classification color from attribute
 const getClassificationColor = (classification?: string | string[]): string => {
-  if (!classification) {
-    return mapStringToColor('default');
-  }
-  // Handle both string and array formats - This will be removed once we add METADATA
+  if (!classification) return mapStringToColor('default');
   const classValue = Array.isArray(classification) ? classification[0] : classification;
   return mapStringToColor(classValue || 'default');
 };
 
-// --- Speed Gauge Component ---
 const MAX_SPEED_KMH = 1000;
 const SpeedGauge = ({ speedString }: { speedString: string | undefined }) => {
   const [value, unit] = speedString?.trim().split(' ') || ['0', 'km/h'];
@@ -123,28 +115,11 @@ const SpeedGauge = ({ speedString }: { speedString: string | undefined }) => {
 
   return (
     <Box className="speed-gauge-container">
-      <CircularProgress
-        variant="determinate"
-        value={100}
-        size={60}
-        thickness={4}
-        className="speed-gauge-bg"
-        sx={{ color: 'rgba(0, 0, 0, 0.2) !important' }}
-      />
-      <CircularProgress
-        variant="determinate"
-        value={progress}
-        size={60}
-        thickness={4}
-        className={`speed-gauge-progress ${colorClass}`}
-      />
+      <CircularProgress variant="determinate" value={100} size={60} thickness={4} className="speed-gauge-bg" sx={{ color: 'rgba(0, 0, 0, 0.2) !important' }} />
+      <CircularProgress variant="determinate" value={progress} size={60} thickness={4} className={`speed-gauge-progress ${colorClass}`} />
       <Box className="speed-gauge-content">
-        <Typography variant="h6" component="div" className="speed-value">
-          {`${speed}`}
-        </Typography>
-        <Typography variant="caption" component="div" className="speed-unit" color="text.secondary">
-          {unit}
-        </Typography>
+        <Typography variant="h6" component="div" className="speed-value">{`${speed}`}</Typography>
+        <Typography variant="caption" component="div" className="speed-unit" color="text.secondary">{unit}</Typography>
       </Box>
     </Box>
   );
@@ -226,12 +201,8 @@ export function VehicleMarker({ markerId, Position, data, rawObject, onClick, on
     return () => cancelAnimationFrame(frameId);
   }, [Position, displayData?.heading]);
 
-  // Decryption handler
   const handleMarkerClick = async () => {
-    // Call external onClick if provided
     if (onClick) onClick();
-
-    // Trigger decryption if not already loaded
     if (decryptedData || isLoading) return;
 
     setIsLoading(true);

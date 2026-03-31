@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1021.0",
+    "@aws-sdk/client-sts": "3.1021.0",
     "@bufbuild/protobuf": "^1.9.0",
     "@connectrpc/connect": "^1.4.0",
     "@connectrpc/connect-web": "^1.4.0",
@@ -38,9 +40,7 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
     "react-leaflet-cluster": "^2.1.0",
-    "react-router-dom": "^6.23.0",
-    "@aws-sdk/client-s3": "^3.705.0",
-    "@aws-sdk/client-sts": "^3.705.0"
+    "react-router-dom": "^6.23.0"
   },
   "devDependencies": {
     "@rollup/plugin-yaml": "^4.1.2",

@@ -159,8 +159,6 @@ export function useRpcClient() {
   const transformNoteObject = useCallback(async (tdfNote: TdfNote): Promise<TdfNotesResponse | null> => {
     try {
       const decryptedData = await decrypt(tdfNote.tdfBlob.buffer);
-
-      // Attempt to parse the decrypted data
       try {
         const parsedData = JSON.parse(decryptedData);
         return { tdfNote, decryptedData: parsedData };
@@ -170,7 +168,7 @@ export function useRpcClient() {
       }
     } catch (err) {
       console.error('Error decrypting data:', err);
-      return null; // Return null if decryption fails
+      return null;
     }
   }, [decrypt]);
 
