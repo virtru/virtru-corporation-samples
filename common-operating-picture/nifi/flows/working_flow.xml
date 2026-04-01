@@ -33,7 +33,7 @@
                     <loadBalanceStatus>LOAD_BALANCE_NOT_CONFIGURED</loadBalanceStatus>
                     <loadBalanceStrategy>DO_NOT_LOAD_BALANCE</loadBalanceStrategy>
                     <name></name>
-                    <selectedRelationships>nano</selectedRelationships>
+                    <selectedRelationships>ztdf</selectedRelationships>
                     <source>
                         <groupId>68c325f8-6b46-3d72-0000-000000000000</groupId>
                         <id>ade07be9-021a-3c16-0000-000000000000</id>
@@ -142,7 +142,7 @@
                     <loadBalanceStatus>LOAD_BALANCE_NOT_CONFIGURED</loadBalanceStatus>
                     <loadBalanceStrategy>DO_NOT_LOAD_BALANCE</loadBalanceStrategy>
                     <name></name>
-                    <selectedRelationships>ztdf</selectedRelationships>
+                    <selectedRelationships>nano</selectedRelationships>
                     <source>
                         <groupId>68c325f8-6b46-3d72-0000-000000000000</groupId>
                         <id>ade07be9-021a-3c16-0000-000000000000</id>

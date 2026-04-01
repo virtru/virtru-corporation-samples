@@ -1,4 +1,4 @@
-import { LayerGroup } from 'react-leaflet';
+import { LayerGroup, LayersControl } from 'react-leaflet';
 import { TdfObjectResponse } from '@/hooks/useRpcClient';
 import { ClusterLayer } from '@/components/Map/ClusterLayer';
 import { MarkerLayer } from '@/components/Map/MarkerLayer';
@@ -10,7 +10,7 @@ type Props = {
 
 
 export function TdfObjectsMapLayer({ tdfObjects = [] }: Props) {
-  const { mapFields } = useSourceType();
+  const { id, mapFields } = useSourceType();
 
   const groupTdfObjectsByDecryptedDataProperty = (arr:TdfObjectResponse[], property:string) => {
 
@@ -34,19 +34,23 @@ export function TdfObjectsMapLayer({ tdfObjects = [] }: Props) {
   const clusterEnabled = false;
   if (clusterEnabled){
     return (
-      <LayerGroup>
-        {layersToRender.map( key => (
-          <ClusterLayer tdfObjects={groupedTDFObjects[key]} key={`cluster-layer-${key}`} layerName={key}/>
-        ))}
-      </LayerGroup>
+      <LayersControl.Overlay checked name={id} key={id}>
+        <LayerGroup>
+          {layersToRender.map( key => (
+            <ClusterLayer tdfObjects={groupedTDFObjects[key]} key={`cluster-layer-${key}`} layerName={key}/>
+          ))}
+        </LayerGroup>
+      </LayersControl.Overlay>
     );
   } else {
     return (
-      <LayerGroup>
-        {layersToRender.map( key => (
-          <MarkerLayer tdfObjects={groupedTDFObjects[key]} key={`layer-${key}`} layerName={key}/>
-        ))}
-      </LayerGroup>
+      <LayersControl.Overlay checked name={id} key={id}>
+        <LayerGroup>
+          {layersToRender.map( key => (
+            <MarkerLayer tdfObjects={groupedTDFObjects[key]} key={`layer-${key}`} layerName={key} isCluster/>
+          ))}
+        </LayerGroup>
+      </LayersControl.Overlay>
     );
   }
 }

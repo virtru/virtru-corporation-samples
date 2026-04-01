@@ -211,7 +211,7 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
   };
 
   const renderDetailsAndNotes = () => {
-    const details = notesOnly ? null : (displayFields?.details || []).map((field) => {
+    const details = notesOnly ? null : (displayFields?.details || []).filter(field => !field.startsWith('attr')).map((field) => {
       let value = propertyOf(o.decryptedData)(field);
       if (typeof value === 'object' && value !== null) {
         if ('country' in value) {
@@ -227,10 +227,10 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
       );
     });
 
-    const extractAndJoin = (attrArray: string[] | undefined, prefix: string = ''): string => {
+    const extractAndJoin = (attrArray: string[] | undefined, prefix: string = '', separator: string = '//'): string => {
         if (!attrArray || attrArray.length === 0) return '';
-        const values = attrArray.map(attrUrl => attrUrl.split('/').pop()).filter(v => v && v.trim() !== '');
-        return values.length > 0 ? `${prefix}${values.join(' // ')}` : '';
+        const values = attrArray.map(attrUrl => attrUrl.split('/').pop()?.toUpperCase()).filter((v): v is string => !!v && v.trim() !== '');
+        return values.length > 0 ? `${prefix}${values.join(separator)}` : '';
     };
 
     const notes = objectNotes.length > 0 ? (
@@ -243,9 +243,11 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
         }
 
         const classificationControl = extractAndJoin(parsedNote.attrClassification);
-        const needToKnowControls = extractAndJoin(parsedNote.attrNeedtoknow, classificationControl ? ' // ' : '');
-        const relToPrefix = (classificationControl || needToKnowControls) ? ' // rel to ' : parsedNote.attrRelto?.length ? 'rel to ' : '';
-        const relToControls = extractAndJoin(parsedNote.attrRelto, relToPrefix);
+        const needToKnowControls = extractAndJoin(parsedNote.attrNeedtoknow, classificationControl ? '//' : '');
+        const relToValues = extractAndJoin(parsedNote.attrRelto, '', ', ');
+        const relToControls = relToValues
+          ? `${(classificationControl || needToKnowControls) ? '//' : ''}REL TO ${relToValues}`
+          : '';
 
         // Concatenate all parts for the final display
         const controlsDisplay = `${classificationControl}${needToKnowControls}${relToControls}`;
@@ -268,9 +270,9 @@ export function TdfObjectResult({ tdfObjectResponse: o, categorizedData, onFlyTo
     return (<>{details}{notes}</>);
   };
 
-  const objClass = extractValues(o.decryptedData.attrClassification || []).split(', ');
-  const objNTK = extractValues(o.decryptedData.attrNeedToKnow || []).split(', ');
-  const objRel = extractValues(o.decryptedData.attrRelTo || []).split(', ');
+  const objClass = extractValues(o.decryptedData.attrClassification || []).split(', ').filter(Boolean);
+  const objNTK = extractValues(o.decryptedData.attrNeedToKnow || []).split(', ').filter(Boolean);
+  const objRel = extractValues(o.decryptedData.attrRelTo || []).split(', ').filter(Boolean);
 
   if (isLoading) {
     return null;
