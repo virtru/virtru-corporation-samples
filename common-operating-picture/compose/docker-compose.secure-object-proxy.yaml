@@ -1,0 +1,30 @@
+services:
+  s4:
+    image: ${S4_IMAGE:-localhost:5000/virtru/s4proxy:v1.6.0}
+    restart: always
+    entrypoint: ["/bin/sh", "/app/s4-entrypoint.sh"]
+    depends_on:
+      dsp:
+        condition: service_healthy
+        restart: true
+    ports:
+      - ${S4_PORT:-7070}:7070
+    volumes:
+      - ./s4-entrypoint.sh:/app/s4-entrypoint.sh:ro
+      - ../dsp-keys/rootCA.pem:/app/certs/rootCA.pem
+      - ../dsp-keys/${PLATFORM_HOSTNAME}.pem:/app/certs/${PLATFORM_HOSTNAME}.pem
+      - ../dsp-keys/${PLATFORM_HOSTNAME}.key.pem:/app/certs/${PLATFORM_HOSTNAME}.key.pem
+    extra_hosts:
+      - "${PLATFORM_HOSTNAME}:host-gateway"
+      - "${LOCALSTACK_HOSTNAME:-local-s4.virtru.com}:host-gateway"
+      - "cop-demo.${LOCALSTACK_HOSTNAME:-local-s4.virtru.com}:host-gateway"
+    environment:
+      - SSL_CERT_DIR=/app/certs
+      - PLATFORM_HOSTNAME=${PLATFORM_HOSTNAME}
+      - PLATFORM_HTTP_PORT=${PLATFORM_HTTP_PORT:-8080}
+      - PLATFORM_HTTPS_PORT=${PLATFORM_HTTPS_PORT:-8443}
+      - S4PROXY_BACKEND_CLIENTSECRET=${S4_CLIENT_SECRET:-secret}
+      - S4PROXY_BACKEND_CLIENTID=${S4_CLIENT_ID:-secure-object-proxy}
+      - S4PROXY_AUTH_STS_CLIENTSECRET=${S4_CLIENT_SECRET:-secret}
+      - S4PROXY_AUTH_STS_CLIENTID=${S4_CLIENT_ID:-secure-object-proxy}
+      - S4PROXY_AUTH_ISSUER=https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTPS_PORT:-8443}/auth/realms/opentdf

@@ -3,26 +3,41 @@ services:
   cop-web-server:
     build:
       context: ../
-      dockerfile: ./cop.Dockerfile
+      dockerfile: ./docker/cop.Dockerfile
+      args:
+        VITE_S4_ENDPOINT: https://${PLATFORM_HOSTNAME}:${S4_PORT:-7070}
+        VITE_TILE_SERVER_URL: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+        VITE_GRPC_SERVER_URL: https://${PLATFORM_HOSTNAME}:5002
+        VITE_DSP_BASE_URL: https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTP_PORT:-8080}
+        VITE_DSP_KAS_URL: https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTP_PORT:-8080}/kas
+        VITE_DSP_KC_SERVER_URL: https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTPS_PORT:-8443}/auth/realms/opentdf
+        VITE_DSP_KC_CLIENT_ID: dsp-cop-client
+        VITE_DSP_KC_DIRECT_AUTH: false
     image: virtru-dsp-cop-web-server:dev
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: changeme
       POSTGRES_DB: postgres
+      PLATFORM_HOSTNAME: ${PLATFORM_HOSTNAME}
+      PLATFORM_HTTPS_PORT: ${PLATFORM_HTTPS_PORT:-8443}
+      PLATFORM_HTTP_PORT: ${PLATFORM_HTTP_PORT:-8080}
+      CA_CERT_PATH: /etc/ssl/certs/ca-certificates.crt
+      VITE_S4_ENDPOINT: https://${PLATFORM_HOSTNAME}:${S4_PORT:-7070}
       VITE_TILE_SERVER_URL: https://tile.openstreetmap.org/{z}/{x}/{y}.png
-      VITE_GRPC_SERVER_URL: https://local-dsp.virtru.com:5002
-      VITE_DSP_KAS_URL: https://local-dsp.virtru.com:8080/kas
-      VITE_DSP_BASE_URL: https://local-dsp.virtru.com:8080
-      VITE_DSP_KC_SERVER_URL: https://local-dsp.virtru.com:8443/auth/realms/opentdf
+      VITE_GRPC_SERVER_URL: https://${PLATFORM_HOSTNAME}:5002
+      VITE_DSP_KAS_URL: https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTP_PORT:-8080}/kas
+      VITE_DSP_BASE_URL: https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTP_PORT:-8080}
+      VITE_DSP_KC_SERVER_URL: https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTPS_PORT:-8443}/auth/realms/opentdf
       VITE_DSP_KC_CLIENT_ID: dsp-cop-client
       VITE_DSP_KC_DIRECT_AUTH: false
       VITE_FORM_SUBMIT_NANO_TDF: true
+      S4_ENDPOINT: ${S4_ENDPOINT:-https://s4:7070}
     volumes:
-      - ../config.yaml:/etc/dsp-cop/config.yaml
+      - ../config.yaml:/etc/dsp-cop/config.yaml:ro
       - ../dsp-keys/rootCA.pem:/etc/ssl/certs/ca-certificates.crt
-      - ../dsp-keys/local-dsp.virtru.com.pem:/dsp-keys/local-dsp.virtru.com.pem
-      - ../dsp-keys/local-dsp.virtru.com.key.pem:/dsp-keys/local-dsp.virtru.com.key.pem
+      - ../dsp-keys/${PLATFORM_HOSTNAME}.pem:/dsp-keys/${PLATFORM_HOSTNAME}.pem
+      - ../dsp-keys/${PLATFORM_HOSTNAME}.key.pem:/dsp-keys/${PLATFORM_HOSTNAME}.key.pem
     ports:
       - 5001:5001
       - 5002:5002
@@ -33,5 +48,4 @@ services:
         condition: service_healthy
         restart: true
     extra_hosts:
-      - "local-dsp.virtru.com:172.17.0.1" #host and ip
-      #- "host.docker.internal:host-gateway"
+      - "${PLATFORM_HOSTNAME}:host-gateway"

@@ -161,7 +161,7 @@ Is there any server-side NPE entitlement required?
 a Java Key Store (`.jks`) for NiFi. 
     ```bash
     # Set namespace
-    env NAMESPACE="changeme" ./build_truststore_k8s.sh
+    env NAMESPACE="changeme" ./scripts/build/build_truststore_k8s.sh
     ```
 1. After running the above script, a file named `k8s-truststore/ca.jks` will be created. Copy it
 into the NiFi pod with the following command.  NOTE: The destination path matches the

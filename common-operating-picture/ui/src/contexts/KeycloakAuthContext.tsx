@@ -53,4 +53,13 @@ export const KeycloakAuthContext: AuthContext = {
     const client = getKeycloakClient();
     client.clearToken();
   },
+  refreshTokens: async () => {
+    const client = getKeycloakClient();
+    // updateToken(30) refreshes if token expires within 30 seconds
+    await client.updateToken(30);
+    return {
+      accessToken: client.token as string,
+      refreshToken: client.refreshToken as string,
+    };
+  },
 };

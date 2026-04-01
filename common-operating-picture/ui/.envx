@@ -1,8 +1,8 @@
 VITE_TILE_SERVER_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
-VITE_GRPC_SERVER_URL=https://local-dsp.virtru.com:5002
-VITE_DSP_BASE_URL=https://local-dsp.virtru.com:8080
-VITE_DSP_KAS_URL=https://local-dsp.virtru.com:8080/kas
-VITE_DSP_KC_SERVER_URL=https://local-dsp.virtru.com:8443/auth/realms/opentdf
+VITE_GRPC_SERVER_URL=https://cop.demo.missionedgetechnologies.com:5002
+VITE_DSP_BASE_URL=https://cop.demo.missionedgetechnologies.com:8080
+VITE_DSP_KAS_URL=https://cop.demo.missionedgetechnologies.com:8080/kas
+VITE_DSP_KC_SERVER_URL=https://cop.demo.missionedgetechnologies.com:8443/auth/realms/opentdf
 VITE_DSP_KC_CLIENT_ID=dsp-cop-client
 VITE_DSP_KC_DIRECT_AUTH=false
 VITE_FORM_SUBMIT_NANO_TDF=true

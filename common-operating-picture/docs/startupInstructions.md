@@ -1,6 +1,6 @@
 # Installation Guide
 
-Follow these steps to set up the Data Security Platform (DSP) local development environment.
+Follow these steps to set up the Data Security Platform (DSP) COP environment.
 
 ### Prerequisites
 
@@ -10,7 +10,7 @@ Before beginning, ensure your environment meets the following requirements.
 To install necessary dependencies automatically, run the provided script:
 
 ```bash
-./ubuntu_cop_prereqs_cop.sh
+./scripts/ops/ubuntu_cop_prereqs_cop.sh
 
 # Reboot after running script for some changes to take effect
 reboot
@@ -30,33 +30,29 @@ reboot
      - [Make](https://formulae.brew.sh/formula/make)
      </details>
    - **Local DNS Configuration**
-     - Entry added into /etc/hosts
+     - Add an entry to /etc/hosts for your domain:
      - ```text
-       127.0.0.1    local-dsp.virtru.com
+       127.0.0.1    your-domain.com
        ```
 
 ---
 
-### Step 1: Generate Local Certificates (Mkcert)
+### Step 1: Generate Certificates
 
-You need SSL certificates for local development.
-
-**Option A: Script**
-Run the key generation script:
+For **self-signed certs** (local dev or testing), run the key generation script with your domain:
 
 ```bash
-./ubuntu_cop_keys.sh
+# Defaults to local-dsp.virtru.com if no argument given
+./scripts/ops/ubuntu_cop_keys.sh
+
+# Custom domain
+./scripts/ops/ubuntu_cop_keys.sh your-domain.com
 ```
 
-**Option B: Make Command**
-** Note: you can use `'make dev-certs'` as a shortcut to generate the development certs **
-
-**Currently NonFunctional - Use the script above**
-
-```bash
-# Make command
-make dev-certs
-```
+For **real certs** (e.g. production/GCP), skip this step and place your cert files in `dsp-keys/` named as:
+- `dsp-keys/<your-domain>.pem`
+- `dsp-keys/<your-domain>.key.pem`
+- `dsp-keys/rootCA.pem`
 
 ### Step 2: Unpack the Bundle
 
@@ -104,30 +100,56 @@ curl -X GET http://localhost:5000/v2/_catalog
 curl -X GET http://localhost:5000/v2/virtru/data-security-platform/tags/list
 ```
 
-### Step 4: Build and Run
+### Step 4: Configure Your Domain
 
-Use Docker Compose to build and start the environment.
+There are only **2 files** to configure. All other URLs (KAS, IDP, Keycloak, TLS cert paths, S4 provider) are derived automatically.
 
-**Start the environment:**
-
-```bash
-docker compose --env-file env/default.env -f docker-compose.dev.yaml up --build --force-recreate
-```
-
-Local COP Application URL: https://local-dsp.virtru.com:5001/
-
-**Stop the environment:**
-
-The following will stop the enviroment and COP application. Crtl + c in the terminal will also stop the containers however it is recommended
-to also run the following down command as it will cleanup the container remnants.
+**`env/default.env`** — set `PLATFORM_HOSTNAME` to your domain:
 
 ```bash
-docker compose --env-file env/default.env -f docker-compose.dev.yaml down
+cp env/default.env.example env/default.env
 ```
 
-### Step 5. Seeding Vehicle Data and Live Data Flow Simulation
+Then edit `PLATFORM_HOSTNAME`:
+```
+PLATFORM_HOSTNAME=your-domain.com
+```
 
-Following the successful building of COP:
+**`config.yaml`** — set `platform_endpoint` to match:
+
+```bash
+cp config.yaml.example config.yaml
+```
+
+Then edit `platform_endpoint`:
+```yaml
+platform_endpoint: https://your-domain.com:8080
+```
+
+### Step 5: Build and Run
+
+```bash
+# Build (first time or after code changes)
+docker compose --env-file env/default.env -f docker-compose.dev.yaml --profile nifi --profile s4 up -d --build
+
+# Start (without rebuilding)
+docker compose --env-file env/default.env -f docker-compose.dev.yaml --profile nifi --profile s4 up -d
+
+# Restart with rebuild
+docker compose --env-file env/default.env -f docker-compose.dev.yaml --profile nifi --profile s4 down && \
+docker compose --env-file env/default.env -f docker-compose.dev.yaml --profile nifi --profile s4 up -d --build
+
+# Stop
+docker compose --env-file env/default.env -f docker-compose.dev.yaml --profile nifi --profile s4 down
+```
+
+**Application URLs:**
+- **UI:** `https://<your-domain>:5001/`
+- **Keycloak Admin:** `https://<your-domain>:8443/auth/admin/`
+
+### Step 6: Seeding Vehicle Data and Live Data Flow Simulation
+
+You can seed data from the UI by clicking **Start Simulation**, or manually:
 
 ```bash
 # Install the venv module
@@ -139,40 +161,40 @@ python3 -m venv COP_venv
 
 ```bash
 # Activate the virtual environment.
-# Your shell prompt will change to indicate it's active.
 source COP_venv/bin/activate
 ```
 
 ```bash
-# Pip install all required package from requirements.txt
+# Install required packages
 pip install -r requirements.txt
 ```
 
 ```bash
 # Run seeding script to populate database
-# 50 is the standard number of objects that the script will inset but is configurable via NUM_RECORDS variable
-python3 seed_data.py
+python3 scripts/seed/seed_data.py
 ```
 
 ```bash
 # Start simulation
 # NUM_ENTITIES will determine how many moving entities the script will query the database for and apply movement logic to
-# UPDATE_INTERVAL_SECONDS determins the frequency of movement for each object
-# BOUNDING_BOX_PARAMS define the area for the OpenSky query for live planes (smaller box results in less credits used on init).
+# UPDATE_INTERVAL_SECONDS determines the frequency of movement for each object
 
 # For live data from OpenSky Network login to https://opensky-network.org/, download credentials file (credentials.json),
-# place the file in the base director (where the sim_data.py script is located) and then run:
-python3 sim_data.py
+# place the file in the base directory and then run:
+python3 scripts/seed/sim_data.py
 
-# For a fake simulation that does not require the credentials file or use account credits with OpenSky run this script
-# for simulated movement:
-python3 sim_data_fake_opensky.py
+# For a fake simulation that does not require the credentials file or use account credits with OpenSky:
+python3 scripts/seed/sim_data_fake_opensky.py
 ```
 
 ### Troubleshooting & Verification Checklist
 
 If you encounter issues, double-check the following:
 
-- **dsp.yaml:** Ensure this file exists in your working directory.
-- **rootCA.cert:** Ensure the root CA certificate was copied correctly during the setup.
-- **Permissions:** Verify that the certificates in `dsp-keys` have `chmod 755` permissions.
+- **Config:** Ensure `config.yaml` exists with the correct `platform_endpoint`. All other URLs are derived automatically.
+- **Env file:** Ensure `env/default.env` exists with the correct `PLATFORM_HOSTNAME`. Copy from `env/default.env.example` if missing.
+- **S4 config:** The S4 proxy config is generated automatically at container startup from `PLATFORM_HOSTNAME` — no separate S4 config files needed.
+- **Certs:** Ensure `dsp-keys/<your-domain>.pem`, `dsp-keys/<your-domain>.key.pem`, and `dsp-keys/rootCA.pem` exist.
+- **Permissions:** Verify that the certificates in `dsp-keys` have `chmod 644` permissions.
+- **Firewall:** Ensure ports 5001, 5002, 7070, 8080, and 8443 are open for your VM.
+- **DNS:** Ensure your domain resolves to the VM's IP (via DNS A record or `/etc/hosts`).

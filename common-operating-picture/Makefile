@@ -15,15 +15,18 @@ proto-gen:
 	@echo "Generating proto files"
 	buf generate
 
+PLATFORM_HOSTNAME ?= local-dsp.virtru.com
+
 signingpassphrase = "changeme"
 dev-certs:
 	@which mkcert > /dev/null || { echo "mkcert not found, please install it: https://github.com/FiloSottile/mkcert"; exit 1; }
 	@mkdir -p $(DSP_KEYS_DIR)
-	@mkcert -cert-file $(DSP_KEYS_DIR)/local-dsp.virtru.com.pem -key-file $(DSP_KEYS_DIR)/local-dsp.virtru.com.key.pem local-dsp.virtru.com "*.local-dsp.virtru.com" localhost
+	@mkcert -cert-file $(DSP_KEYS_DIR)/$(PLATFORM_HOSTNAME).pem -key-file $(DSP_KEYS_DIR)/$(PLATFORM_HOSTNAME).key.pem $(PLATFORM_HOSTNAME) "*.$(PLATFORM_HOSTNAME)" localhost
 	@./.github/scripts/init-temp-keys.sh
 	@./.github/scripts/x509-temp-keys.sh
-	@./build_truststore_local.sh
-	@cp ./dsp-keys/local-dsp.virtru.com.pem ./nifi/truststore
+	@./scripts/build/build_truststore_local.sh
+	@cp ./dsp-keys/$(PLATFORM_HOSTNAME).pem ./nifi/truststore
+
 
 download-otdf-nifi:
 	@echo "Downloading opentdf nifi bundles"

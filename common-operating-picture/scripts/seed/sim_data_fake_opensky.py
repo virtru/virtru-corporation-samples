@@ -1,4 +1,5 @@
 import asyncio
+import os
 import time
 import uuid
 import psycopg2
@@ -9,8 +10,8 @@ from shapely.geometry import Point
 DB_NAME = "postgres"
 DB_USER = "postgres"
 DB_PASSWORD = "changeme"
-DB_HOST = "localhost"
-DB_PORT = 15432
+DB_HOST = os.getenv("DB_HOST", "cop-db")
+DB_PORT = 5432
 TABLE_NAME = "tdf_objects"
 
 # Script parameters

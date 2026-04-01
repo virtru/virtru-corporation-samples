@@ -1,0 +1,163 @@
+{
+    "CompositeObject": [
+        {
+            "Type": "sitrep",
+            "tdfFormat": "nano",
+            "Details": {
+                "reportType": "REGULAR/INCIDENT",
+                "entryDate": "2026-03-19",
+                "reporter": "COL James Harrington",
+                "missionName": "OP IRON SENTINEL",
+                "reportSignificance": 3,
+                "fromLocation": {
+                    "country": "United Kingdom",
+                    "alpha2": "GB",
+                    "alpha3": "GBR",
+                    "numeric": 826,
+                    "latitude": 51.5,
+                    "longitude": -0.12
+                },
+                "aboutLocation": {
+                    "country": "Kuwait",
+                    "alpha2": "KW",
+                    "alpha3": "KWT",
+                    "numeric": 414,
+                    "latitude": 29.37,
+                    "longitude": 47.98
+                },
+                "count": 1,
+                "description": "AO remains stable. Continued presence of adversary elements in grid sectors 4 and 7. No significant contact in the last 24 hours. ISR assets maintaining coverage of primary target sets.",
+                "documentId": "DOC-20260319-001",
+                "sourceId": "SRC-CENTCOM-J3",
+                "stage": "FINAL",
+                "siteId": "SITE-FOB-EAGLE",
+                "Coord": "291700000N04748000000E",
+                "ProducerDateTimeLastChg": "2026-03-19T18:00:00Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/secret"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/nato"],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "missionName": "OP IRON SENTINEL",
+                "reporter": "COL James Harrington",
+                "reportType": "REGULAR/INCIDENT",
+                "attrRelTo": ["https://demo.com/attr/relto/value/nato"],
+                "attrNeedToKnow": [],
+                "attrClassification": ["https://demo.com/attr/classification/value/secret"]
+            },
+            "Metadata": {
+                "reportType": "REGULAR/INCIDENT",
+                "missionName": "OP IRON SENTINEL",
+                "entryDate": "2026-03-19",
+                "reportSignificance": 3
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-sitrep-001</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T18:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>CENTCOM</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"S\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA NATO\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"J3 Operations\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "sitrep",
+            "tdfFormat": "nano",
+            "Details": {
+                "reportType": "SAR",
+                "entryDate": "2026-03-19",
+                "reporter": "LTC Sarah Mitchell",
+                "missionName": "OP SHADOW GAZE",
+                "reportSignificance": 5,
+                "fromLocation": {
+                    "country": "Australia",
+                    "alpha2": "AU",
+                    "alpha3": "AUS",
+                    "numeric": 36,
+                    "latitude": -25.27,
+                    "longitude": 133.78
+                },
+                "aboutLocation": {
+                    "country": "Philippines",
+                    "alpha2": "PH",
+                    "alpha3": "PHL",
+                    "numeric": 608,
+                    "latitude": 12.88,
+                    "longitude": 121.77
+                },
+                "count": 1,
+                "description": "ISR operations ongoing in AO KNOX. MQ-9A assets have confirmed movement of adversary logistics elements. Two high-value targets identified and tracked. SIGINT corroborating IMINT collections.",
+                "documentId": "DOC-20260319-002",
+                "sourceId": "SRC-432WG-CENTCOM",
+                "stage": "DRAFT",
+                "siteId": "SITE-CREECH-AFB",
+                "Coord": "361500000N11546000000W",
+                "ProducerDateTimeLastChg": "2026-03-19T09:00:00Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/topsecret"],
+                "attrRelTo": [],
+                "attrNeedToKnow": ["https://demo.com/attr/needtoknow/value/bbb"]
+            },
+            "Search": {
+                "missionName": "OP SHADOW GAZE",
+                "reporter": "LTC Sarah Mitchell",
+                "reportType": "SAR",
+                "attrRelTo": [],
+                "attrNeedToKnow": ["https://demo.com/attr/needtoknow/value/bbb"],
+                "attrClassification": ["https://demo.com/attr/classification/value/topsecret"]
+            },
+            "Metadata": {
+                "reportType": "SAR",
+                "missionName": "OP SHADOW GAZE",
+                "entryDate": "2026-03-19",
+                "reportSignificance": 5
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-sitrep-002</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T09:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"TS\" ism:ownerProducer=\"USA\" ism:disseminationControls=\"NF\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"ISR Operations\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "sitrep",
+            "tdfFormat": "nano",
+            "Details": {
+                "reportType": "CONSOLIDATED",
+                "entryDate": "2026-03-19",
+                "reporter": "MG Robert Calloway",
+                "missionName": "OP STEEL ANVIL",
+                "reportSignificance": 5,
+                "fromLocation": {
+                    "country": "Germany",
+                    "alpha2": "DE",
+                    "alpha3": "DEU",
+                    "numeric": 276,
+                    "latitude": 51.17,
+                    "longitude": 10.45
+                },
+                "aboutLocation": {
+                    "country": "Romania",
+                    "alpha2": "RO",
+                    "alpha3": "ROU",
+                    "numeric": 642,
+                    "latitude": 45.94,
+                    "longitude": 24.97
+                },
+                "count": 7,
+                "description": "Weekly consolidated SITREP for OP STEEL ANVIL. All subordinate units reported GREEN across logistics and personnel. No significant enemy activity. Eastern flank posture remains firm with NATO partners.",
+                "documentId": "DOC-20260319-003",
+                "sourceId": "SRC-EUCOM-J5",
+                "stage": "FINAL",
+                "siteId": "SITE-EUCOM-HQ",
+                "Coord": "459400000N02497000000E",
+                "ProducerDateTimeLastChg": "2026-03-19T20:00:00Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/secret"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/nato"],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "missionName": "OP STEEL ANVIL",
+                "reporter": "MG Robert Calloway",
+                "reportType": "CONSOLIDATED",
+                "attrRelTo": ["https://demo.com/attr/relto/value/nato"],
+                "attrNeedToKnow": [],
+                "attrClassification": ["https://demo.com/attr/classification/value/secret"]
+            },
+            "Metadata": {
+                "reportType": "CONSOLIDATED",
+                "missionName": "OP STEEL ANVIL",
+                "entryDate": "2026-03-19",
+                "reportSignificance": 5
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-sitrep-003</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T20:00:00Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>CENTCOM</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"S\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA NATO\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"J5 Operations\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        }
+    ]
+}

@@ -25,25 +25,28 @@ services:
       - 35433:5432
 
 #================================================================
-# Provisioning Keycloak with expected realm, clients, and users 
+# Provisioning Keycloak with expected realm, clients, and users
 #----------------------------------------------------------------
   dsp-keycloak-provisioning:
     build:
       context: ../
-      dockerfile: ./dev.dsp.Dockerfile
+      dockerfile: ./docker/dev.dsp.Dockerfile
+      args:
+        PLATFORM_HOSTNAME: ${PLATFORM_HOSTNAME}
     command:
       [
         'tructl',
         'provision',
         'keycloak-from-config',
         '-e',
-        'https://local-dsp.virtru.com:8443/auth',
+        'https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTPS_PORT:-8443}/auth',
       ]
     depends_on:
       keycloak:
         condition: service_healthy
         restart: true
-    network_mode: host
+    extra_hosts:
+      - "${PLATFORM_HOSTNAME}:host-gateway"
 
 #================================================================
 # Start the DSP service
@@ -51,10 +54,12 @@ services:
   dsp:
     build:
       context: ../
-      dockerfile: ./dev.dsp.Dockerfile
+      dockerfile: ./docker/dev.dsp.Dockerfile
+      args:
+        PLATFORM_HOSTNAME: ${PLATFORM_HOSTNAME}
     command: ['start']
     ports:
-      - '8080:8080'
+      - '${PLATFORM_HTTP_PORT:-8080}:8080'
     volumes:
       - ../dsp-keys:/dsp-keys
     restart: always
@@ -72,19 +77,20 @@ services:
       test:
         [
           'CMD-SHELL',
-          'curl -fkSs --max-time 5 https://local-dsp.virtru.com:8080/healthz >/dev/null || exit 1',
+          'curl -fkSs --max-time 5 https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTP_PORT:-8080}/healthz >/dev/null || exit 1',
         ]
       interval: 60s
       timeout: 10s
       retries: 10
       start_period: 10s
     environment:
-      DSP_DB_HOST: local-dsp.virtru.com
+      DSP_DB_HOST: ${PLATFORM_HOSTNAME}
       DSP_DB_PORT: 35433
       DSP_DB_USER: postgres
       DSP_DB_PASSWORD: changeme
     # Required for DSP to communicate with Keycloak with OIDC
-    network_mode: host
+    extra_hosts:
+      - "${PLATFORM_HOSTNAME}:host-gateway"
 
 #================================================================
 # Provision the DSP with DSP COP federal policy
@@ -92,7 +98,9 @@ services:
   dsp-provision-federal-policy:
     build:
       context: ../
-      dockerfile: ./dev.dsp.Dockerfile
+      dockerfile: ./docker/dev.dsp.Dockerfile
+      args:
+        PLATFORM_HOSTNAME: ${PLATFORM_HOSTNAME}
     command: [
         'tructl',
         'provision',
@@ -103,25 +111,31 @@ services:
         '--with-client-creds',
         '{"clientId":"opentdf","clientSecret":"secret"}',
         '--host',
-        'https://local-dsp.virtru.com:8080',
+        'https://${PLATFORM_HOSTNAME}:${PLATFORM_HTTP_PORT:-8080}',
       ]
-    network_mode: host
+    # network_mode: host\
+    extra_hosts:
+      - "${PLATFORM_HOSTNAME}:host-gateway"
     depends_on:
       dsp:
         condition: service_healthy
-  
+
   dsp-cli-user:
     build:
       context: ../
-      dockerfile: ./dev.dsp.Dockerfile
-    # An entrypoint for the packaged DSP container, which waits online for developers to 
+      dockerfile: ./docker/dev.dsp.Dockerfile
+      args:
+        PLATFORM_HOSTNAME: ${PLATFORM_HOSTNAME}
+    # An entrypoint for the packaged DSP container, which waits online for developers to
     # connect to it using a shell. This is useful for debugging and running commands in the
     # development network.
     #
     # This can be accessed with 'make launch-dsp-shell', as documented in the README.md
     entrypoint: ["/bin/sh", "-c", "while true; do sleep 1000; done"]
-    network_mode: host
+    # network_mode: host
+    extra_hosts:
+      - "${PLATFORM_HOSTNAME}:host-gateway"
     restart: "always"
     depends_on:
       dsp:
-        condition: service_healthy        
+        condition: service_healthy

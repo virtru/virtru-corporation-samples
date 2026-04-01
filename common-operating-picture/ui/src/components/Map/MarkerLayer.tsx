@@ -141,7 +141,9 @@ export function MarkerLayer({ tdfObjects = [], isCluster = false, layerName = 'u
         // fixme: currently using the first index
         objectConfigValueColor = objectConfigValueColor[0];
       }
-      objectConfigValueColor = objectConfigValueColor.toLowerCase();
+      if (objectConfigValueColor) {
+        objectConfigValueColor = objectConfigValueColor.toLowerCase();
+      }
 
       iconColor = mapStringToColor(objectConfigValueColor);
     }

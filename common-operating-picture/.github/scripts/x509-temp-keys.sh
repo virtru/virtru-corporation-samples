@@ -51,7 +51,7 @@ fi
 printf "Adding '${ROOT_CA}' to truststore => [${KEYCLOAK_TRUSTSTORE}]\n"
 keytool -import -alias dsp-cop-root-ca -file "${ROOT_CA}" -keystore "${KEYCLOAK_TRUSTSTORE}" -storepass password -noprompt
 
-parse_yaml ../sample.keycloak.yaml | \
+parse_yaml ../../config/samples/sample.keycloak.yaml | \
   grep "users__email" | \
   cut -d '"' -f 2 | \
   while read CLIENT;

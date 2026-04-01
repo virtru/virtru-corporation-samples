@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/subtle"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -198,9 +200,15 @@ func createStaticServer(c *config.Config, staticFs fs.FS) *http.Server {
 
 	mux.Handle("GET /", staticFilesHandler(c, staticFs))
 
+	var handler http.Handler = mux
+	if c.BasicAuthUsername != "" && c.BasicAuthPassword != "" {
+		slog.Info("basic auth enabled for static server")
+		handler = basicAuthMiddleware(c.BasicAuthUsername, c.BasicAuthPassword, mux)
+	}
+
 	return &http.Server{
 		Addr:         ":" + c.Service.StaticPort,
-		Handler:      mux,
+		Handler:      handler,
 		WriteTimeout: time.Second * time.Duration(c.Service.StaticWriteTimeout),
 		ReadTimeout:  time.Second * time.Duration(c.Service.StaticReadTimeout),
 	}
@@ -270,6 +278,42 @@ func initSdk(c *config.Config) (*sdk.SDK, error) {
 	// TODO need the ability to get the IdP URL from the platform wellknown
 
 	return client, nil
+}
+
+// basicAuthMiddleware returns middleware that gates all requests behind HTTP Basic Auth.
+// Uses constant-time comparison to prevent timing attacks.
+func basicAuthMiddleware(username, password string, next http.Handler) http.Handler {
+	expectedUser := sha256.Sum256([]byte(username))
+	expectedPass := sha256.Sum256([]byte(password))
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Allow CORS preflight requests through without auth
+		if r.Method == http.MethodOptions {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		user, pass, ok := r.BasicAuth()
+		if !ok {
+			w.Header().Set("WWW-Authenticate", `Basic realm="DSP COP"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		userHash := sha256.Sum256([]byte(user))
+		passHash := sha256.Sum256([]byte(pass))
+
+		userMatch := subtle.ConstantTimeCompare(userHash[:], expectedUser[:]) == 1
+		passMatch := subtle.ConstantTimeCompare(passHash[:], expectedPass[:]) == 1
+
+		if !userMatch || !passMatch {
+			w.Header().Set("WWW-Authenticate", `Basic realm="DSP COP"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func setupGracefulShutdown() {

@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log/slog"
+	"net/url"
 	"strings"
 
 	"github.com/creasty/defaults"
@@ -55,13 +56,19 @@ type Config struct {
 	////////////////////////
 	//// Optional
 	////////////////////////
+
+	// Basic auth credentials to gate the entire application (browser prompt).
+	// If both are set, all requests require HTTP Basic Auth before anything loads.
+	BasicAuthUsername string `mapstructure:"basic_auth_username"`
+	BasicAuthPassword string `mapstructure:"basic_auth_password"`
+
 	LogLevel string `mapstructure:"log_level" default:"DEBUG"`
 
 	Service struct {
 		// The public host and port is used by the web interface to connect to the server. In many
 		// environments this will not be the same as the hostname and port the server is listening on.
-		PublicServerHost string `mapstructure:"public_server_host" default:"local-dsp.virtru.com:5002"`
-		PublicStaticHost string `mapstructure:"public_static_host" default:"local-dsp.virtru.com:5001"`
+		PublicServerHost string `mapstructure:"public_server_host"`
+		PublicStaticHost string `mapstructure:"public_static_host"`
 
 		GrpcPort         string `mapstructure:"grpc_port" default:"5002"`
 		GrpcWriteTimeout int    `mapstructure:"grpc_write_timeout" default:"60"`
@@ -80,8 +87,8 @@ type Config struct {
 		// TLS configuration
 		TLS struct {
 			Enabled  bool   `mapstructure:"enabled" default:"true"`
-			CertFile string `mapstructure:"cert_file" default:"dsp-keys/local-dsp.virtru.com.pem"`
-			KeyFile  string `mapstructure:"key_file" default:"dsp-keys/local-dsp.virtru.com.key.pem"`
+			CertFile string `mapstructure:"cert_file"`
+			KeyFile  string `mapstructure:"key_file"`
 		} `mapstructure:"tls"`
 	} `mapstructure:"service"`
 
@@ -126,6 +133,11 @@ func New() (*Config, error) {
 		return nil, fmt.Errorf("fatal error unmarshalling config: %w", err)
 	}
 
+	// Derive defaults from platform_endpoint so the hostname is only configured once
+	if err := c.deriveDefaults(); err != nil {
+		return nil, fmt.Errorf("fatal error deriving defaults: %w", err)
+	}
+
 	validate := validator.New()
 	if err := validate.Struct(c); err != nil {
 		fmt.Print(validatorErrMsg)
@@ -144,4 +156,41 @@ func New() (*Config, error) {
 	slog.Debug("config data", slog.Any("config", c))
 
 	return c, nil
+}
+
+// deriveDefaults fills in empty config values by deriving them from platform_endpoint.
+// This allows the hostname to be configured once rather than repeated across many fields.
+func (c *Config) deriveDefaults() error {
+	if c.PlatformEndpoint == "" {
+		return nil
+	}
+
+	parsed, err := url.Parse(c.PlatformEndpoint)
+	if err != nil {
+		return fmt.Errorf("failed to parse platform_endpoint: %w", err)
+	}
+
+	hostname := parsed.Hostname()
+	scheme := parsed.Scheme
+
+	if c.DeprecatedKASUrl == "" {
+		c.DeprecatedKASUrl = c.PlatformEndpoint + "/kas"
+	}
+	if c.DeprecatedIdpUrl == "" {
+		c.DeprecatedIdpUrl = scheme + "://" + hostname + ":8443/auth/realms/opentdf"
+	}
+	if c.Service.PublicServerHost == "" {
+		c.Service.PublicServerHost = scheme + "://" + hostname + ":" + c.Service.GrpcPort
+	}
+	if c.Service.PublicStaticHost == "" {
+		c.Service.PublicStaticHost = scheme + "://" + hostname + ":" + c.Service.StaticPort
+	}
+	if c.Service.TLS.CertFile == "" {
+		c.Service.TLS.CertFile = "/dsp-keys/" + hostname + ".pem"
+	}
+	if c.Service.TLS.KeyFile == "" {
+		c.Service.TLS.KeyFile = "/dsp-keys/" + hostname + ".key.pem"
+	}
+
+	return nil
 }
