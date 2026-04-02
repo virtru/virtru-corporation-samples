@@ -54,7 +54,7 @@ export const Banner = () => {
 
   const { label, color } = getBannerData();
 
-  if ( activeEntitlements.size === 0) return null;
+  if (activeEntitlements.size === 0 || activeEntitlements.has('NoAccess')) return null;
 
   return (
     <Box

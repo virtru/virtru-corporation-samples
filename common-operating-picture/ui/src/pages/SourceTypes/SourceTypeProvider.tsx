@@ -87,6 +87,7 @@ export function SourceTypeProvider({ children, srcType }: Props) {
 
     const searchFormSchema: RJSFSchema = {
       type: 'object',
+      required: ['startDate', 'endDate'],
       definitions: createFormSchema.definitions,
       properties: {
         startDate: {
@@ -143,7 +144,7 @@ export function SourceTypeProvider({ children, srcType }: Props) {
   }, [srcType]);
 
   if (!srcType) {
-    return null;
+    return <>{children}</>;
   }
 
   const { geoField, searchFields, tsField, attrFields, displayFields, mapFields } = srcType.metadata || {};

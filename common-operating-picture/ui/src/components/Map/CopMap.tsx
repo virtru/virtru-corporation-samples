@@ -20,6 +20,7 @@ interface CopMapProps {
   onPopOut: (response: VehiclePopOutResponse) => void;
 }
 
+
 export function CopMap({
   filteredVehicleData,
   tdfObjects,
@@ -28,6 +29,7 @@ export function CopMap({
   onVehicleClick,
   onPopOut,
 }: CopMapProps) {
+
   const { trails, updateTrails } = useVehicleTrails({
     maxPoints: 5000,
     minInterval: 2000,
@@ -98,9 +100,7 @@ export function CopMap({
           </LayersControl.Overlay>
         )}
         {tdfObjects.length > 0 && (
-          <LayersControl.Overlay name="TDF Objects" checked>
-            <TdfObjectsMapLayer tdfObjects={tdfObjects} />
-          </LayersControl.Overlay>
+          <TdfObjectsMapLayer tdfObjects={tdfObjects} />
         )}
       </LayersControl>
     </MapContainer>

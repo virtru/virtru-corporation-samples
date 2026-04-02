@@ -2,7 +2,7 @@
     "CompositeObject": [
         {
             "Type": "vehicles",
-            "tdfFormat": "nano",
+            "tdfFormat": "ztdf",
             "Details": {
                 "vehicleName": "F-35A Lightning II",
                 "callsign": "VPR01",
@@ -36,7 +36,7 @@
         },
         {
             "Type": "vehicles",
-            "tdfFormat": "nano",
+            "tdfFormat": "ztdf",
             "Details": {
                 "vehicleName": "B-52H Stratofortress",
                 "callsign": "IRON21",
@@ -70,7 +70,7 @@
         },
         {
             "Type": "vehicles",
-            "tdfFormat": "nano",
+            "tdfFormat": "ztdf",
             "Details": {
                 "vehicleName": "KC-135R Stratotanker",
                 "callsign": "TEXCO61",
