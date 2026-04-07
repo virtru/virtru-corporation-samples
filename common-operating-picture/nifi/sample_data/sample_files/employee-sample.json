@@ -102,7 +102,7 @@
                 "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
                 "attrClassification": "https://demo.com/attr/classification/value/topsecret",
                 "attrRelTo": [],
-                "attrNeedToKnow": ["https://demo.com/attr/needtoknow/value/bbb"]
+                "attrNeedToKnow": []
             },
             "Search": {
                 "name": "Diana Reeves",
