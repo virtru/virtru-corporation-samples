@@ -1,0 +1,1025 @@
+<!-- COP Architecture Explorer | Generated: 2026-04-08 15:38:21 UTC | Regenerate with: "please update the architecture diagram at docs/architecture.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COP Architecture Explorer</title>
+<style>
+:root {
+  --bg: #f8f9fa;
+  --sidebar-bg: #1a2332;
+  --sidebar-text: #c8d6e5;
+  --sidebar-active: #4da6ff;
+  --card-bg: #fff;
+  --text: #2d3436;
+  --text-muted: #636e72;
+  --accent: #0066cc;
+  --accent-light: #e8f4fd;
+  --border: #dfe6e9;
+  --code-bg: #f1f3f5;
+  --code-text: #d63384;
+  --tag-bg: #e3f2fd;
+  --tag-text: #1565c0;
+  --warn-bg: #fff3cd;
+  --warn-text: #856404;
+  --success-bg: #d4edda;
+  --success-text: #155724;
+  --topbar-h: 56px;
+  --sidebar-w: 280px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+/* Top bar */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); z-index: 100;
+  background: var(--sidebar-bg); color: #fff; display: flex; align-items: center; padding: 0 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.topbar h1 { font-size: 16px; font-weight: 600; white-space: nowrap; line-height: 1.2; }
+.topbar h1 .updated { display: block; font-size: 10px; font-weight: 400; color: #8899aa; }
+.topbar h1 span { color: var(--sidebar-active); }
+.topbar .search {
+  margin-left: 32px; flex: 1; max-width: 400px;
+}
+.topbar .search input {
+  width: 100%; padding: 6px 12px; border-radius: 6px; border: 1px solid #3d5a80;
+  background: #223344; color: #fff; font-size: 13px; outline: none;
+}
+.topbar .search input::placeholder { color: #8899aa; }
+.topbar .search input:focus { border-color: var(--sidebar-active); }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; top: var(--topbar-h); left: 0; bottom: 0; width: var(--sidebar-w);
+  background: var(--sidebar-bg); overflow-y: auto; padding: 16px 0; z-index: 50;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: #3d5a80; border-radius: 2px; }
+.sidebar a {
+  display: block; padding: 6px 20px; color: var(--sidebar-text); text-decoration: none;
+  font-size: 13px; border-left: 3px solid transparent; transition: all .2s;
+}
+.sidebar a:hover { color: #fff; background: rgba(255,255,255,.05); }
+.sidebar a.active { color: var(--sidebar-active); border-left-color: var(--sidebar-active); background: rgba(77,166,255,.08); font-weight: 600; }
+.sidebar .nav-group { padding: 12px 20px 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #5a7a9a; }
+
+/* Main */
+main {
+  margin-left: var(--sidebar-w); margin-top: var(--topbar-h); padding: 32px 40px 80px;
+  max-width: 960px;
+}
+section { margin-bottom: 48px; scroll-margin-top: calc(var(--topbar-h) + 16px); }
+section.hidden { display: none; }
+h2 { font-size: 24px; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); color: var(--accent); }
+h3 { font-size: 18px; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+h4 { font-size: 14px; font-weight: 600; margin: 12px 0 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+p { margin-bottom: 12px; }
+ul, ol { margin: 0 0 12px 20px; }
+li { margin-bottom: 4px; }
+
+/* Cards */
+.card {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 12px; overflow: hidden; transition: box-shadow .2s;
+}
+.card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.card-header {
+  padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  font-weight: 600; font-size: 15px; user-select: none;
+}
+.card-header .arrow { transition: transform .2s; font-size: 12px; color: var(--text-muted); }
+.card.open .card-header .arrow { transform: rotate(90deg); }
+.card-header .tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--tag-bg); color: var(--tag-text); font-weight: 500; }
+.card-body { padding: 0 16px 16px; display: none; font-size: 14px; }
+.card.open .card-body { display: block; }
+
+/* Code */
+code { background: var(--code-bg); color: var(--code-text); padding: 1px 5px; border-radius: 3px; font-size: 13px; font-family: 'SF Mono', Menlo, monospace; }
+pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; overflow-x: auto; margin: 8px 0 16px; font-size: 13px; line-height: 1.5; font-family: 'SF Mono', Menlo, monospace; }
+pre code { background: none; color: var(--text); padding: 0; }
+.filepath { color: #0969da; font-weight: 500; cursor: pointer; text-decoration: none; }
+a.filepath:hover { text-decoration: underline; }
+
+/* Callout */
+.callout { padding: 12px 16px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+.callout.warn { background: var(--warn-bg); color: var(--warn-text); border-left: 4px solid #ffc107; }
+.callout.info { background: var(--accent-light); color: var(--accent); border-left: 4px solid var(--accent); }
+.callout.success { background: var(--success-bg); color: var(--success-text); border-left: 4px solid #28a745; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 14px; }
+th, td { padding: 8px 12px; border: 1px solid var(--border); text-align: left; }
+th { background: var(--code-bg); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+
+/* SVG diagram */
+.diagram { margin: 16px 0; overflow-x: auto; }
+.diagram svg { max-width: 100%; height: auto; }
+.diagram svg text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.diagram svg .node { cursor: pointer; }
+.diagram svg .node:hover rect, .diagram svg .node:hover ellipse { filter: brightness(0.95); }
+
+/* Flow steps */
+.flow-step { display: flex; gap: 12px; margin-bottom: 8px; align-items: flex-start; }
+.flow-num { min-width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.flow-content { padding-top: 3px; }
+
+/* File tree */
+.tree { font-family: 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.8; }
+.tree .dir { color: var(--accent); font-weight: 600; cursor: pointer; }
+.tree .dir:hover { text-decoration: underline; }
+.tree .file { color: var(--text-muted); }
+.tree .desc { color: #999; font-style: italic; margin-left: 8px; }
+.tree details { margin-left: 16px; }
+.tree summary { cursor: pointer; list-style: none; }
+.tree summary::-webkit-details-marker { display: none; }
+.tree summary::before { content: '\25B6 '; font-size: 10px; color: var(--text-muted); }
+.tree details[open] > summary::before { content: '\25BC '; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  main { margin-left: 0; padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <h1><span>Virtru</span> Common Operating Picture &mdash; Architecture Explorer<span class="updated">Last updated: April 8, 2026 15:38:21 UTC</span></h1>
+  <div class="search"><input type="text" id="search" placeholder="Search sections..."></div>
+</div>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-group">Application</div>
+  <a href="#overview">Overview</a>
+  <a href="#architecture">Architecture Diagram</a>
+  <a href="#startup">Startup Flow</a>
+  <div class="nav-group">Components</div>
+  <a href="#frontend">Frontend (React UI)</a>
+  <a href="#backend">Backend (Go Server)</a>
+  <a href="#proto">gRPC / Connect Services</a>
+  <div class="nav-group">Data</div>
+  <a href="#database">Database Layer</a>
+  <a href="#data-flows">Data Flows</a>
+  <a href="#encryption">TDF Encryption</a>
+  <div class="nav-group">Infrastructure</div>
+  <a href="#auth">Authentication</a>
+  <a href="#configuration">Configuration</a>
+  <a href="#infra">Docker / Compose</a>
+  <div class="nav-group">Developer</div>
+  <a href="#local-dev">Local Dev Setup</a>
+  <a href="#directory">Directory Structure</a>
+</nav>
+
+<!-- Main Content -->
+<main id="main">
+
+<!-- 1. OVERVIEW -->
+<section id="overview">
+<h2>Overview</h2>
+<p>The <strong>Virtru Common Operating Picture (COP)</strong> is a full-stack geospatial situational awareness application that demonstrates <strong>data-centric security</strong> using the Virtru Data Security Platform (DSP). All sensitive object data is encrypted at rest using the <strong>Trusted Data Format (TDF)</strong> while retaining plaintext metadata for map visualization and search.</p>
+
+<p>COP ingests structured data objects (vehicles, sensors, personnel, etc.) through a schema-driven UI, encrypts payloads as ZTDF (TDF3) blobs by default, stores them in a PostGIS-enabled PostgreSQL database, and streams real-time updates to connected clients via gRPC. Authorized users can decrypt and view protected content directly in the browser using Web Workers.</p>
+
+<h3>Key Capabilities</h3>
+<table>
+<tr><th>Capability</th><th>Technology</th><th>Description</th></tr>
+<tr><td>Geospatial Visualization</td><td>Leaflet + PostGIS</td><td>Interactive map with vehicle tracking, clustering, and military symbology</td></tr>
+<tr><td>TDF Encryption</td><td>OpenTDF / DSP SDK</td><td>ZTDF (TDF3) encryption of all object payloads at form submission; NanoTDF available via config flag</td></tr>
+<tr><td>Schema-driven Forms</td><td>react-jsonschema-form</td><td>Dynamic UI forms generated from JSON Schema stored in database</td></tr>
+<tr><td>Real-time Streaming</td><td>gRPC streaming + PG NOTIFY</td><td>Live updates pushed to clients as new objects are inserted</td></tr>
+<tr><td>Concurrent Decryption</td><td>Web Workers (pool of 4)</td><td>Non-blocking TDF decryption using a browser worker pool</td></tr>
+<tr><td>Dual Auth</td><td>Keycloak / direct OIDC</td><td>Supports Keycloak PKI/password login and direct OIDC password flow</td></tr>
+</table>
+
+<h3>Deployment Modes</h3>
+<ul>
+<li><strong>Lite</strong> &mdash; minimal stack for demos (COP server + DB only, no Keycloak)</li>
+<li><strong>Full</strong> &mdash; complete stack with Keycloak IdP and DSP platform services</li>
+<li><strong>With NiFi</strong> &mdash; adds Apache NiFi for automated data pipeline ingestion</li>
+</ul>
+</section>
+
+<!-- 2. ARCHITECTURE DIAGRAM -->
+<section id="architecture">
+<h2>Architecture Diagram</h2>
+<div class="diagram">
+<svg viewBox="0 0 900 640" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Infrastructure layer -->
+  <rect x="20" y="500" width="860" height="120" rx="8" fill="#e8eaed" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="40" y="525" font-size="12" font-weight="bold" fill="#636e72">INFRASTRUCTURE (Docker Compose)</text>
+
+  <g class="node" onclick="document.getElementById('infra').scrollIntoView({behavior:'smooth'})">
+    <rect x="40" y="540" width="140" height="60" rx="6" fill="#f39c12" stroke="#e67e22"/>
+    <text x="110" y="566" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Keycloak</text>
+    <text x="110" y="582" text-anchor="middle" font-size="10" fill="#fff">:8443 (OIDC IdP)</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('database').scrollIntoView({behavior:'smooth'})">
+    <rect x="200" y="540" width="150" height="60" rx="6" fill="#3498db" stroke="#2980b9"/>
+    <text x="275" y="566" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">PostgreSQL</text>
+    <text x="275" y="582" text-anchor="middle" font-size="10" fill="#fff">+PostGIS :5432</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('infra').scrollIntoView({behavior:'smooth'})">
+    <rect x="370" y="540" width="130" height="60" rx="6" fill="#1abc9c" stroke="#16a085"/>
+    <text x="435" y="566" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">DSP Platform</text>
+    <text x="435" y="582" text-anchor="middle" font-size="10" fill="#fff">:8080 (KAS+AuthZ)</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('infra').scrollIntoView({behavior:'smooth'})">
+    <rect x="520" y="540" width="130" height="60" rx="6" fill="#9b59b6" stroke="#8e44ad"/>
+    <text x="585" y="566" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Apache NiFi</text>
+    <text x="585" y="582" text-anchor="middle" font-size="10" fill="#fff">:8091 (optional)</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('infra').scrollIntoView({behavior:'smooth'})">
+    <rect x="670" y="540" width="190" height="60" rx="6" fill="#95a5a6" stroke="#7f8c8d"/>
+    <text x="765" y="562" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">OpenStreetMap</text>
+    <text x="765" y="578" text-anchor="middle" font-size="10" fill="#fff">Tile Server (external)</text>
+  </g>
+
+  <!-- COP Server box -->
+  <rect x="20" y="140" width="860" height="340" rx="8" fill="#fff" stroke="#0066cc" stroke-width="2"/>
+  <text x="40" y="165" font-size="13" font-weight="bold" fill="#0066cc">COP SERVER</text>
+
+  <!-- Go Backend -->
+  <rect x="40" y="178" width="380" height="200" rx="6" fill="#e8f4fd" stroke="#b3d9f7"/>
+  <text x="56" y="200" font-size="11" font-weight="bold" fill="#1565c0">GO BACKEND</text>
+
+  <g class="node" onclick="document.getElementById('backend').scrollIntoView({behavior:'smooth'})">
+    <rect x="56" y="212" width="160" height="45" rx="4" fill="#1976d2" stroke="#1565c0"/>
+    <text x="136" y="232" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">TdfObjectServer</text>
+    <text x="136" y="248" text-anchor="middle" font-size="9" fill="#bbdefb">RPC handlers :5002</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('backend').scrollIntoView({behavior:'smooth'})">
+    <rect x="234" y="212" width="160" height="45" rx="4" fill="#1976d2" stroke="#1565c0"/>
+    <text x="314" y="232" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">StaticFilesServer</text>
+    <text x="314" y="248" text-anchor="middle" font-size="9" fill="#bbdefb">React SPA :5001</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('backend').scrollIntoView({behavior:'smooth'})">
+    <rect x="56" y="270" width="160" height="45" rx="4" fill="#0d47a1" stroke="#0a3d8f"/>
+    <text x="136" y="290" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">PgListener</text>
+    <text x="136" y="306" text-anchor="middle" font-size="9" fill="#bbdefb">PG NOTIFY relay</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('backend').scrollIntoView({behavior:'smooth'})">
+    <rect x="234" y="270" width="160" height="45" rx="4" fill="#0d47a1" stroke="#0a3d8f"/>
+    <text x="314" y="290" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">DSP Client / TDF</text>
+    <text x="314" y="306" text-anchor="middle" font-size="9" fill="#bbdefb">pkg/dspClient, pkg/tdf</text>
+  </g>
+
+  <!-- Backend sub-packages -->
+  <rect x="56" y="328" width="340" height="32" rx="3" fill="#e3f2fd" stroke="#90caf9"/>
+  <text x="76" y="348" font-size="9" font-weight="bold" fill="#1565c0">pkg: config | logger | geo | mock | activeClients | util</text>
+
+  <!-- React Frontend -->
+  <rect x="440" y="178" width="420" height="200" rx="6" fill="#e8f5e9" stroke="#a5d6a7"/>
+  <text x="456" y="200" font-size="11" font-weight="bold" fill="#2e7d32">REACT FRONTEND (Vite + TypeScript)</text>
+
+  <g class="node" onclick="document.getElementById('frontend').scrollIntoView({behavior:'smooth'})">
+    <rect x="456" y="212" width="120" height="45" rx="4" fill="#388e3c" stroke="#2e7d32"/>
+    <text x="516" y="232" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Map View</text>
+    <text x="516" y="248" text-anchor="middle" font-size="9" fill="#c8e6c9">Leaflet + milsymbol</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('frontend').scrollIntoView({behavior:'smooth'})">
+    <rect x="590" y="212" width="120" height="45" rx="4" fill="#388e3c" stroke="#2e7d32"/>
+    <text x="650" y="232" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Search + Forms</text>
+    <text x="650" y="248" text-anchor="middle" font-size="9" fill="#c8e6c9">react-jsonschema-form</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('frontend').scrollIntoView({behavior:'smooth'})">
+    <rect x="720" y="212" width="120" height="45" rx="4" fill="#1b5e20" stroke="#165016"/>
+    <text x="780" y="232" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Streaming</text>
+    <text x="780" y="248" text-anchor="middle" font-size="9" fill="#c8e6c9">gRPC ServerSentEvents</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('encryption').scrollIntoView({behavior:'smooth'})">
+    <rect x="456" y="270" width="180" height="45" rx="4" fill="#2e7d32" stroke="#1b5e20"/>
+    <text x="546" y="290" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Worker Pool (x4)</text>
+    <text x="546" y="306" text-anchor="middle" font-size="9" fill="#c8e6c9">TDF decryption workers</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('auth').scrollIntoView({behavior:'smooth'})">
+    <rect x="650" y="270" width="190" height="45" rx="4" fill="#2e7d32" stroke="#1b5e20"/>
+    <text x="745" y="290" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Auth (OIDC / Keycloak)</text>
+    <text x="745" y="306" text-anchor="middle" font-size="9" fill="#c8e6c9">keycloak-js + @opentdf/sdk</text>
+  </g>
+
+  <!-- Frontend sub-packages -->
+  <rect x="456" y="328" width="380" height="32" rx="3" fill="#e8f5e9" stroke="#a5d6a7"/>
+  <text x="476" y="348" font-size="9" font-weight="bold" fill="#2e7d32">hooks: useRpcClient | useTdf | useAuth | useEntitlements | pages | components | contexts</text>
+
+  <!-- Proto layer -->
+  <rect x="40" y="392" width="820" height="68" rx="6" fill="#fff3e0" stroke="#ffcc80"/>
+  <text x="56" y="412" font-size="11" font-weight="bold" fill="#e65100">CONNECT RPC / PROTOBUF (buf.build)</text>
+  <rect x="56" y="422" width="180" height="26" rx="3" fill="#ef6c00" stroke="#e65100"/>
+  <text x="146" y="440" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">TdfObjectService (8 RPCs)</text>
+  <rect x="246" y="422" width="160" height="26" rx="3" fill="#ef6c00" stroke="#e65100"/>
+  <text x="326" y="440" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">TdfNoteService (4 RPCs)</text>
+  <text x="466" y="436" font-size="9" fill="#bf360c">Generated: /api/proto/ (Go) | /ui/src/proto/ (TypeScript)</text>
+
+  <!-- External clients box -->
+  <rect x="20" y="10" width="860" height="118" rx="8" fill="#fce4ec" stroke="#ef9a9a"/>
+  <text x="40" y="35" font-size="12" font-weight="bold" fill="#c62828">CLIENTS</text>
+
+  <g class="node" onclick="document.getElementById('frontend').scrollIntoView({behavior:'smooth'})">
+    <rect x="40" y="46" width="130" height="68" rx="6" fill="#e53935" stroke="#c62828"/>
+    <text x="105" y="74" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Web Browser</text>
+    <text x="105" y="90" text-anchor="middle" font-size="9" fill="#ffcdd2">React SPA</text>
+    <text x="105" y="104" text-anchor="middle" font-size="9" fill="#ffcdd2">:5001</text>
+  </g>
+
+  <g class="node" onclick="document.getElementById('infra').scrollIntoView({behavior:'smooth'})">
+    <rect x="190" y="46" width="130" height="68" rx="6" fill="#e53935" stroke="#c62828"/>
+    <text x="255" y="74" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Apache NiFi</text>
+    <text x="255" y="90" text-anchor="middle" font-size="9" fill="#ffcdd2">Data pipeline</text>
+    <text x="255" y="104" text-anchor="middle" font-size="9" fill="#ffcdd2">HTTP → gRPC</text>
+  </g>
+
+  <g class="node">
+    <rect x="340" y="46" width="130" height="68" rx="6" fill="#c62828" stroke="#b71c1c"/>
+    <text x="405" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">External</text>
+    <text x="405" y="84" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Integrations</text>
+    <text x="405" y="100" text-anchor="middle" font-size="9" fill="#ffcdd2">ConnectRPC :5002</text>
+  </g>
+
+  <!-- Connections: clients → COP server -->
+  <line x1="105" y1="114" x2="105" y2="140" stroke="#c62828" stroke-width="1.5" stroke-dasharray="4"/>
+  <line x1="255" y1="114" x2="255" y2="140" stroke="#c62828" stroke-width="1.5" stroke-dasharray="4"/>
+
+  <!-- COP backend → infra -->
+  <line x1="275" y1="475" x2="275" y2="500" stroke="#2980b9" stroke-width="1.5"/>
+  <line x1="136" y1="475" x2="435" y2="500" stroke="#1abc9c" stroke-width="1" stroke-dasharray="3"/>
+  <line x1="110" y1="475" x2="110" y2="500" stroke="#e67e22" stroke-width="1" stroke-dasharray="3"/>
+  <line x1="314" y1="475" x2="585" y2="500" stroke="#8e44ad" stroke-width="1" stroke-dasharray="3"/>
+
+</svg>
+</div>
+<p class="callout info">Click on any component node in the diagram to jump to its detailed section.</p>
+</section>
+
+<!-- 3. STARTUP FLOW -->
+<section id="startup">
+<h2>Startup Flow</h2>
+<p>How COP boots from <code>go run . serve</code> to serving requests:</p>
+
+<div class="flow-step"><div class="flow-num">1</div><div class="flow-content"><strong>Entry point</strong> &mdash; <code class="filepath">main.go</code> calls <code>cmd.Execute()</code> and embeds frontend assets via <code>embed.go</code></div></div>
+<div class="flow-step"><div class="flow-num">2</div><div class="flow-content"><strong>Command dispatch</strong> &mdash; <code class="filepath">cmd/startCmd.go</code> handles the <code>serve</code> Cobra command</div></div>
+<div class="flow-step"><div class="flow-num">3</div><div class="flow-content"><strong>Config loading</strong> &mdash; <code class="filepath">pkg/config/config.go</code> loads <code>config.yaml</code> via Viper; resolves DB URL, platform endpoint, OIDC settings, TLS, ports</div></div>
+<div class="flow-step"><div class="flow-num">4</div><div class="flow-content"><strong>Server init</strong> &mdash; <code class="filepath">api/server.go</code> creates <code>CopServer</code> with DSP client, database pool, and entitlements cache (Ristretto)</div></div>
+<div class="flow-step"><div class="flow-num">5</div><div class="flow-content"><strong>gRPC server start</strong> &mdash; Connect RPC server registers <code>TdfObjectServiceHandler</code> and <code>TdfNoteServiceHandler</code> on port <code>:5002</code> with h2c (HTTP/2 cleartext)</div></div>
+<div class="flow-step"><div class="flow-num">6</div><div class="flow-content"><strong>Static server start</strong> &mdash; HTTP server on <code>:5001</code> serves the embedded Vite build with environment variable injection (<code>pkg/ui/</code>)</div></div>
+<div class="flow-step"><div class="flow-num">7</div><div class="flow-content"><strong>PG listener start</strong> &mdash; <code class="filepath">api/pglistener.go</code> subscribes to <code>tdf_objects_inserted</code> and <code>tdf_note_object_inserted</code> PostgreSQL channels; relays inserts to streaming clients</div></div>
+
+<h3>Dual-Server Architecture</h3>
+<pre><code>CopServer
+  ├── gRPC server  :5002  (Connect RPC, h2c, TLS optional)
+  │     ├── TdfObjectServiceHandler  (CRUD + streaming)
+  │     ├── TdfNoteServiceHandler    (CRUD + streaming)
+  │     └── gRPC reflection
+  └── Static server :5001  (HTTP)
+        ├── /                 → React SPA (index.html)
+        └── /assets/          → Vite build artifacts</code></pre>
+</section>
+
+<!-- 4. FRONTEND -->
+<section id="frontend">
+<h2>Frontend (React UI)</h2>
+<p>A React 18 + TypeScript SPA built with Vite 6. Served as static assets embedded in the Go binary at build time.</p>
+
+<h3>Key Dependencies</h3>
+<table>
+<tr><th>Category</th><th>Library</th><th>Purpose</th></tr>
+<tr><td>Framework</td><td>React 18.2, TypeScript 5.2, Vite 6.3</td><td>SPA build and development</td></tr>
+<tr><td>UI Components</td><td>Material-UI (MUI) 5.15, Emotion</td><td>Design system, layout, date pickers</td></tr>
+<tr><td>Map</td><td>Leaflet 1.9, react-leaflet 4.2, milsymbol 2.2</td><td>Interactive geospatial map, military symbols</td></tr>
+<tr><td>Forms</td><td>@rjsf/core, @rjsf/mui</td><td>Dynamic form generation from JSON Schema</td></tr>
+<tr><td>RPC</td><td>@connectrpc/connect-web</td><td>Connect RPC transport (HTTP/2 + gRPC)</td></tr>
+<tr><td>Encryption</td><td>@opentdf/client, @opentdf/sdk, @virtru/dsp-sdk</td><td>NanoTDF encrypt/decrypt</td></tr>
+<tr><td>Auth</td><td>keycloak-js, jwt-decode</td><td>Keycloak OIDC integration</td></tr>
+<tr><td>Utilities</td><td>dayjs, lodash, lz-string</td><td>Date formatting, utilities, compression</td></tr>
+</table>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>Pages<span class="tag">ui/src/pages/</span></div><div class="card-body">
+<ul>
+<li><code class="filepath">ui/src/pages/Login.tsx</code> &mdash; Authentication page (direct OIDC or Keycloak redirect)</li>
+<li><code class="filepath">ui/src/pages/Dashboard.tsx</code> &mdash; Main landing dashboard</li>
+<li><code class="filepath">ui/src/pages/Streaming.tsx</code> &mdash; Real-time object stream viewer</li>
+<li><code class="filepath">ui/src/pages/Nifi.tsx</code> &mdash; NiFi iframe integration</li>
+<li><code class="filepath">ui/src/pages/SourceTypes/index.tsx</code> &mdash; Primary view: map + search (300+ lines)</li>
+<li><code class="filepath">ui/src/pages/SourceTypes/CreateDialog.tsx</code> &mdash; Create new TDF-protected object</li>
+<li><code class="filepath">ui/src/pages/SourceTypes/SearchFilter.tsx</code> &mdash; Search filter panel</li>
+<li><code class="filepath">ui/src/pages/SourceTypes/SearchResults.tsx</code> &mdash; Paginated results list</li>
+<li><code class="filepath">ui/src/pages/SourceTypes/TdfObjectResult.tsx</code> &mdash; Object detail with decrypted data + notes</li>
+</ul>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>Key Hooks<span class="tag">ui/src/hooks/</span></div><div class="card-body">
+<ul>
+<li><code class="filepath">ui/src/hooks/useRpcClient.tsx</code> &mdash; Core hook: initializes Connect RPC client, manages worker pool for decryption, exposes <code>queryTdfObjects</code>, <code>createTdfObject</code>, <code>streamTdfObjects</code> (240+ lines)</li>
+<li><code class="filepath">ui/src/hooks/useTdf.tsx</code> &mdash; TDF encrypt/decrypt wrappers using DSP SDK</li>
+<li><code class="filepath">ui/src/hooks/useAuth.tsx</code> &mdash; Auth state and token management</li>
+<li><code class="filepath">ui/src/hooks/useEntitlements.tsx</code> &mdash; Fetches and caches user entitlements</li>
+<li><code class="filepath">ui/src/hooks/useDocTitle.tsx</code> &mdash; Dynamic document title</li>
+</ul>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>Map Components<span class="tag">ui/src/components/Map/</span></div><div class="card-body">
+<ul>
+<li><code class="filepath">ui/src/components/Map/MarkerLayer.tsx</code> &mdash; Renders map markers from TDF objects; selects icon by source type</li>
+<li><code class="filepath">ui/src/components/Map/VehicleLayer.tsx</code> &mdash; Vehicle-specific tracking layer with live telemetry metadata</li>
+<li>Clustering via <code>react-leaflet-cluster</code> for dense marker sets</li>
+<li>Military symbols rendered using <code>milsymbol</code> library (MIL-STD-2525)</li>
+</ul>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>Contexts &amp; Providers<span class="tag">ui/src/contexts/</span></div><div class="card-body">
+<ul>
+<li><code>AuthProvider.tsx</code> &mdash; Wraps app with auth state; detects direct OIDC vs Keycloak mode</li>
+<li><code>BannerProvider.tsx</code> &mdash; Application-wide notification banners</li>
+<li><code>SourceTypeContext.ts</code> + <code>SourceTypeProvider.tsx</code> &mdash; Active source type selection state</li>
+<li>Separate context files for OIDC and Keycloak auth flows</li>
+</ul>
+</div></div>
+</section>
+
+<!-- 5. BACKEND -->
+<section id="backend">
+<h2>Backend (Go Server)</h2>
+<p>A Go 1.25 server using the Cobra CLI framework. Implements Connect RPC service handlers backed by PostgreSQL with PostGIS.</p>
+
+<h3>Key Dependencies</h3>
+<table>
+<tr><th>Category</th><th>Library</th><th>Purpose</th></tr>
+<tr><td>RPC Framework</td><td>connectrpc.com/connect</td><td>Connect RPC (compatible with gRPC, HTTP, ConnectRPC)</td></tr>
+<tr><td>Database</td><td>github.com/jackc/pgx/v5</td><td>PostgreSQL driver with PostGIS support</td></tr>
+<tr><td>DB Notifications</td><td>github.com/jackc/pgxlisten</td><td>Listen to PG NOTIFY channels</td></tr>
+<tr><td>Geospatial</td><td>github.com/twpayne/go-geos</td><td>GEOS library for geometry operations</td></tr>
+<tr><td>DSP SDK</td><td>github.com/opentdf/platform/sdk</td><td>TDF encryption/decryption with KAS</td></tr>
+<tr><td>Caching</td><td>github.com/dgraph-io/ristretto</td><td>In-memory entitlements cache (15-min TTL)</td></tr>
+<tr><td>Config</td><td>github.com/spf13/viper, github.com/creasty/defaults</td><td>Configuration loading with defaults</td></tr>
+<tr><td>Validation</td><td>connectrpc.com/validate</td><td>Request validation interceptor</td></tr>
+</table>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>api/server.go &mdash; CopServer<span class="tag">Core</span></div><div class="card-body">
+<p>Initializes the application. Creates two independent HTTP servers:</p>
+<pre><code>type CopServer struct {
+    db          *pgxpool.Pool          // PostgreSQL connection pool
+    dspClient   *dspClient.DspClient   // TDF operations
+    cache       *ristretto.Cache       // entitlements cache (1000 weight, 1GB max)
+}
+
+func NewCopServer(cfg *config.Config) (*CopServer, error)
+func (s *CopServer) Start() error  // starts both HTTP servers concurrently</code></pre>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>api/tdfobjectserver.go &mdash; RPC Handlers<span class="tag">Core</span></div><div class="card-body">
+<p>Implements all Connect RPC service interfaces. Key handlers:</p>
+<ul>
+<li><strong>CreateTdfObject</strong> &mdash; validates, stores encrypted TDF blob in <code>tdf_objects</code> table</li>
+<li><strong>QueryTdfObjects</strong> &mdash; executes filtered DB query (geo, time range, JSONB, source type)</li>
+<li><strong>StreamTdfObjects</strong> &mdash; opens server-sent stream; pglistener delivers new inserts in real-time</li>
+<li><strong>GetEntitlements</strong> &mdash; fetches user entitlements from DSP, caches per user token (15-min TTL)</li>
+<li><strong>ListSrcTypes / GetSrcType</strong> &mdash; returns source type schema definitions from DB</li>
+</ul>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>api/pglistener.go &mdash; Real-time Relay<span class="tag">Core</span></div><div class="card-body">
+<p>Subscribes to PostgreSQL <code>NOTIFY</code> channels and relays row data to active streaming clients:</p>
+<pre><code>channels:
+  - "tdf_objects_inserted"      // fires on INSERT to tdf_objects
+  - "tdf_note_object_inserted"  // fires on INSERT to tdf_notes
+
+flow: PG NOTIFY → pgxlisten → channel broadcast → gRPC stream → client</code></pre>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>pkg/dspClient &amp; pkg/tdf<span class="tag">Packages</span></div><div class="card-body">
+<p>Wrappers around the OpenTDF platform SDK:</p>
+<ul>
+<li><code class="filepath">pkg/dspClient/</code> &mdash; initializes <code>sdk.SDK</code> with platform endpoint, OIDC client credentials, KAS URL</li>
+<li><code class="filepath">pkg/tdf/</code> &mdash; <code>EncryptBytes()</code> and <code>DecryptBytes()</code>; defaults to ZTDF (TDF3), with NanoTDF as an opt-in override</li>
+</ul>
+</div></div>
+</section>
+
+<!-- 6. PROTO / GRPC -->
+<section id="proto">
+<h2>gRPC / Connect Services</h2>
+<p>Service contracts defined in Protocol Buffers (<code>proto/</code>), generated for both Go and TypeScript using <code>buf</code>.</p>
+
+<h3>TdfObjectService</h3>
+<pre><code>service TdfObjectService {
+  rpc CreateTdfObject(CreateTdfObjectRequest)   returns (CreateTdfObjectResponse);
+  rpc UpdateTdfObject(UpdateTdfObjectRequest)   returns (UpdateTdfObjectResponse);
+  rpc GetTdfObject(GetTdfObjectRequest)         returns (GetTdfObjectResponse);
+  rpc QueryTdfObjects(QueryTdfObjectsRequest)   returns (QueryTdfObjectsResponse);
+  rpc StreamTdfObjects(StreamTdfObjectsRequest) returns (stream StreamTdfObjectsResponse);
+  rpc GetSrcType(GetSrcTypeRequest)             returns (GetSrcTypeResponse);
+  rpc ListSrcTypes(ListSrcTypesRequest)         returns (ListSrcTypesResponse);
+  rpc GetEntitlements(GetEntitlementsRequest)   returns (GetEntitlementsResponse);
+}</code></pre>
+
+<h3>TdfNoteService</h3>
+<pre><code>service TdfNoteService {
+  rpc CreateTdfNote(CreateTdfNoteRequest)   returns (CreateTdfNoteResponse);
+  rpc GetTdfNote(GetTdfNoteRequest)         returns (GetTdfNoteResponse);
+  rpc QueryTdfNotes(QueryTdfNotesRequest)   returns (QueryTdfNotesResponse);
+  rpc StreamTdfNotes(StreamTdfNotesRequest) returns (stream StreamTdfNotesResponse);
+}</code></pre>
+
+<h3>Code Generation</h3>
+<table>
+<tr><th>Config File</th><th>Purpose</th><th>Output</th></tr>
+<tr><td><code>buf.gen.yaml</code></td><td>Generation targets</td><td><code>/api/proto/</code> (Go), <code>/ui/src/proto/</code> (TypeScript)</td></tr>
+<tr><td><code>buf.yaml</code></td><td>Module dependencies (buf.build)</td><td>&mdash;</td></tr>
+<tr><td><code>buf.lock</code></td><td>Dependency lock file</td><td>&mdash;</td></tr>
+</table>
+<pre><code># Regenerate proto files
+make proto-gen
+# or: buf generate</code></pre>
+</section>
+
+<!-- 7. DATABASE -->
+<section id="database">
+<h2>Database Layer</h2>
+<p>PostgreSQL with the PostGIS extension for geospatial data. SQL queries are written by hand and compiled to type-safe Go code using <strong>sqlc</strong>.</p>
+
+<h3>Schema Overview</h3>
+<table>
+<tr><th>Table</th><th>Purpose</th><th>Key Columns</th></tr>
+<tr><td><code>src_types</code></td><td>Source type configuration (form/UI schemas)</td><td>id (TEXT), form_schema (JSONB), ui_schema (JSONB), metadata (JSONB)</td></tr>
+<tr><td><code>tdf_objects</code></td><td>Primary encrypted data store</td><td>id (UUID), ts, src_type, geo (GEOMETRY), search (JSONB), metadata (JSONB), tdf_blob (BYTEA), tdf_uri</td></tr>
+<tr><td><code>tdf_notes</code></td><td>Encrypted notes on TDF objects</td><td>id (UUID), ts, parent_id (FK→tdf_objects CASCADE), search (JSONB), tdf_blob (BYTEA)</td></tr>
+</table>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>src_types.metadata JSONB Structure<span class="tag">Schema</span></div><div class="card-body">
+<p>The <code>metadata</code> column drives the UI configuration for each source type:</p>
+<pre><code>{
+  "geoField":     "location",          // which form field maps to PostGIS geometry
+  "searchFields": ["callsign","unit"], // fields indexed in the search JSONB
+  "attrFields":   ["clearance"],       // TDF attribute bindings
+  "displayConfig": { ... },            // UI display rules
+  "mapConfig": {                       // map marker configuration
+    "iconType": "milsymbol",
+    "sidc": "SFGPUCI--------"          // MIL-STD-2525 Symbol ID Code
+  }
+}</code></pre>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>PostgreSQL Triggers &amp; NOTIFY<span class="tag">Real-time</span></div><div class="card-body">
+<p>Each table has an <code>AFTER INSERT</code> trigger that publishes to a notification channel:</p>
+<pre><code>-- tdf_objects trigger
+CREATE TRIGGER tdf_objects_inserted_trigger
+AFTER INSERT ON tdf_objects
+FOR EACH ROW EXECUTE FUNCTION notify_tdf_objects_inserted();
+
+-- Function sends: NOTIFY tdf_objects_inserted, '&lt;row JSON&gt;'</code></pre>
+<p>The Go backend's <code>pglistener</code> receives these notifications and pushes them to all active gRPC streams.</p>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>Geospatial Queries<span class="tag">PostGIS</span></div><div class="card-body">
+<p>The <code>ListTdfObjects</code> query supports geographic bounding box filtering:</p>
+<pre><code>-- Filter by bounding box
+WHERE ST_Within(geo, ST_MakeEnvelope($minLon, $minLat, $maxLon, $maxLat, 4326))
+
+-- Filter by JSONB search fields
+AND search @> $searchFilter::jsonb
+
+-- Filter by source type
+AND src_type = $srcType</code></pre>
+</div></div>
+
+<h3>Tooling</h3>
+<table>
+<tr><th>Tool</th><th>Config</th><th>Purpose</th></tr>
+<tr><td>sqlc</td><td><code>sqlc.yaml</code></td><td>Generates type-safe Go from <code>db/query.sql</code></td></tr>
+<tr><td>atlas</td><td><code>db/schema.sql</code></td><td>Schema management and migrations</td></tr>
+<tr><td>PostGIS</td><td>Docker image</td><td>Geographic data types and spatial functions</td></tr>
+</table>
+</section>
+
+<!-- 8. DATA FLOWS -->
+<section id="data-flows">
+<h2>Data Flows</h2>
+
+<h3>Object Creation Flow</h3>
+<div class="flow-step"><div class="flow-num">1</div><div class="flow-content"><strong>User fills form</strong> &mdash; React renders dynamic form from <code>src_type.form_schema</code> + <code>ui_schema</code></div></div>
+<div class="flow-step"><div class="flow-num">2</div><div class="flow-content"><strong>Frontend encrypts</strong> &mdash; <code>useTdf.tsx</code> calls DSP SDK to encrypt form JSON as NanoTDF; resolves attribute bindings from <code>src_type.metadata.attrFields</code></div></div>
+<div class="flow-step"><div class="flow-num">3</div><div class="flow-content"><strong>RPC call</strong> &mdash; <code>CreateTdfObject</code> sends TDF blob, plaintext search fields, geo coordinates, and metadata to Go server</div></div>
+<div class="flow-step"><div class="flow-num">4</div><div class="flow-content"><strong>DB insert</strong> &mdash; Go server writes row to <code>tdf_objects</code>; INSERT trigger fires <code>NOTIFY tdf_objects_inserted</code></div></div>
+<div class="flow-step"><div class="flow-num">5</div><div class="flow-content"><strong>Stream relay</strong> &mdash; <code>pglistener</code> receives notification, marshals row, sends to all active <code>StreamTdfObjects</code> streams</div></div>
+<div class="flow-step"><div class="flow-num">6</div><div class="flow-content"><strong>Map update</strong> &mdash; Connected clients receive the new object; map marker appears immediately</div></div>
+
+<h3>Object Query &amp; Decrypt Flow</h3>
+<div class="flow-step"><div class="flow-num">1</div><div class="flow-content"><strong>User applies filters</strong> &mdash; <code>SearchFilter.tsx</code> collects source type, time range, geo bounds, JSONB predicates</div></div>
+<div class="flow-step"><div class="flow-num">2</div><div class="flow-content"><strong>QueryTdfObjects RPC</strong> &mdash; Server executes PostGIS + JSONB query; returns encrypted blobs with plaintext metadata</div></div>
+<div class="flow-step"><div class="flow-num">3</div><div class="flow-content"><strong>Worker pool decryption</strong> &mdash; <code>useRpcClient.tsx</code> distributes TDF blobs across 4 Web Workers; workers call DSP SDK decrypt</div></div>
+<div class="flow-step"><div class="flow-num">4</div><div class="flow-content"><strong>KAS authorization</strong> &mdash; Each worker calls DSP KAS with user token; KAS validates entitlements via AuthZ service; returns wrapped key if authorized</div></div>
+<div class="flow-step"><div class="flow-num">5</div><div class="flow-content"><strong>Results merge</strong> &mdash; Decrypted form data merged with plaintext metadata (live telemetry); rendered in <code>TdfObjectResult.tsx</code></div></div>
+</section>
+
+<!-- 9. TDF ENCRYPTION -->
+<section id="encryption">
+<h2>TDF Encryption</h2>
+
+<div class="callout info"><strong>Data-Centric Security:</strong> Every object payload is encrypted as ZTDF (TDF3) before leaving the browser. The Go server never sees plaintext object data — it only stores and relays encrypted blobs.</div>
+
+<h3>What Is Encrypted vs Plaintext</h3>
+<table>
+<tr><th>Field</th><th>Storage</th><th>Reason</th></tr>
+<tr><td><code>tdf_blob</code></td><td>Encrypted (ZTDF)</td><td>Full object payload — only accessible to authorized users</td></tr>
+<tr><td><code>search</code> (JSONB)</td><td>Plaintext</td><td>Indexed fields needed for server-side search filtering</td></tr>
+<tr><td><code>metadata</code> (JSONB)</td><td>Plaintext</td><td>Live telemetry (speed, heading) needed for map display without decryption</td></tr>
+<tr><td><code>geo</code> (GEOMETRY)</td><td>Plaintext</td><td>Location required for PostGIS spatial queries and map rendering</td></tr>
+</table>
+
+<h3>Web Worker Decryption Pool</h3>
+<p>To prevent blocking the main UI thread during decryption, COP uses a pool of 4 Web Workers:</p>
+<pre><code>// ui/src/workers/ — worker scripts
+// ui/src/hooks/useRpcClient.tsx — pool management
+
+const WORKER_POOL_SIZE = 4;
+// Workers initialized with DSP SDK instance
+// Results dispatched back to main thread via postMessage
+// In-memory cache: Map&lt;tdfObjectId, decryptedData&gt;</code></pre>
+
+<h3>Encryption Flow (Form Submit)</h3>
+<pre><code>User submits form
+  → useTdf.encrypt(formData, attributeFQNs)
+    → @virtru/dsp-sdk createZTDF() [default]
+      → DSP KAS: wrap symmetric key with attribute policy
+      → Returns ZTDF binary blob
+  → CreateTdfObject RPC { tdf_blob: blob, geo: ..., search: ..., metadata: ... }</code></pre>
+
+<div class="callout warn"><strong>ZTDF vs NanoTDF:</strong> COP defaults to ZTDF (TDF3) format. NanoTDF (compact, ~30 bytes overhead vs ~1KB for ZTDF) can be enabled via <code>config.yaml &rarr; ui.form_submit_nano_tdf: true</code>.</div>
+</section>
+
+<!-- 10. AUTHENTICATION -->
+<section id="auth">
+<h2>Authentication</h2>
+<p>COP supports two authentication modes configured via <code>config.yaml</code>.</p>
+
+<h3>Auth Modes</h3>
+<table>
+<tr><th>Mode</th><th>Flow</th><th>Config</th></tr>
+<tr><td><strong>Direct OIDC</strong> (password)</td><td>Frontend sends username/password directly to OIDC token endpoint</td><td><code>oidc_client_id_for_web_password_flow</code></td></tr>
+<tr><td><strong>Keycloak</strong> (redirect)</td><td>Frontend redirects to Keycloak login page (supports PKI/x509 + password)</td><td><code>keycloak-js</code> client with PKCE</td></tr>
+</table>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>Server Authentication (Client Credentials)<span class="tag">Backend</span></div><div class="card-body">
+<p>The Go backend authenticates to DSP using OAuth2 client credentials:</p>
+<pre><code># config.yaml
+oidc_client_id_for_server: dsp-cop
+oidc_client_secret_for_server: &lt;secret&gt;
+
+# pkg/dspClient uses these to obtain tokens for:
+# - TDF encryption/decryption via KAS
+# - Entitlement queries</code></pre>
+</div></div>
+
+<div class="card"><div class="card-header"><span class="arrow">&#9654;</span>Frontend Auth Contexts<span class="tag">Frontend</span></div><div class="card-body">
+<ul>
+<li><code class="filepath">ui/src/contexts/</code> contains separate context files for direct OIDC and Keycloak flows</li>
+<li><code>AuthProvider.tsx</code> selects the active context based on runtime config</li>
+<li>Access tokens forwarded with all Connect RPC calls as <code>Authorization: Bearer &lt;token&gt;</code></li>
+<li>Tokens also passed to Web Workers for DSP SDK KAS calls</li>
+</ul>
+</div></div>
+
+<h3>Keycloak Clients (Full Deployment)</h3>
+<table>
+<tr><th>Client ID</th><th>Used By</th><th>Purpose</th></tr>
+<tr><td><code>dsp-cop</code></td><td>Go server</td><td>Server-to-DSP service account (client credentials)</td></tr>
+<tr><td><code>dsp-cop-client</code></td><td>React UI</td><td>Browser OIDC password flow client</td></tr>
+</table>
+</section>
+
+<!-- 11. CONFIGURATION -->
+<section id="configuration">
+<h2>Configuration</h2>
+<p>All configuration is loaded from <code>config.yaml</code> (or environment variable overrides) via Viper.</p>
+
+<h3>config.yaml Reference</h3>
+<pre><code># Required
+db_url: postgres://cop_user:password@localhost:5432/cop_db
+platform_endpoint: https://local-dsp.virtru.com:8080
+oidc_client_id_for_server: dsp-cop
+oidc_client_secret_for_server: &lt;secret&gt;
+oidc_client_id_for_web_password_flow: dsp-cop-client
+deprecated_kas_url: https://local-dsp.virtru.com:8080/kas
+deprecated_idp_url: https://local-dsp.virtru.com:8443/auth/realms/opentdf
+
+# Service ports
+service:
+  grpc_port: 5002           # Connect RPC server
+  static_port: 5001         # React SPA server
+  public_server_host: local-dsp.virtru.com:5002
+  public_static_host: local-dsp.virtru.com:5001
+  cors_origin: "*"
+  tls:
+    enabled: true
+    key_file: dsp-keys/cop.key
+    cert_file: dsp-keys/cop.crt
+
+# Frontend config (injected at runtime)
+ui:
+  tile_server_url: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+  form_submit_nano_tdf: true
+
+# Logging
+log_level: INFO</code></pre>
+
+<h3>UI Config Injection</h3>
+<p>Runtime UI configuration is injected into the frontend by <code class="filepath">pkg/ui/</code>. The static server intercepts requests for <code>index.html</code> and injects a <code>&lt;script&gt;</code> tag with <code>window.__COP_CONFIG__</code> containing values from <code>config.yaml</code>.</p>
+<pre><code>// ui/src/config.ts reads:
+window.__COP_CONFIG__.tileServerUrl
+window.__COP_CONFIG__.platformEndpoint
+window.__COP_CONFIG__.oidcClientId
+// etc.</code></pre>
+</section>
+
+<!-- 12. INFRASTRUCTURE -->
+<section id="infra">
+<h2>Docker / Compose</h2>
+<p>COP uses a modular Docker Compose setup with per-service compose files merged at startup.</p>
+
+<h3>Multi-Stage Docker Build (cop.Dockerfile)</h3>
+<table>
+<tr><th>Stage</th><th>Base Image</th><th>Purpose</th></tr>
+<tr><td>ui-builder</td><td>node:22-alpine</td><td>Builds Vite React app; injects build-time env vars</td></tr>
+<tr><td>geos-builder</td><td>chainguard/wolfi-base</td><td>Prepares GEOS libraries for PostGIS support</td></tr>
+<tr><td>go-setup</td><td>chainguard/go</td><td>Sets up Go environment with GEOS</td></tr>
+<tr><td>builder</td><td>chainguard/go</td><td>Compiles Go binary with embedded frontend assets (<code>-tags embedfiles</code>)</td></tr>
+<tr><td>final</td><td>chainguard/glibc-dynamic</td><td>Minimal runtime; copies <code>dsp-cop</code> binary only</td></tr>
+</table>
+
+<h3>Compose Service Files</h3>
+<table>
+<tr><th>File</th><th>Services</th></tr>
+<tr><td><code>compose/docker-compose.cop-db.yaml</code></td><td><code>cop-db</code> (PostgreSQL+PostGIS), <code>cop-db-setup</code> (init)</td></tr>
+<tr><td><code>compose/docker-compose.cop-web-server.yaml</code></td><td><code>cop-web-server</code> (Go+React binary)</td></tr>
+<tr><td><code>compose/docker-compose.keycloak.yaml</code></td><td><code>keycloak</code>, <code>dsp-keycloak-provisioning</code></td></tr>
+<tr><td><code>compose/docker-compose.dsp.yaml</code></td><td><code>dsp</code> (DSP platform services)</td></tr>
+<tr><td><code>compose/docker-compose.nifi.yaml</code></td><td><code>nifi</code> (optional data pipeline)</td></tr>
+<tr><td><code>compose/docker-compose.tagging.yaml</code></td><td><code>tagging</code> (optional DSP tagging PDP)</td></tr>
+<tr><td><code>compose/docker-compose.secure-object-proxy.yaml</code></td><td><code>s4</code> (Secure Object Proxy), <code>minio</code>, <code>minio-createbuckets</code></td></tr>
+</table>
+
+<h3>Optional Compose Profiles</h3>
+<table>
+<tr><th>Profile</th><th>Services</th><th>Purpose</th></tr>
+<tr><td><code>nifi</code></td><td><code>nifi</code>, <code>nifi-bootstrap</code></td><td>Apache NiFi data pipeline for automated object ingestion</td></tr>
+<tr><td><code>s4</code></td><td><code>s4</code> (Secure Object Proxy), <code>minio</code>, <code>minio-createbuckets</code></td><td>S4 proxy for S3-compatible secure object storage with MinIO backend; enables manifest-based object access via <code>s4Service.ts</code></td></tr>
+</table>
+
+<h3>Development Compose</h3>
+<pre><code># Full dev stack (from docker-compose.dev.yaml)
+docker compose \
+  --env-file env/default.env \
+  -f docker-compose.dev.yaml \
+  up --build
+
+# Services started:
+# cop-db, cop-db-setup, cop-web-server, keycloak,
+# dsp-keycloak-provisioning, dsp</code></pre>
+
+<h3>Kubernetes / Helm</h3>
+<p>Production deployment uses Helm charts in <code class="filepath">charts/</code>. See <code class="filepath">charts/README.md</code> for deployment instructions. Lite deployment guide: <code class="filepath">deploy/lite/lite-deployment.md</code>.</p>
+</section>
+
+<!-- 13. LOCAL DEV -->
+<section id="local-dev">
+<h2>Local Dev Setup</h2>
+
+<div class="callout warn"><strong>Prerequisites:</strong> Go 1.25+, Node.js 22+, Docker Desktop, <code>buf</code> CLI, <code>sqlc</code> CLI, <code>make</code></div>
+
+<h3>Quick Start (Lite Mode — no Keycloak)</h3>
+<pre><code># 1. Generate TLS certificates
+./scripts/ubuntu_cop_keys.sh
+# or macOS equivalent
+
+# 2. Copy and edit config
+cp config.example.yaml config.yaml
+
+# 3. Start database only
+docker compose -f docker-compose.dev.yaml up cop-db cop-db-setup
+
+# 4. Start backend
+go run . serve
+
+# 5. Start frontend dev server (separate terminal)
+cd ui && npm ci && npm start
+# → http://localhost:5173</code></pre>
+
+<h3>Full Stack with DSP</h3>
+<pre><code># Start all services including Keycloak + DSP
+docker compose --env-file env/default.env -f docker-compose.dev.yaml up --build
+
+# Backend connects to DSP at https://local-dsp.virtru.com:8080
+# Add to /etc/hosts: 127.0.0.1 local-dsp.virtru.com</code></pre>
+
+<h3>Proto Regeneration</h3>
+<pre><code>make proto-gen   # runs buf generate → updates /api/proto/ and /ui/src/proto/</code></pre>
+
+<h3>Database Queries Regeneration</h3>
+<pre><code>sqlc generate    # reads sqlc.yaml → updates db/query.sql.go and db/models.go</code></pre>
+
+<h3>Local Dev Credentials</h3>
+<table>
+<tr><th>Service</th><th>Username / Client</th><th>Password / Secret</th></tr>
+<tr><td>Keycloak admin</td><td><code>admin</code></td><td><code>changeme</code></td></tr>
+<tr><td>COP server client</td><td><code>dsp-cop</code></td><td>(from config.yaml)</td></tr>
+<tr><td>Web UI client</td><td><code>dsp-cop-client</code></td><td>(from config.yaml)</td></tr>
+</table>
+
+<h3>Common Pitfalls</h3>
+<div class="callout warn">
+<strong>GEOS not found at build time:</strong> The Go binary requires libgeos for PostGIS geometry. Use the Dockerfile for production builds, or install <code>libgeos-dev</code> locally. CGO must be enabled: <code>CGO_ENABLED=1</code>.
+</div>
+<div class="callout warn">
+<strong>Entitlements cache stale:</strong> Entitlements are cached for 15 minutes per user token. If policy changes don't take effect immediately, wait for cache expiry or restart the server.
+</div>
+<div class="callout warn">
+<strong>Worker pool not decrypting:</strong> Web Workers require HTTPS or localhost. If serving over plain HTTP on a non-localhost domain, TDF decryption will fail silently due to browser security restrictions.
+</div>
+<div class="callout warn">
+<strong>geo column null:</strong> The form field configured as <code>geoField</code> in <code>src_type.metadata</code> must resolve to a valid GeoJSON geometry. If the field is missing or malformed, <code>geo</code> stores as NULL and the object won't appear on the map.
+</div>
+</section>
+
+<!-- 14. DIRECTORY STRUCTURE -->
+<section id="directory">
+<h2>Directory Structure</h2>
+<div class="tree">
+<details open>
+<summary><span class="dir">common-operating-picture/</span></summary>
+  <span class="file">main.go</span><span class="desc">entry point → cmd.Execute(); embeds frontend via embed.go</span><br>
+  <span class="file">embed.go</span><span class="desc">go:embed for ui/dist (production build)</span><br>
+  <span class="file">embed_mock.go</span><span class="desc">go:embed for mock/static files</span><br>
+  <span class="file">config.example.yaml</span><span class="desc">configuration template</span><br>
+  <span class="file">dsp.yaml</span><span class="desc">DSP platform configuration</span><br>
+  <span class="file">docker-compose.dev.yaml</span><span class="desc">full dev stack orchestration</span><br>
+  <span class="file">docker-compose.cop.yaml</span><span class="desc">COP-only compose (no DSP)</span><br>
+  <span class="file">Makefile</span><span class="desc">build targets: proto-gen, docker, keys</span><br>
+  <span class="file">go.mod / go.sum</span><span class="desc">Go module dependencies</span><br>
+  <span class="file">package.json</span><span class="desc">root npm scripts</span><br>
+  <span class="file">sqlc.yaml</span><span class="desc">sqlc config (points to db/)</span><br>
+  <span class="file">buf.gen.yaml / buf.yaml / buf.lock</span><span class="desc">proto generation config</span><br>
+  <details>
+  <summary><span class="dir">cmd/</span><span class="desc">CLI commands (Cobra)</span></summary>
+    <span class="file">startCmd.go</span><span class="desc">serve command → boots CopServer</span><br>
+    <span class="file">dbCmd.go</span><span class="desc">db command → database interaction + mock data</span><br>
+  </details>
+  <details>
+  <summary><span class="dir">api/</span><span class="desc">server implementation</span></summary>
+    <span class="file">server.go</span><span class="desc">CopServer init, dual HTTP server setup</span><br>
+    <span class="file">tdfobjectserver.go</span><span class="desc">Connect RPC handlers (300+ lines)</span><br>
+    <span class="file">pglistener.go</span><span class="desc">PostgreSQL NOTIFY → gRPC stream relay</span><br>
+    <span class="file">interceptors.go</span><span class="desc">Connect RPC interceptors (logging, validation)</span><br>
+    <span class="file">staticFilesServer.go</span><span class="desc">static file serving with config injection</span><br>
+    <span class="file">util.go</span><span class="desc">shared utilities</span><br>
+    <details>
+    <summary><span class="dir">proto/</span><span class="desc">generated Go from protobuf</span></summary>
+      <span class="dir">tdf_object/v1/</span><span class="desc">TdfObjectService Go code</span><br>
+      <span class="dir">tdf_note/v1/</span><span class="desc">TdfNoteService Go code</span><br>
+    </details>
+  </details>
+  <details>
+  <summary><span class="dir">pkg/</span><span class="desc">core Go packages</span></summary>
+    <span class="dir">config/</span><span class="desc">Config struct and Viper loading</span><br>
+    <span class="dir">logger/</span><span class="desc">structured logging setup</span><br>
+    <span class="dir">dspClient/</span><span class="desc">OpenTDF SDK wrapper</span><br>
+    <span class="dir">tdf/</span><span class="desc">EncryptBytes / DecryptBytes (NanoTDF)</span><br>
+    <span class="dir">ui/</span><span class="desc">env variable injection into index.html</span><br>
+    <span class="dir">activeClients/</span><span class="desc">active streaming client tracking</span><br>
+    <span class="dir">geo/</span><span class="desc">GeoJSON ↔ GEOS geometry utilities</span><br>
+    <span class="dir">mock/</span><span class="desc">mock data generation</span><br>
+    <span class="dir">util/</span><span class="desc">miscellaneous utilities</span><br>
+  </details>
+  <details>
+  <summary><span class="dir">db/</span><span class="desc">database layer</span></summary>
+    <span class="file">schema.sql</span><span class="desc">table definitions, triggers, indexes</span><br>
+    <span class="file">query.sql</span><span class="desc">sqlc query definitions (handcrafted)</span><br>
+    <span class="file">query.sql.go</span><span class="desc">GENERATED by sqlc</span><br>
+    <span class="file">models.go</span><span class="desc">GENERATED by sqlc</span><br>
+    <span class="file">entityRelationshipDiagram.md</span><span class="desc">ER diagram</span><br>
+  </details>
+  <details>
+  <summary><span class="dir">proto/</span><span class="desc">Protocol Buffer definitions (source)</span></summary>
+    <span class="file">tdf_object/v1/tdf_object.proto</span><span class="desc">TdfObjectService + TdfNoteService</span><br>
+  </details>
+  <details>
+  <summary><span class="dir">ui/</span><span class="desc">React frontend (Vite + TypeScript)</span></summary>
+    <span class="file">package.json</span><span class="desc">npm dependencies and scripts</span><br>
+    <span class="file">vite.config.ts</span><span class="desc">Vite build config</span><br>
+    <details>
+    <summary><span class="dir">src/</span></summary>
+      <span class="file">App.tsx</span><span class="desc">root with ThemeProvider, Router, Providers</span><br>
+      <span class="file">main.tsx</span><span class="desc">React DOM entry point</span><br>
+      <span class="file">config.ts</span><span class="desc">reads window.__COP_CONFIG__</span><br>
+      <span class="dir">api/</span><span class="desc">connectRpcClient.ts — transport setup</span><br>
+      <span class="dir">components/</span><span class="desc">Map/, AuthProvider, Layout, TopBar, SideBar</span><br>
+      <span class="dir">contexts/</span><span class="desc">Auth, Banner, Keycloak, OIDC contexts</span><br>
+      <span class="dir">hooks/</span><span class="desc">useRpcClient, useTdf, useAuth, useEntitlements</span><br>
+      <span class="dir">pages/</span><span class="desc">Dashboard, Login, Streaming, Nifi, SourceTypes/</span><br>
+      <span class="dir">proto/</span><span class="desc">GENERATED TypeScript from protobuf</span><br>
+      <span class="dir">theme/</span><span class="desc">MUI theme customization</span><br>
+      <span class="dir">workers/</span><span class="desc">Web Worker scripts for TDF decryption</span><br>
+      <span class="dir">utils/</span><span class="desc">utility functions</span><br>
+    </details>
+  </details>
+  <details>
+  <summary><span class="dir">compose/</span><span class="desc">modular Docker Compose service files</span></summary>
+    <span class="file">docker-compose.cop-db.yaml</span><br>
+    <span class="file">docker-compose.cop-web-server.yaml</span><br>
+    <span class="file">docker-compose.keycloak.yaml</span><br>
+    <span class="file">docker-compose.dsp.yaml</span><br>
+    <span class="file">docker-compose.nifi.yaml</span><br>
+    <span class="file">docker-compose.tagging.yaml</span><br>
+  </details>
+  <span class="dir">charts/</span><span class="desc">Kubernetes Helm charts</span><br>
+  <span class="dir">deploy/</span><span class="desc">deployment guides (lite, full)</span><br>
+  <span class="dir">nifi/</span><span class="desc">Apache NiFi configuration and truststore</span><br>
+  <span class="dir">postgis/</span><span class="desc">PostGIS Docker image setup</span><br>
+  <span class="dir">env/</span><span class="desc">environment variable files (default.env, etc.)</span><br>
+  <span class="dir">scripts/</span><span class="desc">helper scripts (TLS key gen, etc.)</span><br>
+  <span class="dir">config/</span><span class="desc">additional configuration files</span><br>
+  <span class="dir">docs/</span><span class="desc">documentation (this file, x509.md, startup)</span><br>
+</details>
+</div>
+</section>
+
+</main>
+
+<script>
+// Convert filepath references to GitHub links
+const GITHUB_BASE = 'https://github.com/virtru-corp/virtru-corporation-samples/blob/main/common-operating-picture/';
+document.querySelectorAll('code.filepath').forEach(el => {
+  const path = el.textContent.trim();
+  const a = document.createElement('a');
+  a.href = GITHUB_BASE + path;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.className = 'filepath';
+  a.textContent = path;
+  if (path.endsWith('/')) {
+    a.href = GITHUB_BASE.replace('/blob/', '/tree/') + path;
+  }
+  el.replaceWith(a);
+});
+
+// Card toggle
+document.querySelectorAll('.card-header').forEach(h => {
+  h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+});
+
+// Scroll spy
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-80px 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Smooth scroll
+navLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// Search
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  sections.forEach(s => {
+    if (!q) { s.classList.remove('hidden'); return; }
+    const text = s.textContent.toLowerCase();
+    s.classList.toggle('hidden', !text.includes(q));
+  });
+  navLinks.forEach(a => {
+    const sectionId = a.getAttribute('href').slice(1);
+    const section = document.getElementById(sectionId);
+    if (section) a.style.display = section.classList.contains('hidden') ? 'none' : '';
+  });
+});
+</script>
+</body>
+</html>
