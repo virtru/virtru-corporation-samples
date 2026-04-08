@@ -1,4 +1,4 @@
-<!-- COP Architecture Explorer | Generated: 2026-04-07 19:04:49 UTC | Regenerate with: "please update the architecture diagram at docs/architecture.html" -->
+<!-- COP Architecture Explorer | Generated: 2026-04-08 15:38:21 UTC | Regenerate with: "please update the architecture diagram at docs/architecture.html" -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -148,7 +148,7 @@ th { background: var(--code-bg); font-weight: 600; font-size: 12px; text-transfo
 
 <!-- Top Bar -->
 <div class="topbar">
-  <h1><span>Virtru</span> Common Operating Picture &mdash; Architecture Explorer<span class="updated">Last updated: April 7, 2026 19:04:49 UTC</span></h1>
+  <h1><span>Virtru</span> Common Operating Picture &mdash; Architecture Explorer<span class="updated">Last updated: April 8, 2026 15:38:21 UTC</span></h1>
   <div class="search"><input type="text" id="search" placeholder="Search sections..."></div>
 </div>
 
@@ -183,13 +183,13 @@ th { background: var(--code-bg); font-weight: 600; font-size: 12px; text-transfo
 <h2>Overview</h2>
 <p>The <strong>Virtru Common Operating Picture (COP)</strong> is a full-stack geospatial situational awareness application that demonstrates <strong>data-centric security</strong> using the Virtru Data Security Platform (DSP). All sensitive object data is encrypted at rest using the <strong>Trusted Data Format (TDF)</strong> while retaining plaintext metadata for map visualization and search.</p>
 
-<p>COP ingests structured data objects (vehicles, sensors, personnel, etc.) through a schema-driven UI, encrypts payloads as NanoTDF blobs, stores them in a PostGIS-enabled PostgreSQL database, and streams real-time updates to connected clients via gRPC. Authorized users can decrypt and view protected content directly in the browser using Web Workers.</p>
+<p>COP ingests structured data objects (vehicles, sensors, personnel, etc.) through a schema-driven UI, encrypts payloads as ZTDF (TDF3) blobs by default, stores them in a PostGIS-enabled PostgreSQL database, and streams real-time updates to connected clients via gRPC. Authorized users can decrypt and view protected content directly in the browser using Web Workers.</p>
 
 <h3>Key Capabilities</h3>
 <table>
 <tr><th>Capability</th><th>Technology</th><th>Description</th></tr>
 <tr><td>Geospatial Visualization</td><td>Leaflet + PostGIS</td><td>Interactive map with vehicle tracking, clustering, and military symbology</td></tr>
-<tr><td>TDF Encryption</td><td>OpenTDF / DSP SDK</td><td>NanoTDF encryption of all object payloads at form submission</td></tr>
+<tr><td>TDF Encryption</td><td>OpenTDF / DSP SDK</td><td>ZTDF (TDF3) encryption of all object payloads at form submission; NanoTDF available via config flag</td></tr>
 <tr><td>Schema-driven Forms</td><td>react-jsonschema-form</td><td>Dynamic UI forms generated from JSON Schema stored in database</td></tr>
 <tr><td>Real-time Streaming</td><td>gRPC streaming + PG NOTIFY</td><td>Live updates pushed to clients as new objects are inserted</td></tr>
 <tr><td>Concurrent Decryption</td><td>Web Workers (pool of 4)</td><td>Non-blocking TDF decryption using a browser worker pool</td></tr>
@@ -506,7 +506,7 @@ flow: PG NOTIFY → pgxlisten → channel broadcast → gRPC stream → client</
 <p>Wrappers around the OpenTDF platform SDK:</p>
 <ul>
 <li><code class="filepath">pkg/dspClient/</code> &mdash; initializes <code>sdk.SDK</code> with platform endpoint, OIDC client credentials, KAS URL</li>
-<li><code class="filepath">pkg/tdf/</code> &mdash; <code>EncryptBytes()</code> and <code>DecryptBytes()</code> using NanoTDF format</li>
+<li><code class="filepath">pkg/tdf/</code> &mdash; <code>EncryptBytes()</code> and <code>DecryptBytes()</code>; defaults to ZTDF (TDF3), with NanoTDF as an opt-in override</li>
 </ul>
 </div></div>
 </section>
@@ -631,12 +631,12 @@ AND src_type = $srcType</code></pre>
 <section id="encryption">
 <h2>TDF Encryption</h2>
 
-<div class="callout info"><strong>Data-Centric Security:</strong> Every object payload is encrypted as NanoTDF before leaving the browser. The Go server never sees plaintext object data — it only stores and relays encrypted blobs.</div>
+<div class="callout info"><strong>Data-Centric Security:</strong> Every object payload is encrypted as ZTDF (TDF3) before leaving the browser. The Go server never sees plaintext object data — it only stores and relays encrypted blobs.</div>
 
 <h3>What Is Encrypted vs Plaintext</h3>
 <table>
 <tr><th>Field</th><th>Storage</th><th>Reason</th></tr>
-<tr><td><code>tdf_blob</code></td><td>Encrypted (NanoTDF)</td><td>Full object payload — only accessible to authorized users</td></tr>
+<tr><td><code>tdf_blob</code></td><td>Encrypted (ZTDF)</td><td>Full object payload — only accessible to authorized users</td></tr>
 <tr><td><code>search</code> (JSONB)</td><td>Plaintext</td><td>Indexed fields needed for server-side search filtering</td></tr>
 <tr><td><code>metadata</code> (JSONB)</td><td>Plaintext</td><td>Live telemetry (speed, heading) needed for map display without decryption</td></tr>
 <tr><td><code>geo</code> (GEOMETRY)</td><td>Plaintext</td><td>Location required for PostGIS spatial queries and map rendering</td></tr>
@@ -655,12 +655,12 @@ const WORKER_POOL_SIZE = 4;
 <h3>Encryption Flow (Form Submit)</h3>
 <pre><code>User submits form
   → useTdf.encrypt(formData, attributeFQNs)
-    → @virtru/dsp-sdk NanoTDFClient.encryptString()
+    → @virtru/dsp-sdk createZTDF() [default]
       → DSP KAS: wrap symmetric key with attribute policy
-      → Returns NanoTDF binary blob
+      → Returns ZTDF binary blob
   → CreateTdfObject RPC { tdf_blob: blob, geo: ..., search: ..., metadata: ... }</code></pre>
 
-<div class="callout warn"><strong>NanoTDF vs TDF:</strong> COP uses NanoTDF format (compact, ~30 bytes overhead vs 1KB+ for standard TDF). Configured via <code>config.yaml &rarr; ui.form_submit_nano_tdf: true</code>.</div>
+<div class="callout warn"><strong>ZTDF vs NanoTDF:</strong> COP defaults to ZTDF (TDF3) format. NanoTDF (compact, ~30 bytes overhead vs ~1KB for ZTDF) can be enabled via <code>config.yaml &rarr; ui.form_submit_nano_tdf: true</code>.</div>
 </section>
 
 <!-- 10. AUTHENTICATION -->
@@ -771,6 +771,14 @@ window.__COP_CONFIG__.oidcClientId
 <tr><td><code>compose/docker-compose.dsp.yaml</code></td><td><code>dsp</code> (DSP platform services)</td></tr>
 <tr><td><code>compose/docker-compose.nifi.yaml</code></td><td><code>nifi</code> (optional data pipeline)</td></tr>
 <tr><td><code>compose/docker-compose.tagging.yaml</code></td><td><code>tagging</code> (optional DSP tagging PDP)</td></tr>
+<tr><td><code>compose/docker-compose.secure-object-proxy.yaml</code></td><td><code>s4</code> (Secure Object Proxy), <code>minio</code>, <code>minio-createbuckets</code></td></tr>
+</table>
+
+<h3>Optional Compose Profiles</h3>
+<table>
+<tr><th>Profile</th><th>Services</th><th>Purpose</th></tr>
+<tr><td><code>nifi</code></td><td><code>nifi</code>, <code>nifi-bootstrap</code></td><td>Apache NiFi data pipeline for automated object ingestion</td></tr>
+<tr><td><code>s4</code></td><td><code>s4</code> (Secure Object Proxy), <code>minio</code>, <code>minio-createbuckets</code></td><td>S4 proxy for S3-compatible secure object storage with MinIO backend; enables manifest-based object access via <code>s4Service.ts</code></td></tr>
 </table>
 
 <h3>Development Compose</h3>
