@@ -1,7 +1,7 @@
 import { LayerGroup, LayersControl, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { TdfObjectResponse } from '@/hooks/useRpcClient';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useSourceType } from '@/pages/SourceTypes/SourceTypeContext';
 import { formatDateTime } from '@/utils/format';
 import { mapColors, mapIcons, mapStringToColor, mapStringToSvgPath } from '@/pages/SourceTypes/helpers/markers';
@@ -45,30 +45,32 @@ export function MarkerLayer({ tdfObjects = [], isCluster = false, layerName = 'u
       : value;
 
     return (
-      <Stack direction="column" gap={0} spacing={0} mb={1} sx={{ minWidth: '350px' }}>
-        <Typography variant="h6" sx={{ wordBreak: 'break-word', lineHeight: 1.2 }}>
+      <Box className="tooltip-header" sx={{ mt: 1 }}>
+        <Typography variant="h6" className="vehicle-name" sx={{ pr: 2 }}>
           {getFieldTitle(displayFields?.header)}: {displayValue}
         </Typography>
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {formattedDateTime}
-        </Typography>
-      </Stack>
+        <Box className="callsign-container">
+          <Typography variant="caption" className="callsign-label">Time:</Typography>
+          <Typography variant="caption" className="callsign-value">{formattedDateTime}</Typography>
+        </Box>
+      </Box>
     );
   };
 
   const renderDetails = (o: TdfObjectResponse) => {
     const oa = propertyOf(o.decryptedData);
 
-    const details = (displayFields?.details || []).map(field => {
+    const details = (displayFields?.details || []).filter(field => !field.startsWith('attr')).map(field => {
       let value = oa(field);
 
       if (value && typeof value === 'object' && !Array.isArray(value)) {
-      value = value.country || value.name || JSON.stringify(value);
+        value = value.country || value.name || JSON.stringify(value);
       }
 
       return (
-        <Box key={`${o.tdfObject.id}-${field}-details`} sx={{ wordBreak: 'break-all' }}>
-          <strong>{getFieldTitle(field)}</strong>: {value}
+        <Box key={`${o.tdfObject.id}-${field}-details`} className="detail-item">
+          <Typography variant="caption" className="detail-label">{getFieldTitle(field)}:</Typography>
+          <Typography variant="caption" className="detail-value">{value || 'N/A'}</Typography>
         </Box>
       );
     });
@@ -145,7 +147,7 @@ export function MarkerLayer({ tdfObjects = [], isCluster = false, layerName = 'u
         objectConfigValueColor = objectConfigValueColor.toLowerCase();
       }
 
-      iconColor = mapStringToColor(objectConfigValueColor);
+      iconColor = objectConfigValueColor ? mapStringToColor(objectConfigValueColor) : mapColors[mapFields.colorDefault] || mapColors.default;
     }
 
     if (!iconColor){
@@ -225,8 +227,8 @@ export function MarkerLayer({ tdfObjects = [], isCluster = false, layerName = 'u
 
       return (
         <Marker position={{ lat: coordinates[1], lng: coordinates[0] }} key={tdfObject.tdfObject.id} icon={dynamicTdfIcon}>
-          <Popup minWidth={380} maxWidth={500}>
-            <Box sx={{ p: 1, display: 'block', width: '100%', overflow: 'hidden' }}>
+          <Popup minWidth={340} maxWidth={400} offset={[0, -15]} className="custom-vehicle-popup" closeButton={false}>
+            <Box className="tooltip-container" sx={{ position: 'relative', paddingBottom: '4px', maxHeight: '70vh', overflowY: 'auto' }}>
               <ObjectBanner
                 objClassification={objClass.length > 0 ? objClass : ['UNCLASSIFIED']}
                 objNTK={objNTK}
@@ -234,8 +236,9 @@ export function MarkerLayer({ tdfObjects = [], isCluster = false, layerName = 'u
                 notes={[]}
               />
               {renderHeader(tdfObject)}
-              <Box sx={{ mt: 1 }}>
-              {renderDetails(tdfObject)}
+              <Box className="tooltip-section">
+                <Typography variant="body2" className="section-title">Details</Typography>
+                {renderDetails(tdfObject)}
               </Box>
             </Box>
           </Popup>

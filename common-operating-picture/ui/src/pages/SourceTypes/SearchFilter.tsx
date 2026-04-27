@@ -5,7 +5,7 @@ import { Alert, Backdrop, Box, Button, CircularProgress, Popover } from '@mui/ma
 import { FilterAlt } from '@mui/icons-material';
 import { useSourceType } from './SourceTypeContext';
 import { ErrorListTemplate } from '@/components/JsonSchemaForm/ErrorListTemplate';
-import { RJSFSchema } from '@rjsf/utils';
+import { RJSFSchema, RJSFValidationError } from '@rjsf/utils';
 import Form, { IChangeEvent, withTheme } from '@rjsf/core';
 import { Theme as RJSFFormMuiTheme } from '@rjsf/mui';
 import { customizeValidator } from '@rjsf/validator-ajv8';
@@ -21,6 +21,15 @@ import { checkAndSetUnavailableAttributes, checkObjectEntitlements } from '@/uti
 const validator = customizeValidator<any>();
 const SearchForm = withTheme<any, RJSFSchema>(RJSFFormMuiTheme);
 
+function transformErrors(errors: RJSFValidationError[]) {
+  return errors.map(error => {
+    if (error.name === 'required') {
+      return { ...error, message: 'This field is required' };
+    }
+    return error;
+  });
+}
+
 type QueryParamState = {
   formData: any;
   mapState: {
@@ -31,9 +40,10 @@ type QueryParamState = {
 
 type Props = {
   map: Map | null;
+  onDateFilter?: (dates: { startDate?: string; endDate?: string }) => void;
 }
 
-export function SearchFilter({ map }: Props) { //onSearch removed
+export function SearchFilter({ map, onDateFilter }: Props) { //onSearch removed
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -67,6 +77,20 @@ export function SearchFilter({ map }: Props) { //onSearch removed
   // Handler to close the menu, restoring original banner state
   const handleCancel = () => {
     setMenuAnchorEl(null); // Close the popover
+  };
+
+  const handleClear = () => {
+    setFormData({});
+    setHasResults(false);
+    setTdfObjects([]);
+    setMenuAnchorEl(null);
+    if (onDateFilter) {
+      onDateFilter({});
+    }
+    setSearchParams(params => {
+      params.delete('q');
+      return params;
+    });
   };
 
   const { geoField, attrFields } = useSourceType();
@@ -180,6 +204,10 @@ export function SearchFilter({ map }: Props) { //onSearch removed
         return;
     }
 
+    if (onDateFilter) {
+      onDateFilter({ startDate: searchFormData.startDate, endDate: searchFormData.endDate });
+    }
+
     try {
       setError('');
       setLoading(true);
@@ -282,13 +310,17 @@ export function SearchFilter({ map }: Props) { //onSearch removed
             validator={validator}
             onChange={handleChange}
             onSubmit={handleSearch}
+            transformErrors={transformErrors}
             templates={{ ErrorListTemplate }}
             noHtml5Validate
           />
-          <Button variant="contained" onClick={() => formRef.current?.submit()} sx={{ mt: 2 }}>
-            Search
-          </Button>
-          <Button onClick={handleCancel}>Cancel</Button>
+          <Box display="flex" gap={1} mt={2}>
+            <Button variant="contained" onClick={() => formRef.current?.submit()}>
+              Search
+            </Button>
+            <Button onClick={handleClear}>Clear</Button>
+            <Button onClick={handleCancel}>Cancel</Button>
+          </Box>
           <Backdrop open={loading} sx={{ position: 'absolute', zIndex: 10 }}>
             <Box display="flex" alignItems="center" gap={1}>
               <CircularProgress size={35} thickness={8} /> loading...

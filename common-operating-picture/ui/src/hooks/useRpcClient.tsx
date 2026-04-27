@@ -29,6 +29,7 @@ const WORKER_POOL_SIZE = 4;
 const workerPool: Worker[] = [];
 let nextWorkerIndex = 0;
 let workersInitialized = false;
+let initializedRefreshToken: string | null = null;
 
 function getWorker(): Worker {
   if (workerPool.length < WORKER_POOL_SIZE) {
@@ -42,7 +43,10 @@ function getWorker(): Worker {
 }
 
 async function initializeWorkers(user: ReturnType<typeof useAuth>['user']) {
-  if (workersInitialized || !user?.refreshToken || !user?.accessToken) return;
+  if (!user?.refreshToken || !user?.accessToken) return;
+  if (workersInitialized && initializedRefreshToken === user.refreshToken) return;
+
+  workersInitialized = false;
 
   const initData = {
     config,
@@ -65,6 +69,7 @@ async function initializeWorkers(user: ReturnType<typeof useAuth>['user']) {
 
   await Promise.all(workerPromises);
   workersInitialized = true;
+  initializedRefreshToken = user.refreshToken;
   console.log(`Initialized ${WORKER_POOL_SIZE} decryption workers.`);
 }
 

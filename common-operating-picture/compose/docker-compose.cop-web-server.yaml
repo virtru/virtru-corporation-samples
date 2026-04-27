@@ -38,6 +38,7 @@ services:
       - ../dsp-keys/rootCA.pem:/etc/ssl/certs/ca-certificates.crt
       - ../dsp-keys/${PLATFORM_HOSTNAME}.pem:/dsp-keys/${PLATFORM_HOSTNAME}.pem
       - ../dsp-keys/${PLATFORM_HOSTNAME}.key.pem:/dsp-keys/${PLATFORM_HOSTNAME}.key.pem
+      - ../nifi/sample_data:/app/nifi/sample_data  # shared with NiFi so sim_nifi_seed.py can drop files into mission_example/
     ports:
       - 5001:5001
       - 5002:5002

@@ -1,5 +1,6 @@
 import { STSClient, AssumeRoleWithWebIdentityCommand } from '@aws-sdk/client-sts';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S4_TAG_SCHEMA, type TagSchemaKeys } from './tagSchema';
 
 // S4 Configuration
 const S4_ENDPOINT = import.meta.env.VITE_S4_ENDPOINT || 'http://localhost:7070';
@@ -131,6 +132,17 @@ export interface MilitaryManifest {
   processing: Processing;
 }
 
+export interface ManifestS4Tags {
+  classification: string[];
+  relTo: string[];
+  ntk: string[];
+}
+
+export interface ManifestFetchResult {
+  manifest: MilitaryManifest;
+  s4Tags: ManifestS4Tags;
+}
+
 /**
  * Exchange JWT for temporary S3 credentials via S4 STS
  */
@@ -187,7 +199,7 @@ export function parseS3Uri(s3Uri: string): { bucket: string; key: string } | nul
 export async function fetchManifestFromS4(
   accessToken: string,
   manifestUri: string
-): Promise<MilitaryManifest> {
+): Promise<ManifestFetchResult> {
   const parsed = parseS3Uri(manifestUri);
   if (!parsed) {
     throw new Error(`Invalid S3 URI: ${manifestUri}`);
@@ -242,7 +254,22 @@ export async function fetchManifestFromS4(
     }
 
     const manifest: MilitaryManifest = JSON.parse(bodyText);
-    return manifest;
+
+    const attrValues = Object.entries(response.Metadata || {})
+      .filter(([k]) => k.startsWith('tdf-data-attribute-'))
+      .sort(([a], [b]) => {
+        const ai = parseInt(a.replace('tdf-data-attribute-', ''));
+        const bi = parseInt(b.replace('tdf-data-attribute-', ''));
+        return ai - bi;
+      })
+      .map(([, v]) => v);
+
+    const s4Tags = Object.entries(S4_TAG_SCHEMA).reduce((acc, [key, prefix]) => {
+      acc[key as TagSchemaKeys] = attrValues.filter(v => v.includes(prefix));
+      return acc;
+    }, {} as Record<TagSchemaKeys, string[]>);
+
+    return { manifest, s4Tags };
   } catch (err: any) {
     if (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404) {
       throw new Error('ENTITLEMENT_DENIED');

@@ -84,7 +84,7 @@ COPY --from=python-builder /app/venv /app/venv
 
 # 4. Bring in Go Binary and Python Scripts
 COPY --from=builder /app/dsp-cop /usr/bin/
-COPY scripts/seed/seed_data.py scripts/seed/read_s4.py scripts/seed/sim_data_fake_opensky.py scripts/seed/sim_data.py /app/scripts/seed/
+COPY scripts/seed/seed_data.py scripts/seed/read_s4.py scripts/seed/sim_data_fake_opensky.py scripts/seed/sim_data.py scripts/seed/sim_nifi_seed.py scripts/seed/add_manifests.py /app/scripts/seed/
 
 # 5. Environment
 ENV PATH="/app/venv/bin:/usr/bin:${PATH}"
