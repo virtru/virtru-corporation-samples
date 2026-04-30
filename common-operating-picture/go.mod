@@ -10,7 +10,7 @@ require (
 	github.com/brianvoe/gofakeit/v7 v7.0.4
 	github.com/creasty/defaults v1.7.0
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.7.5
+	github.com/jackc/pgx/v5 v5.9.2
 	github.com/jackc/pgxlisten v0.0.0-20230728233309-2632bad3185a
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
