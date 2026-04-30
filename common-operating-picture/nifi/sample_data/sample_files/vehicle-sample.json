@@ -2,7 +2,7 @@
     "CompositeObject": [
         {
             "Type": "vehicles",
-            "tdfFormat": "nano",
+            "tdfFormat": "ztdf",
             "Details": {
                 "vehicleName": "F-35A Lightning II",
                 "callsign": "VPR01",
@@ -36,7 +36,7 @@
         },
         {
             "Type": "vehicles",
-            "tdfFormat": "nano",
+            "tdfFormat": "ztdf",
             "Details": {
                 "vehicleName": "B-52H Stratofortress",
                 "callsign": "IRON21",
@@ -52,11 +52,11 @@
                 "Coord": "414500000N08730000000W",
                 "ProducerDateTimeLastChg": "2026-03-19T23:03:52Z",
                 "attrClassification": ["https://demo.com/attr/classification/value/confidential"],
-                "attrRelTo": [],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/fvey", "https://demo.com/attr/relto/value/aus", "https://demo.com/attr/relto/value/nzl"],
                 "attrNeedToKnow": []
             },
             "Search": {
-                "attrRelTo": [],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/fvey", "https://demo.com/attr/relto/value/aus", "https://demo.com/attr/relto/value/nzl"],
                 "attrNeedToKnow": [],
                 "attrClassification": ["https://demo.com/attr/classification/value/confidential"]
             },
@@ -66,11 +66,11 @@
                 "altitude": "FL400",
                 "heading": "045"
             },
-            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-002</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"C\" ism:ownerProducer=\"USA\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Flight Ops\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-002</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"C\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA GBR CAN AUS NZL\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Flight Ops\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
         },
         {
             "Type": "vehicles",
-            "tdfFormat": "nano",
+            "tdfFormat": "ztdf",
             "Details": {
                 "vehicleName": "KC-135R Stratotanker",
                 "callsign": "TEXCO61",
@@ -86,11 +86,11 @@
                 "Coord": "251700000N05131000000E",
                 "ProducerDateTimeLastChg": "2026-03-19T23:03:52Z",
                 "attrClassification": ["https://demo.com/attr/classification/value/secret"],
-                "attrRelTo": [],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/fra", "https://demo.com/attr/relto/value/deu"],
                 "attrNeedToKnow": []
             },
             "Search": {
-                "attrRelTo": [],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/fra", "https://demo.com/attr/relto/value/deu"],
                 "attrNeedToKnow": [],
                 "attrClassification": ["https://demo.com/attr/classification/value/secret"]
             },
@@ -100,7 +100,7 @@
                 "altitude": "FL280",
                 "heading": "180"
             },
-            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-003</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"S\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA NATO\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"ATO Tasking\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-003</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"S\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA GBR FRA DEU\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"ATO Tasking\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
         },
         {
             "Type": "vehicles",
@@ -120,11 +120,11 @@
                 "Coord": "361500000N11546000000W",
                 "ProducerDateTimeLastChg": "2026-03-19T23:03:52Z",
                 "attrClassification": ["https://demo.com/attr/classification/value/topsecret"],
-                "attrRelTo": [],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/can", "https://demo.com/attr/relto/value/aus", "https://demo.com/attr/relto/value/nzl"],
                 "attrNeedToKnow": []
             },
             "Search": {
-                "attrRelTo": [],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/can", "https://demo.com/attr/relto/value/aus", "https://demo.com/attr/relto/value/nzl"],
                 "attrNeedToKnow": [],
                 "attrClassification": ["https://demo.com/attr/classification/value/topsecret"]
             },
@@ -135,6 +135,142 @@
                 "heading": "270"
             },
             "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-004</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"TS\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA GBR CAN AUS NZL\" ism:disseminationControls=\"NF\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"ISR Tasking\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "vehicles",
+            "tdfFormat": "ztdf",
+            "Details": {
+                "vehicleName": "E-3 Sentry AWACS",
+                "callsign": "MAGIC01",
+                "registration": "USAF-8841",
+                "tailNumber": "77-0354",
+                "aircraft_type": "E-3G (AEW&C)",
+                "operator": "USAF 552 ACW",
+                "origin": "TINKER AFB",
+                "destination": "CAP BRAVO",
+                "speed": "400 kts",
+                "altitude": "FL290",
+                "heading": "135",
+                "Coord": "482300000N01325000000E",
+                "ProducerDateTimeLastChg": "2026-03-19T23:03:52Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/confidential"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/jpn"],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "attrRelTo": ["https://demo.com/attr/relto/value/jpn"],
+                "attrNeedToKnow": [],
+                "attrClassification": ["https://demo.com/attr/classification/value/confidential"]
+            },
+            "Metadata": {
+                "callsign": "MAGIC01",
+                "speed": "400 kts",
+                "altitude": "FL290",
+                "heading": "135"
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-005</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"C\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA JPN\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"C2 Ops\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "vehicles",
+            "tdfFormat": "ztdf",
+            "Details": {
+                "vehicleName": "C-17A Globemaster III",
+                "callsign": "REACH44",
+                "registration": "AMC-3302",
+                "tailNumber": "03-3119",
+                "aircraft_type": "C-17A (TRANSPORT)",
+                "operator": "AMC 62 AW",
+                "origin": "MCCHORD AFB",
+                "destination": "RAMSTEIN AB",
+                "speed": "490 kts",
+                "altitude": "FL370",
+                "heading": "060",
+                "Coord": "512100000N00030000000W",
+                "ProducerDateTimeLastChg": "2026-03-19T23:03:52Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/unclassified"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/can", "https://demo.com/attr/relto/value/aus"],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/can", "https://demo.com/attr/relto/value/aus"],
+                "attrNeedToKnow": [],
+                "attrClassification": ["https://demo.com/attr/classification/value/unclassified"]
+            },
+            "Metadata": {
+                "callsign": "REACH44",
+                "speed": "490 kts",
+                "altitude": "FL370",
+                "heading": "060"
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-006</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>AMC</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"U\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA GBR CAN AUS\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Airlift Ops\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "vehicles",
+            "tdfFormat": "ztdf",
+            "Details": {
+                "vehicleName": "P-8A Poseidon",
+                "callsign": "NEPTUNE7",
+                "registration": "USN-9921",
+                "tailNumber": "169329",
+                "aircraft_type": "P-8A (MPA)",
+                "operator": "USN VP-16",
+                "origin": "NAS JACKSONVILLE",
+                "destination": "PATROL ZONE DELTA",
+                "speed": "440 kts",
+                "altitude": "FL200",
+                "heading": "315",
+                "Coord": "352000000N06200000000W",
+                "ProducerDateTimeLastChg": "2026-03-19T23:03:52Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/secret"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/can", "https://demo.com/attr/relto/value/aus", "https://demo.com/attr/relto/value/nzl"],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/can", "https://demo.com/attr/relto/value/aus", "https://demo.com/attr/relto/value/nzl"],
+                "attrNeedToKnow": [],
+                "attrClassification": ["https://demo.com/attr/classification/value/secret"]
+            },
+            "Metadata": {
+                "callsign": "NEPTUNE7",
+                "speed": "440 kts",
+                "altitude": "FL200",
+                "heading": "315"
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-007</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USN</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"S\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA GBR CAN AUS NZL\" ism:disseminationControls=\"\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"Maritime Patrol\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
+        },
+        {
+            "Type": "vehicles",
+            "tdfFormat": "ztdf",
+            "Details": {
+                "vehicleName": "RC-135V Rivet Joint",
+                "callsign": "COBRA11",
+                "registration": "USAF-2201",
+                "tailNumber": "64-14841",
+                "aircraft_type": "RC-135V (ISR)",
+                "operator": "USAF 55 WG",
+                "origin": "OFFUTT AFB",
+                "destination": "ORBIT TRACK ECHO",
+                "speed": "460 kts",
+                "altitude": "FL310",
+                "heading": "000",
+                "Coord": "435000000N03300000000E",
+                "ProducerDateTimeLastChg": "2026-03-19T23:03:52Z",
+                "attrClassification": ["https://demo.com/attr/classification/value/topsecret"],
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/can"],
+                "attrNeedToKnow": []
+            },
+            "Search": {
+                "attrRelTo": ["https://demo.com/attr/relto/value/gbr", "https://demo.com/attr/relto/value/can"],
+                "attrNeedToKnow": [],
+                "attrClassification": ["https://demo.com/attr/classification/value/topsecret"]
+            },
+            "Metadata": {
+                "callsign": "COBRA11",
+                "speed": "460 kts",
+                "altitude": "FL310",
+                "heading": "000"
+            },
+            "EDH": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edh:ExternalEdh xmlns:edh=\"urn:us:gov:ic:edh\" xmlns:arh=\"urn:us:gov:ic:arh\" xmlns:ism=\"urn:us:gov:ic:ism\" xmlns:icid=\"urn:us:gov:ic:id\" ism:DESVersion=\"201609.201707\" ism:ISMCATCESVersion=\"201709\">\n   <icid:Identifier>guide://unique-entity-id-vehicle-008</icid:Identifier>\n   <edh:DataItemCreateDateTime>2026-03-19T23:03:52Z</edh:DataItemCreateDateTime>\n   <edh:ResponsibleEntity edh:role=\"Custodian\">\n      <edh:Country>USA</edh:Country>\n      <edh:Organization>USAF</edh:Organization>\n   </edh:ResponsibleEntity>\n   <arh:Security ism:classification=\"TS\" ism:ownerProducer=\"USA\" ism:releasableTo=\"USA GBR CAN\" ism:disseminationControls=\"NF\" ism:resourceElement=\"true\" ism:compliesWith=\"USGov USIC\" ism:createDate=\"2026-03-19\" ism:derivativelyClassifiedBy=\"System\" ism:derivedFrom=\"SIGINT Tasking\" ism:declassDate=\"2031-03-19\"/>\n</edh:ExternalEdh>"
         }
     ]
 }

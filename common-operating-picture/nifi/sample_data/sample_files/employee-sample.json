@@ -2,6 +2,7 @@
     "CompositeObject": [
         {
             "Type": "employee",
+            "tdfFormat": "ztdf",
             "Details": {
                 "name": "James Harrington",
                 "favoriteColor": "blue",
@@ -29,6 +30,7 @@
         },
         {
             "Type": "employee",
+            "tdfFormat": "ztdf",
             "Details": {
                 "name": "Sarah Mitchell",
                 "favoriteColor": "green",
@@ -56,6 +58,7 @@
         },
         {
             "Type": "employee",
+            "tdfFormat": "ztdf",
             "Details": {
                 "name": "Robert Calloway",
                 "favoriteColor": "red",
@@ -83,6 +86,7 @@
         },
         {
             "Type": "employee",
+            "tdfFormat": "ztdf",
             "Details": {
                 "name": "Diana Reeves",
                 "favoriteColor": "violet",
@@ -98,7 +102,7 @@
                 "ProducerDateTimeLastChg": "2026-03-19T12:00:00Z",
                 "attrClassification": "https://demo.com/attr/classification/value/topsecret",
                 "attrRelTo": [],
-                "attrNeedToKnow": ["https://demo.com/attr/needtoknow/value/bbb"]
+                "attrNeedToKnow": []
             },
             "Search": {
                 "name": "Diana Reeves",

@@ -8,13 +8,8 @@ import requests
 import boto3
 import base64
 import urllib3
-from io import BytesIO
 from faker import Faker
 from datetime import datetime, timedelta
-from psycopg2.extras import execute_batch
-from otdf_python.sdk_builder import SDKBuilder
-from otdf_python.config import TDFConfig, KASInfo
-from botocore.config import Config
 
 # --- Load env file if ENV_FILE is set or auto-detect ---
 def _load_env_file():
@@ -22,7 +17,6 @@ def _load_env_file():
     print(f"[config] ENV_FILE env var: {env_file!r}")
     if not env_file:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        print(f"[config] script_dir: {script_dir}")
         candidate = os.path.normpath(os.path.join(script_dir, "..", "..", "env", "default.env"))
         print(f"[config] checking candidate path: {candidate}")
         print(f"[config] candidate exists: {os.path.exists(candidate)}")
@@ -35,7 +29,8 @@ def _load_env_file():
                 line = line.strip()
                 if line and not line.startswith("#") and "=" in line:
                     k, _, v = line.partition("=")
-                    os.environ[k.strip()] = v.strip().strip('"')
+                    if k.strip() not in os.environ:
+                        os.environ[k.strip()] = v.strip().strip('"')
         print(f"[config] env file loaded successfully")
     else:
         print(f"[config] no env file found, using environment defaults")
@@ -66,8 +61,6 @@ print(f"[config] KC_USER={KC_USER}")
 DB_NAME, DB_USER, DB_PASSWORD = "postgres", "postgres", "changeme"
 DB_HOST = os.getenv("DB_HOST", "cop-db")
 DB_PORT = int(os.getenv("DB_PORT", "5432"))
-NUM_RECORDS = 20
-BATCH_SIZE = 5
 print(f"[config] DB_HOST={DB_HOST} DB_PORT={DB_PORT} DB_NAME={DB_NAME}")
 
 # --- S4 / S3 Configs ---
@@ -79,23 +72,9 @@ S4_BUCKET = "cop-demo"
 S4_REGION = "us-east-1"
 print(f"[config] S4_STS_ENDPOINT={S4_STS_ENDPOINT} S4_BUCKET={S4_BUCKET}")
 
-# --- Fixed Data for TdfObjects ---
-FIXED_SRC_TYPE = 'vehicles'
-FIXED_TDF_URI = None
-FIXED_CREATED_BY = KC_USER
-
-# --- DSP Configs ---
-PLATFORM_ENDPOINT = os.getenv("PLATFORM_ENDPOINT", f"https://{_hostname}:{_http_port}")
-CA_CERT_PATH = os.getenv("CA_CERT_PATH", "./dsp-keys/rootCA.pem")
-ISSUER_ENDPOINT = os.getenv("ISSUER_ENDPOINT", f"https://{_hostname}:{_https_port}/auth/realms/opentdf")
-print(f"[config] PLATFORM_ENDPOINT={PLATFORM_ENDPOINT}")
-print(f"[config] ISSUER_ENDPOINT={ISSUER_ENDPOINT}")
-print(f"[config] CA_CERT_PATH={CA_CERT_PATH} exists={os.path.exists(CA_CERT_PATH)}")
-
-CLASSIFICATIONS = ["unclassified", "confidential", "secret", "topsecret"]
-
 # --- Fixed Need-to-Know attribute for all manifests ---
 NEEDTOKNOW_ATTR = "https://demo.com/attr/needtoknow/value/bbb"
+TOPSECRET_ATTR = "https://demo.com/attr/classification/value/topsecret"
 
 # --- IC/Military Reference Data ---
 MILITARY_BRANCHES = ["USAF", "USN", "USA", "USMC", "USSF", "USCG"]
@@ -121,24 +100,6 @@ COMMAND_ELEMENTS = ["CENTCOM", "EUCOM", "INDOPACOM", "AFRICOM", "NORTHCOM", "SOU
 SECURITY_CAVEATS = ["NOFORN", "FVEY", "REL TO USA", "ORCON", "PROPIN", "REL TO NATO"]
 SENSOR_TYPES = ["SAR", "EO/IR", "MTI", "GMTI", "ESM", "COMMS", "RADAR", "LIDAR"]
 EMISSION_CONTROL = ["EMCON ALPHA", "EMCON BRAVO", "EMCON CHARLIE", "EMCON DELTA"]
-
-# --- SQL Queries ---
-DELETE_SQL = "DELETE FROM tdf_objects"
-INSERT_SQL = """
-INSERT INTO tdf_objects (
-    id,
-    ts,
-    src_type,
-    geo,
-    search,
-    metadata,
-    tdf_blob,
-    tdf_uri,
-    _created_at,
-    _created_by
-)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-"""
 
 
 def get_auth_token():
@@ -204,46 +165,7 @@ def upload_to_s4(s3_client, filename, data_dict, attributes: list[str]):
     return f"s3://{S4_BUCKET}/{filename}"
 
 
-def get_sdk_instance(platform_endpoint, client_id, client_secret, ca_cert_path, issuer_endpoint):
-    print(f"[sdk] building SDK: endpoint={platform_endpoint} issuer={issuer_endpoint} cert={ca_cert_path}")
-    builder = SDKBuilder()
-    builder.set_platform_endpoint(platform_endpoint)
-    builder.client_secret(client_id, client_secret)
-    builder.cert_paths = ca_cert_path
-    builder.use_insecure_skip_verify(True)
-    sdk = builder.build()
-    print(f"[sdk] SDK built successfully")
-    return sdk
-
-
-def encrypt_data(sdk, plaintext: str, attributes: list[str]) -> bytes:
-    target_kas_url = os.getenv("KAS_TDF_URL", f"https://{_hostname}:{_http_port}/kas")
-    kas_info = KASInfo(url=target_kas_url)
-
-    config = TDFConfig(
-        attributes=attributes,
-        kas_info_list=[kas_info]
-    )
-
-    input_data_stream = BytesIO(plaintext.encode('utf-8'))
-    output_stream = BytesIO()
-
-    sdk.create_tdf(
-        input_data_stream,
-        config,
-        output_stream
-    )
-
-    return output_stream.getvalue()
-
-
-def generate_random_point_wkb():
-    lat = random.uniform(25, 45)
-    lon = random.uniform(-85, -65)
-    return f'POINT({lon} {lat})'
-
-
-def generate_military_manifest(fake, record_id, classification):
+def generate_military_manifest(fake, record_id, classification, rel_to: list[str] = None, ntk: list[str] = None):
     """Generates realistic IC/Military manifest data for a tracked asset."""
 
     platform = random.choice(AIRCRAFT_PLATFORMS)
@@ -257,7 +179,7 @@ def generate_military_manifest(fake, record_id, classification):
             "recordId": record_id,
             "version": "2.1",
             "classification": classification.upper(),
-            "caveats": random.sample(SECURITY_CAVEATS, k=random.randint(1, 3)),
+            "caveats": (rel_to or []) + (ntk or []),
             "declassifyOn": (datetime.now() + timedelta(days=365*25)).strftime("%Y-%m-%d"),
             "createdAt": datetime.now().isoformat() + "Z",
             "createdBy": f"{fake.last_name().upper()}, {fake.first_name().upper()[0]}",
@@ -358,98 +280,50 @@ def generate_military_manifest(fake, record_id, classification):
     return manifest
 
 
-def generate_tdf_records(count, sdk):
-    records = []
-    fake = Faker()
-
-    try:
-        print("[s4] initializing S4 S3 client...")
-        s3_client = get_s4_s3_client()
-        print("[s4] S4 S3 client initialized successfully")
-    except Exception as e:
-        print(f"[s4] failed to initialize S4 client: {e}")
-        import traceback
-        traceback.print_exc()
-        return []
-
-    print(f"[seed] generating {count} records with IC/Military manifests...")
-
-    for i in range(count):
-        cls_type = CLASSIFICATIONS[i % len(CLASSIFICATIONS)]
-        classification_attr = f"https://demo.com/attr/classification/value/{cls_type}"
-        random_id = str(uuid.uuid4())
-        platform = random.choice(AIRCRAFT_PLATFORMS)
-
-        vehicle_data = {
-            "vehicleName": f"{platform['designation']} {platform['name']}",
-            "origin": f"{fake.city().upper()} {'AFB' if platform['service'] == 'USAF' else 'NAS'}",
-            "destination": f"AO-{fake.lexify('???').upper()}",
-            "aircraft_type": f"{platform['designation']} ({platform['type']})"
-        }
-
-        tdf_blob = encrypt_data(sdk, json.dumps(vehicle_data), [classification_attr])
-
-        search_jsonb = json.dumps({
-            "attrRelTo": [],
-            "attrNeedToKnow": [],
-            "attrClassification": [classification_attr]
-        })
-
-        manifest_data = generate_military_manifest(fake, random_id, cls_type)
-        manifest_key = f"manifests/{random_id}.json.tdf"
-
-        manifest_attributes = [
-            f"https://demo.com/attr/classification/value/topsecret",
-            NEEDTOKNOW_ATTR
-        ]
-
-        try:
-            manifest_uri = upload_to_s4(s3_client, manifest_key, manifest_data, manifest_attributes)
-            print(f"  [{i+1}/{count}] {platform['designation']} | {cls_type.upper()} + NTK/BBB")
-        except Exception as e:
-            print(f"  [{i+1}/{count}] manifest upload FAILED: {e}")
-            manifest_uri = None
-
-        metadata_jsonb = json.dumps({
-            "callsign": f"{fake.lexify('??').upper()}{fake.numerify('##')}",
-            "speed": f"{random.randint(200, 600)} kts",
-            "altitude": f"FL{random.randint(150, 450)}",
-            "heading": str(random.randint(0, 359)),
-            "manifest": manifest_uri
-        })
-
-        random_ts = datetime.now()
-        random_geo = generate_random_point_wkb()
-        random_created_at = random_ts + timedelta(seconds=random.uniform(0.01, 0.1))
-
-        record = (
-            random_id,
-            random_ts,
-            FIXED_SRC_TYPE,
-            random_geo,
-            search_jsonb,
-            metadata_jsonb,
-            tdf_blob,
-            FIXED_TDF_URI,
-            random_created_at,
-            FIXED_CREATED_BY
+def get_vehicles_without_manifests(conn, include_existing: bool):
+    cursor = conn.cursor()
+    if include_existing:
+        print("[db] querying all vehicle rows (--all flag set)...")
+        cursor.execute(
+            "SELECT id, search, metadata FROM tdf_objects WHERE src_type = 'vehicles'"
         )
-        records.append(record)
+    else:
+        print("[db] querying vehicle rows missing manifest...")
+        cursor.execute(
+            "SELECT id, search, metadata FROM tdf_objects "
+            "WHERE src_type = 'vehicles' AND (metadata->>'manifest') IS NULL"
+        )
+    rows = cursor.fetchall()
+    cursor.close()
+    print(f"[db] found {len(rows)} vehicle row(s) to process")
+    return rows
 
-    return records
+
+def update_manifest_uri(conn, row_id, manifest_uri):
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE tdf_objects "
+        "SET metadata = metadata || jsonb_build_object('manifest', %s::text) "
+        "WHERE id = %s",
+        (manifest_uri, row_id)
+    )
+    conn.commit()
+    cursor.close()
 
 
-def insert_seed_data(sdk, should_delete: bool):
+def extract_classification(search_jsonb):
+    """Pull the short classification label (e.g. 'secret') from the search JSONB."""
+    attrs = search_jsonb.get("attrClassification", [])
+    if not attrs:
+        return "unclassified"
+    # attr format: "https://demo.com/attr/classification/value/<label>"
+    return attrs[0].rstrip("/").split("/")[-1]
+
+
+def add_manifests(include_existing: bool):
     conn = None
-    records = generate_tdf_records(NUM_RECORDS, sdk)
-
-    if not records:
-        print("[db] no records generated. Exiting.")
-        return
-
-    print(f"[db] attempting to connect to {DB_HOST}:{DB_PORT}/{DB_NAME}...")
-
     try:
+        print(f"[db] connecting to {DB_HOST}:{DB_PORT}/{DB_NAME}...")
         conn = psycopg2.connect(
             dbname=DB_NAME,
             user=DB_USER,
@@ -457,47 +331,72 @@ def insert_seed_data(sdk, should_delete: bool):
             host=DB_HOST,
             port=DB_PORT
         )
-        print(f"[db] connected successfully")
-        cursor = conn.cursor()
+        print("[db] connected successfully")
 
-        if should_delete:
-            print(f"[db] --delete flag detected, deleting existing records for src_type={FIXED_SRC_TYPE}")
-            cursor.execute(DELETE_SQL, (FIXED_SRC_TYPE,))
-            print(f"[db] deleted {cursor.rowcount} records")
+        rows = get_vehicles_without_manifests(conn, include_existing)
+        if not rows:
+            print("[main] no vehicles to process, exiting")
+            return
 
-        print(f"[db] inserting {NUM_RECORDS} records in batches of {BATCH_SIZE}...")
-        execute_batch(cursor, INSERT_SQL, records, page_size=BATCH_SIZE)
-        conn.commit()
-        print(f"[db] successfully inserted {NUM_RECORDS} records into tdf_objects")
+        print("[s4] initializing S4 S3 client...")
+        s3_client = get_s4_s3_client()
+        print("[s4] S4 S3 client initialized successfully")
+
+        fake = Faker()
+
+        for i, (row_id, search_jsonb, metadata_jsonb) in enumerate(rows):
+            manifest_data = generate_military_manifest(
+                fake, str(row_id), "topsecret",
+                rel_to=search_jsonb.get("attrRelTo", []),
+                ntk=search_jsonb.get("attrNeedToKnow", []),
+            )
+            manifest_key = f"manifests/{row_id}.json.tdf"
+
+            # Manifest is always TS — gate and document label must match.
+            # relTo and needToKnow match the vehicle exactly.
+            manifest_attributes = (
+                [TOPSECRET_ATTR]
+                + search_jsonb.get("attrRelTo", [])
+                + search_jsonb.get("attrNeedToKnow", [])
+            )
+
+            try:
+                manifest_uri = upload_to_s4(s3_client, manifest_key, manifest_data, manifest_attributes)
+                print(f"  [{i+1}/{len(rows)}] {row_id} | TOPSECRET | manifest uploaded -> {manifest_uri}")
+            except Exception as e:
+                print(f"  [{i+1}/{len(rows)}] {row_id} | manifest upload FAILED: {e}")
+                continue
+
+            update_manifest_uri(conn, row_id, manifest_uri)
+            print(f"  [{i+1}/{len(rows)}] {row_id} | metadata updated")
 
     except psycopg2.OperationalError as e:
-        print(f"[db] CONNECTION ERROR: could not connect to database")
-        print(f"[db] details: {e}")
-        if conn: conn.rollback()
-
-    except Exception as e:
-        print(f"[db] error during insertion: {e}")
-        import traceback
-        traceback.print_exc()
-        if conn: conn.rollback()
-
-    finally:
+        print(f"[db] CONNECTION ERROR: {e}")
         if conn:
-            cursor.close()
-            conn.close()
-            print(f"[db] connection closed")
+            conn.rollback()
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Seed script for TDF objects with IC/Military manifests.")
-    parser.add_argument("--delete", action="store_true", help="Delete existing records before inserting.")
-    args = parser.parse_args()
-
-    try:
-        print("[sdk] initializing TDF SDK...")
-        sdk_instance = get_sdk_instance(PLATFORM_ENDPOINT, CLIENT_ID, CLIENT_SECRET, CA_CERT_PATH, ISSUER_ENDPOINT)
-        insert_seed_data(sdk_instance, args.delete)
     except Exception as e:
         print(f"[main] error: {e}")
         import traceback
         traceback.print_exc()
+        if conn:
+            conn.rollback()
+
+    finally:
+        if conn:
+            conn.close()
+            print("[db] connection closed")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Add S4 classified manifests to NiFi-seeded vehicle records."
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Re-process all vehicle rows, even those that already have a manifest."
+    )
+    args = parser.parse_args()
+
+    add_manifests(include_existing=args.all)

@@ -4,13 +4,15 @@ import { LatLng, Map } from 'leaflet';
 import { Box, Button, Grid } from '@mui/material';
 import { AddCircle } from '@mui/icons-material';
 import { useRpcClient } from '@/hooks/useRpcClient';
+import { checkObjectEntitlements } from '@/utils/attributes';
 import { useSimulation } from '@/hooks/useSimulation';
-import { useVehicleData } from '@/hooks/useVehicleData';
+import { useVehicleData, VehicleDateFilter } from '@/hooks/useVehicleData';
 import { useEntitlements } from '@/hooks/useEntitlements';
 import { PageTitle } from '@/components/PageTitle';
 import { CopMap } from '@/components/Map/CopMap';
 import { BannerContext } from '@/contexts/BannerContext';
-import { SrcType } from '@/proto/tdf_object/v1/tdf_object_pb';
+import { SrcType, TimestampSelector } from '@/proto/tdf_object/v1/tdf_object_pb';
+import { Timestamp } from '@bufbuild/protobuf';
 import { VehicleData } from '@/types/vehicle';
 import { VehiclePopOutResponse } from '@/components/Map/Vehicle';
 import { SourceTypeProvider } from './SourceTypeProvider';
@@ -29,11 +31,12 @@ export function SourceTypes() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [srcType, setSrcType] = useState<SrcType>();
   const [poppedOutVehicle, setPoppedOutVehicle] = useState<VehiclePopOutResponse | null>(null);
-
-  const { getSrcType } = useRpcClient();
+  const [vehicleDateFilter, setVehicleDateFilter] = useState<VehicleDateFilter>();
+  const { getSrcType, queryTdfObjects } = useRpcClient();
   const { tdfObjects, setTdfObjects, activeEntitlements } = useContext(BannerContext);
   const { categorizedData } = useEntitlements();
-  const { filteredVehicleData, vehicleSrcType, fetchVehicles } = useVehicleData();
+  const isVehicleView = !srcTypeId || srcTypeId === 'vehicles';
+  const { filteredVehicleData, vehicleSrcType, fetchVehicles } = useVehicleData(vehicleDateFilter, isVehicleView);
 
   const fetchSrcType = useCallback(async (id: string) => {
     try {
@@ -128,9 +131,24 @@ export function SourceTypes() {
     }
   }, [searchParams, fetchSrcType, srcTypeId, setTdfObjects]);
 
-  const searchResultsTdfObjects = srcTypeId === 'vehicles'
-  ? [] // If the selected type is 'vehicles', show an empty list in SearchResults.
-  : tdfObjects; // Otherwise, show the actual tdfObjects (from BannerContext).
+  // Load all objects when a non-vehicle source type is selected
+  useEffect(() => {
+    if (!srcTypeId || srcTypeId === 'vehicles') return;
+
+    const tsRange = new TimestampSelector();
+    tsRange.greaterOrEqualTo = Timestamp.fromDate(new Date(0));
+
+    queryTdfObjects({ srcType: srcTypeId, tsRange })
+      .then(results => setTdfObjects(results.filter(obj => !checkObjectEntitlements(obj, activeEntitlements))))
+      .catch(err => console.error('Error fetching initial TDF objects:', err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [srcTypeId]);
+
+  // Only show TDF objects in search results when not viewing vehicles
+  const searchResultsTdfObjects = srcTypeId === 'vehicles' ? [] : tdfObjects;
+
+  // Only show vehicles on the map when 'vehicles' or no type is selected
+  const mapVehicleData = (!srcTypeId || srcTypeId === 'vehicles') ? filteredVehicleData : [];
 
   return (
     <>
@@ -141,7 +159,7 @@ export function SourceTypes() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={7}>
             <CopMap
-              filteredVehicleData={filteredVehicleData}
+              filteredVehicleData={mapVehicleData}
               tdfObjects={tdfObjects}
               activeEntitlements={activeEntitlements}
               onMapReady={setMap}
@@ -161,16 +179,19 @@ export function SourceTypes() {
               onClearLogs={simulation.clearLogs}
             />
 
-            <Box display="flex" gap={1} mb={2}>
-              <SearchFilter map={map} />
-              <Button variant="contained" color="primary" onClick={handleDialogOpen} startIcon={<AddCircle />}>New</Button>
-            </Box>
+            {srcType && (
+              <Box display="flex" gap={1} mb={2}>
+                <SearchFilter map={map} onDateFilter={setVehicleDateFilter} />
+                <Button variant="contained" color="primary" onClick={handleDialogOpen} startIcon={<AddCircle />}>New</Button>
+              </Box>
+            )}
             <SearchResults tdfObjects={searchResultsTdfObjects} onFlyToClick={handleFlyToClick} />
           </Grid>
         </Grid>
-        <CreateDialog open={dialogOpen} onClose={handleDialogClose} />
+        {srcType && <CreateDialog open={dialogOpen} onClose={handleDialogClose} />}
         {poppedOutVehicle && (
           <VehicleDetailSidebar
+            key={poppedOutVehicle.tdfObject.id}
             vehicle={poppedOutVehicle}
             vehicleSrcType={vehicleSrcType}
             categorizedData={categorizedData || {}}

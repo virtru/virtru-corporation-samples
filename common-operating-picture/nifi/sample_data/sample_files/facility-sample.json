@@ -2,6 +2,7 @@
     "CompositeObject": [
         {
             "Type": "Facilities",
+            "tdfFormat": "ztdf",
             "Details": {
                 "facilityName": "Nellis Air Force Base",
                 "facilityType": "AIRBASE",
@@ -28,6 +29,7 @@
         },
         {
             "Type": "Facilities",
+            "tdfFormat": "ztdf",
             "Details": {
                 "facilityName": "RAF Lakenheath",
                 "facilityType": "AIRBASE",
@@ -54,6 +56,7 @@
         },
         {
             "Type": "Facilities",
+            "tdfFormat": "ztdf",
             "Details": {
                 "facilityName": "Al Udeid Air Base",
                 "facilityType": "AIRBASE",
@@ -80,6 +83,7 @@
         },
         {
             "Type": "Facilities",
+            "tdfFormat": "ztdf",
             "Details": {
                 "facilityName": "FOB Eagle",
                 "facilityType": "FORWARD OPERATING BASE",

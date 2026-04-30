@@ -33,6 +33,7 @@ node_modules/
 COP_venv/
 
 compose/minio-data/
+nifi/sample_data/mission_example/
 
 # Local artifacts / generated
 aws/

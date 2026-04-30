@@ -14,7 +14,8 @@ import MemoryIcon from '@mui/icons-material/Memory';
 import FlightIcon from '@mui/icons-material/Flight';
 import SyncIcon from '@mui/icons-material/Sync';
 import LockIcon from '@mui/icons-material/Lock';
-import { MilitaryManifest, fetchManifestFromS4 } from '@/services/s4Service';
+import { MilitaryManifest, ManifestS4Tags, ManifestFetchResult, fetchManifestFromS4 } from '@/services/s4Service';
+import { ObjectBanner } from '@/components/ObjectBanner';
 import { useAuth } from '@/hooks/useAuth';
 
 // Helper functions
@@ -140,26 +141,34 @@ export const ManifestSection = ({
 interface ManifestDisplayProps {
   manifest: MilitaryManifest;
   compact?: boolean;
+  s4Tags?: ManifestS4Tags;
 }
 
 // Full manifest display component
-export function ManifestDisplay({ manifest, compact = false }: ManifestDisplayProps) {
+export function ManifestDisplay({ manifest, compact = false, s4Tags }: ManifestDisplayProps) {
   return (
     <Box sx={{ mt: compact ? 0 : 1 }}>
-      {/* Classification Banner */}
-      <Box sx={{ 
-        bgcolor: getClassificationBgColor(manifest.documentControl.classification), 
-        color: '#fff', 
-        p: 1.5, 
-        borderRadius: 1, 
-        mb: 1.5, 
-        textAlign: 'center', 
-      }}>
-        <Typography variant="body1" sx={{ fontWeight: 700, letterSpacing: 1 }}>
-          {manifest.documentControl.classification}
-          {/* {manifest.documentControl.caveats.length > 0 && ` // ${manifest.documentControl.caveats.join(' / ')}`} */}
-        </Typography>
-      </Box>
+      {/* Classification Banner — driven by S4 attribute tags when available, else manifest documentControl */}
+      {(() => {
+        const shortLabel = (fqn: string) => fqn.split('/').pop()?.toUpperCase() || '';
+        const classification = s4Tags && s4Tags.classification.length > 0
+          ? s4Tags.classification.map(shortLabel)
+          : [manifest.documentControl.classification.toUpperCase()];
+        const relTo = s4Tags && s4Tags.classification.length > 0
+          ? s4Tags.relTo.map(shortLabel)
+          : manifest.documentControl.caveats.filter(c => c.includes('/attr/relto/')).map(shortLabel);
+        const ntk = s4Tags && s4Tags.classification.length > 0
+          ? s4Tags.ntk.map(shortLabel)
+          : manifest.documentControl.caveats.filter(c => c.includes('/attr/needtoknow/')).map(shortLabel);
+        return (
+          <ObjectBanner
+            objClassification={classification}
+            objNTK={ntk}
+            objRel={relTo}
+            notes={[]}
+          />
+        );
+      })()}
 
       {/* Document Control */}
       <ManifestSection title="Document Control" icon={SecurityIcon} defaultExpanded>
@@ -289,11 +298,12 @@ export function ManifestDisplay({ manifest, compact = false }: ManifestDisplayPr
 interface ManifestLoaderProps {
   manifestUri?: string;
   manifest: MilitaryManifest | null;
-  onManifestLoaded: (manifest: MilitaryManifest) => void;
+  onManifestLoaded: (result: ManifestFetchResult) => void;
   compact?: boolean;
+  s4Tags?: ManifestS4Tags;
 }
 
-export function ManifestLoader({ manifestUri, manifest, onManifestLoaded, compact = false }: ManifestLoaderProps) {
+export function ManifestLoader({ manifestUri, manifest, onManifestLoaded, compact = false, s4Tags }: ManifestLoaderProps) {
   const { user } = useAuth();
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -356,7 +366,7 @@ export function ManifestLoader({ manifestUri, manifest, onManifestLoaded, compac
       </Box>
 
       {/* Manifest Display */}
-      {manifest && <ManifestDisplay manifest={manifest} compact={compact} />}
+      {manifest && <ManifestDisplay manifest={manifest} compact={compact} s4Tags={s4Tags} />}
 
       {/* Loading indicator */}
       {isSyncing && !manifest && (

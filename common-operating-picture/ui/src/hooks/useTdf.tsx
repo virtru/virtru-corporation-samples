@@ -59,7 +59,7 @@ export function useTDF() {
 
   const encryptNano = async (plaintext: string, attrs: string[]): Promise<ArrayBuffer> => {
     const dsp = await initializeClient();
-    const tdfPayload = await dsp.createNanoTDF({
+    const tdfPayload = await dsp.createTDF({
       source: stringToSource(plaintext),
       attributes: attrs,
     });
@@ -68,7 +68,7 @@ export function useTDF() {
 
   const encryptZTDF = async (plaintext: string, attrs: string[]): Promise<ArrayBuffer> => {
     const dsp = await initializeClient();
-    const tdfPayload = await dsp.createZTDF({
+    const tdfPayload = await dsp.createTDF({
       source: stringToSource(plaintext),
       attributes: attrs,
     });

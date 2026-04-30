@@ -13,7 +13,7 @@ import { VehiclePopOutResponse } from '@/components/Map/Vehicle';
 import { ObjectBanner } from '@/components/ObjectBanner';
 import { extractValues } from '@/contexts/BannerContext';
 import { ManifestDisplay, ManifestLoader } from '@/components/ManifestDisplay';
-import { MilitaryManifest } from '@/services/s4Service';
+import { MilitaryManifest, ManifestS4Tags, ManifestFetchResult } from '@/services/s4Service';
 import { SourceTypeProvider } from './SourceTypeProvider';
 import { TdfObjectResult } from './TdfObjectResult';
 
@@ -45,6 +45,12 @@ export function VehicleDetailSidebar({
   const [manifest, setManifest] = useState<MilitaryManifest | null>(
     vehicle.manifest || null,
   );
+  const [s4Tags, setS4Tags] = useState<ManifestS4Tags | null>(null);
+
+  const handleManifestLoaded = ({ manifest, s4Tags }: ManifestFetchResult) => {
+    setManifest(manifest);
+    setS4Tags(s4Tags);
+  };
 
   const data = vehicle.decryptedData;
 
@@ -161,12 +167,13 @@ export function VehicleDetailSidebar({
         {vehicle.manifest ? (
           <ManifestDisplay manifest={vehicle.manifest} />
         ) : manifest ? (
-          <ManifestDisplay manifest={manifest} />
+          <ManifestDisplay manifest={manifest} s4Tags={s4Tags ?? undefined} />
         ) : (
           <ManifestLoader
             manifestUri={vehicle.manifestUri}
             manifest={manifest}
-            onManifestLoaded={setManifest}
+            onManifestLoaded={handleManifestLoaded}
+            s4Tags={s4Tags ?? undefined}
           />
         )}
 
