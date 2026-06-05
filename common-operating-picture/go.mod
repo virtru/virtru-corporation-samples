@@ -53,9 +53,7 @@ require (
 	github.com/sigstore/rekor-tiles/v2 v2.0.1 // indirect
 	github.com/sigstore/timestamp-authority/v2 v2.0.6 // indirect
 	github.com/transparency-dev/formats v0.0.0-20251017110053-404c0d5b696c // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.38.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.38.0 // indirect
-	go.yaml.in/yaml/v2 v2.4.2 // indirect
+	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 )
 
@@ -153,7 +151,7 @@ require (
 	github.com/go-openapi/strfmt v0.26.1 // indirect
 	github.com/go-openapi/swag v0.25.5 // indirect
 	github.com/go-openapi/validate v0.25.2 // indirect
-	github.com/go-piv/piv-go/v2 v2.3.0 // indirect
+	github.com/go-piv/piv-go/v2 v2.5.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
@@ -177,7 +175,7 @@ require (
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gowebpki/jcs v1.0.1 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.3 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.4 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
@@ -212,7 +210,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.66.1 // indirect
+	github.com/prometheus/common v0.67.5 // indirect
 	github.com/prometheus/procfs v0.17.0 // indirect
 	github.com/protocolbuffers/txtpbfmt v0.0.0-20241112170944-20d2c9ebc01d // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
@@ -221,7 +219,7 @@ require (
 	github.com/secure-systems-lab/go-securesystemslib v0.10.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shibumi/go-pathspec v1.3.0 // indirect
-	github.com/sigstore/fulcio v1.6.6 // indirect
+	github.com/sigstore/fulcio v1.8.5 // indirect
 	github.com/sigstore/protobuf-specs v0.5.0 // indirect
 	github.com/sigstore/rekor v1.5.0 // indirect
 	github.com/sigstore/sigstore v1.10.5 // indirect
