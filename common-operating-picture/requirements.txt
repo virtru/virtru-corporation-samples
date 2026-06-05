@@ -9,7 +9,7 @@ pip_system_certs==5.3
 protogen==0.3.1
 psycopg2-binary==2.9.11
 pyarrow==22.0.0
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 python_opensky==1.0.1
 shapely==2.1.2
 SQLAlchemy==2.0.44
